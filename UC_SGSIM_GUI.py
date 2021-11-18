@@ -373,7 +373,7 @@ class UC_SGSIM():
         Z=pool.starmap(UC_SGSIM.Variogram,zip(temp,L,hs,bw))
         Vario=np.array(Z).T
         fig4.clear()
-        f4=fig4.add_subplot(111,title="Variogram",xlabel='Distance (m)',ylabel='Variance')
+        f4=fig4.add_subplot(111,title="Variogram",xlabel='Distance (m)',ylabel='Variogram')
         f4.plot(Vario,alpha=0.2)
         f4.plot(self.Var_model(self.hs,self.model,self.a),'o',markeredgecolor='k',markerfacecolor='w',label='Theoritical variogram')
         f4.grid(alpha=0.3)
