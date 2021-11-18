@@ -23,7 +23,6 @@ This is a stochastic process based on the geostatistc algorithm. This project co
 
 
 ## Efficiency Comparison
-------------------------
 <p align="center">
 <img src="https://github.com/Zncl2222/Stochastic_SGSIM/blob/main/figure/C_Cpp_py_comparision.png"  width="70%"/>
 </p>
