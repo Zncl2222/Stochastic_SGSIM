@@ -83,7 +83,12 @@ class UC_SGSIM():
             return C0*( 1.5*h/a - 0.5*(h/a)**3.0 )
         else:
             return C0
+    
+    def Exponential(h, a, C0):
 
+        x = C0*(1-np.exp(-3*h/a))
+        
+        return x
 
 
     def Cov_model( Y, model,a,C0=1 ):
@@ -346,6 +351,10 @@ class UC_SGSIM():
         elif self.model==UC_SGSIM.Spherical:
             
             Str_model="Spherical"
+                    
+        elif self.model==UC_SGSIM.Exponential:
+            
+            Str_model="Exponential"
         
         model_len=self.end-self.start+1
         
@@ -488,6 +497,10 @@ if __name__=='__main__':
 
             elif model_Select.get()=="Spherical":
                 model=UC_SGSIM.Spherical
+
+            elif model_Select.get()=="Exponential":
+                model=UC_SGSIM.Exponential
+           
 
             C1=UC_SGSIM(0,end,1,model,hs,bw,nR,a,C0,randomseed,mean,std)
 
@@ -652,7 +665,7 @@ if __name__=='__main__':
 
     number = tk.StringVar()
     model_Select= ttk.Combobox(tab_main, width=12, textvariable=number, state='readonly')
-    model_Select['values'] = ["Gaussian","Spherical"]
+    model_Select['values'] = ["Gaussian","Spherical","Exponential"]
     model_Select.place(x=250,y=250)      
     model_Select.current(0)
 
