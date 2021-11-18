@@ -26,3 +26,25 @@ This is a stochastic process based on the geostatistc algorithm. This project co
 <p align="center">
 <img src="https://github.com/Zncl2222/Stochastic_SGSIM/blob/main/figure/C_Cpp_py_comparision.png"  width="70%"/>
 </p>
+
+```
+Parameters for testing:
+
+model len = 150
+
+number of realizations = 1000
+
+Range scale = 17.32
+
+Variogram model = Gaussian model
+
+---------------------------------------------------------------------------------------
+
+Testing platform:
+
+CPU: AMD Ryzen 9 4900 hs
+
+RAM: DDR4 - 3200 40GB (Dual channel 16GB)
+
+Disk: WD SN530
+```
