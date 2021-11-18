@@ -473,8 +473,8 @@ if __name__=='__main__':
             global C1
             end=int(modellen_entry.get())
                 
-            bw=1
-            hs=np.arange(0,30,bw)
+            bw=int(Lagsteps_entry.get())
+            hs=np.arange(0,int(Laglen_entry.get()),bw)
             nR=int(nR_entry.get())
             a=float(a_entry.get())
             C0=1
@@ -600,16 +600,24 @@ if __name__=='__main__':
     init_randomseed_entry.insert(0,"1321")
     init_randomseed_entry.place(x=250,y=200,width=200)
 
+    Laglen_entry=ttk.Entry(tab_main)
+    Laglen_entry.insert(0,"35")
+    Laglen_entry.place(x=250,y=250,width=90)
+    
+    Lagsteps_entry=ttk.Entry(tab_main)
+    Lagsteps_entry.insert(0,"1")
+    Lagsteps_entry.place(x=360,y=250,width=90)
+
     dir_entry=ttk.Entry(tab_main)
-    dir_entry.place(x=250,y=350,width=200)
+    dir_entry.place(x=250,y=400,width=200)
 
     mean_entry=ttk.Entry(tab_main)
     mean_entry.insert(0,"0")
-    mean_entry.place(x=250,y=400,width=200)
+    mean_entry.place(x=250,y=450,width=200)
 
     std_entry=ttk.Entry(tab_main)
     std_entry.insert(0,"1")
-    std_entry.place(x=250,y=450,width=200)
+    std_entry.place(x=250,y=500,width=200)
 
 
     option1_Label=ttk.Label(tab_main,text="Simulation Options", foreground='white',font='24')
@@ -628,37 +636,40 @@ if __name__=='__main__':
     seed_Label=ttk.Label(tab_main,text="Initial seed")
     seed_Label.place(x=50,y=200)
 
+    Lag_Label=ttk.Label(tab_main,text="Lag len/steps")
+    Lag_Label.place(x=50,y=250)
+
     model_label=ttk.Label(tab_main,text="Variogram model")
-    model_label.place(x=50,y=250)
+    model_label.place(x=50,y=300)
 
     option2_Label=ttk.Label(tab_main,text="  Data Options  ", foreground='white',font='24')
-    option2_Label.place(x=200,y=300)
+    option2_Label.place(x=200,y=350)
 
     dir_Label=ttk.Label(tab_main,text="Path for saving data")
-    dir_Label.place(x=50,y=350)
+    dir_Label.place(x=50,y=400)
 
     Mean_Label=ttk.Label(tab_main,text="Mean Value")
-    Mean_Label.place(x=50,y=400)
+    Mean_Label.place(x=50,y=450)
 
     std_Label=ttk.Label(tab_main,text="Standard deviation")
-    std_Label.place(x=50,y=450)
+    std_Label.place(x=50,y=500)
 
     ncore_Label=ttk.Label(tab_main,text="CPUs number")
-    ncore_Label.place(x=50,y=500)
+    ncore_Label.place(x=50,y=550)
 
     Data_Label=ttk.Label(tab_main,text="")
-    Data_Label.place(x=50,y=550)
+    Data_Label.place(x=50,y=600)
 
 
     
     run_button = ttk.Button(tab_main, text='Run', command=lambda:drive(0))
-    run_button.place(x=150,y=620,height=30,width=130)
+    run_button.place(x=150,y=670,height=30,width=130)
 
     var_button = ttk.Button(tab_main, text='Variogram plot', command=lambda:drive(1))
-    var_button.place(x=300,y=620,height=30,width=130)
+    var_button.place(x=300,y=670,height=30,width=130)
 
     save_button = ttk.Button(tab_main, text='Save', command=save)
-    save_button.place(x=225,y=670,height=30,width=130)
+    save_button.place(x=225,y=720,height=30,width=130)
 
 
 
@@ -666,13 +677,13 @@ if __name__=='__main__':
     number = tk.StringVar()
     model_Select= ttk.Combobox(tab_main, width=12, textvariable=number, state='readonly')
     model_Select['values'] = ["Gaussian","Spherical","Exponential"]
-    model_Select.place(x=250,y=250)      
+    model_Select.place(x=250,y=300)      
     model_Select.current(0)
 
     number2 = tk.StringVar()
     Select= ttk.Combobox(tab_main, width=12, textvariable=number2, state='readonly')
     Select['values'] = clist
-    Select.place(x=250,y=500)      
+    Select.place(x=250,y=550)      
     Select.current(0)
 
 
