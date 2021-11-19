@@ -397,7 +397,10 @@ class UC_SGSIM():
 
     def Savedata(self,path):
         
-        os.mkdir(path+"\\UC_SGSIM_Realizations")
+        try:
+            os.mkdir(path+"\\UC_SGSIM_Realizations")
+        except:
+            print("Folder has already existed")
 
         time.sleep(1)
         
@@ -420,7 +423,7 @@ class UC_SGSIM():
 
                 for j in range(0, mlen):
 
-                    print('%.2d' %(j) ,'%10.6f' %(self.RandomField[j,i]), file=f)
+                    print('%.2d' %(j) ,'%.12f' %(self.RandomField[j,i]*self.std+self.mean), file=f)
 
     def Progress_start(self):
         import time
@@ -465,12 +468,19 @@ if __name__=='__main__':
 
     style = th.ThemedStyle(root)
     style.set_theme("black")
+
+    #root.tk.call('source',r'C:\Users\3002shinning\Downloads\awthemes-10.4.0\awthemes-10.4.0\demottk.tcl')
+    #style.theme_use('awdark')
+    #root.tk.call('source',r'C:\Users\3002shinning\Downloads\Sun-Valley-ttk-theme-master\Sun-Valley-ttk-theme-master\sun-valley.tcl')
+    #root.tk.call("set_theme", "dark")
+    #root.tk.call('source', r'C:\Users\3002shinning\Downloads\Azure-ttk-theme-main\Azure-ttk-theme-main\\azure.tcl')
+    #root.tk.call("set_theme", "light")
         
     def drive(pjudge):
-
+        global C1
         if pjudge==0:
 
-            global C1
+            
             end=int(modellen_entry.get())
                 
             bw=int(Lagsteps_entry.get())
@@ -524,10 +534,11 @@ if __name__=='__main__':
 
     def save():
             
-        try:
-            C1.Savedata(dir_entry.get())
-        except NameError as C1:
-            tk.messagebox.showerror(title = 'Error',message="Please run the simulation first")
+        C1.Savedata(dir_entry.get())  
+        #try:
+            #C1.Savedata(dir_entry.get())
+        #except NameError as C1:
+            #tk.messagebox.showerror(title = 'Error',message="Please run the simulation first")
 
 
     tab_main=ttk.Notebook()
