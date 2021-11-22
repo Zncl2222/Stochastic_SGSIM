@@ -40,7 +40,7 @@ class UC_SGSIM():
         self.RandomField=np.empty([self.end-self.start+1,self.nR])
         self.mean=mean
         self.std=std
-    
+            
     def Variogram(self,L, hs, bw):
 
         dist=squareform(pdist(L[:,:1]))
@@ -257,6 +257,7 @@ class UC_SGSIM():
         
     def Simulation_Parallel(self,n_thread):
         self.judge=0
+        self.nCPUS=n_thread
         # initialize the map list for parallel computation
         pool = Pool(processes=n_thread)
 
@@ -276,7 +277,8 @@ class UC_SGSIM():
             randomseed.append(int(s))
 
         Z=pool.starmap(UC_SGSIM.Simulation_P,zip(start,end,grid_size,model,hs,bw,nR,a,C0,randomseed))
-        print(np.max(Z))
+        
+
         if np.max(Z)==0:
             warning=tk.messagebox.showerror(title = 'Error',message="Diverge (Please check the range scale and the model len)")
             self.judge=2
@@ -396,7 +398,7 @@ class UC_SGSIM():
         print('Time = ', end_time-start_time,'s')
 
     def Savedata(self,path):
-        
+
         try:
             os.mkdir(path+"\\UC_SGSIM_Realizations")
         except:
@@ -407,6 +409,23 @@ class UC_SGSIM():
         path=path+"\\UC_SGSIM_Realizations\\"
         
         mlen=self.end-self.start+1
+   
+        with open(path+"ParameterSettings.txt",'w') as ff:
+
+            print(mlen," #Model len", file=ff)
+            print(self.a," #Effective range",file=ff)
+            if self.model==UC_SGSIM.Gaussian:
+                print("Gaussian #Variogram model",file=ff)
+            elif self.model==UC_SGSIM.Spherical:
+                print("Spherical #Variogram model",file=ff)
+            elif self.model==UC_SGSIM.Exponential:
+                print("Exponential #Variogram model",file=ff)
+            print(self.nR," #Number of Realizations", file=ff)
+            print(self.randomseed," #Number of initial seed",file=ff)
+            print(self.nCPUS," #Number of CPUs",file=ff)
+            print(self.mean," #Mean",file=ff)
+            print(self.std," #Standard deviation",file=ff)
+            
         
         for i in range(self.nR):
             
@@ -446,6 +465,129 @@ class UC_SGSIM():
             Data_Label["text"]="Done"
             Data_Label["background"]='orange'
 
+class Validation():
+
+    
+
+    def __init__(self,path,n_thread,hs,bw):
+        self.path=path
+        self.n_thread=n_thread
+        self.hs=hs
+        self.bw=bw
+
+
+    def Validate(self):
+        import pandas as pd
+        tempa=pd.read_table(self.path+"\\UC_SGSIM_Realizations\\ParameterSettings.txt",header=None,sep='#')
+
+        self.mlen=int(tempa.iloc[0,0])
+        self.a=float(tempa.iloc[1,0])
+        model=tempa.iloc[2,0]
+        print(model)
+        print(type(model))
+        if model=="Gaussian ":
+            self.model=UC_SGSIM.Gaussian
+        elif model=="Spherical ":
+            self.model=UC_SGSIM.Spherical
+        elif model=="Expenoential ":
+            self.model=UC_SGSIM.Exponential
+        self.nR=int(tempa.iloc[3,0])
+        self.mean=float(tempa.iloc[6,0])
+        self.std=float(tempa.iloc[7,0])
+        print(self.model)
+
+        self.RandomField=np.zeros([self.mlen,self.nR])
+
+        for i in range(self.nR):
+
+            if i<10:
+                number='000'+str(i)
+            elif 10<=i<100:
+                number='00'+str(i)
+            elif 100<=i<1000:
+                number='0'+str(i)
+            elif i>=1000:
+                number=str(i)
+
+            Z=pd.read_table(self.path+"\\UC_SGSIM_Realizations\\Realizations"+number+".txt",header=None,sep=' ')
+            
+            self.RandomField[:,i]=Z.iloc[:,1]
+        
+        
+        fig3.clear()
+        f3=fig3.add_subplot(111,title="Realizations(validation)",xlabel='Distance (m)',ylabel='Y')
+        f3.plot(self.RandomField*self.std+self.mean)
+        f3.grid(alpha=0.3)
+        f3.axhline(y=self.mean, color='r', linestyle='--',zorder=1)
+        canvas3.draw_idle()
+        
+        #--------------------------------------Statistic Plot-----------------------------------------
+
+        Zmean=np.zeros(len(self.RandomField[:,0]))
+
+        for i in range(len(self.RandomField[:,0])):
+
+            Zmean[i]=np.mean(self.RandomField[i,:]*self.std+self.mean)
+        
+        fig.clear()
+        f1=fig.add_subplot(111,title="Mean(validation)",xlabel='Distance (m)',ylabel='Mean')#.plot(Zmean,'-o',color='k',markeredgecolor='k',markerfacecolor='r')
+        f1.plot(Zmean,'-o',color='k',markeredgecolor='k',markerfacecolor='r')
+        f1.grid(alpha=0.3)
+        f1.axhline(y=self.mean, color='r', linestyle='--',zorder=1)
+        canvas.draw_idle()
+
+        Zvar=np.zeros(len(self.RandomField[:,0]))
+
+        for i in range(len(self.RandomField[:,0])):
+
+            Zvar[i]=np.var(self.RandomField[i,:]*self.std)
+
+        fig2.clear()
+        f2=fig2.add_subplot(111,title="Variance(validation)",xlabel='Distance (m)',ylabel='Variance')
+        f2.plot(Zvar,'-o',color='k',markeredgecolor='k',markerfacecolor='b')
+        f2.grid(alpha=0.3)
+        f2.axhline(y=self.std**2, color='b', linestyle='--',zorder=1)
+        canvas2.draw_idle()
+
+        #----------------------------------Variogram Plot--------------------------------------------
+
+        pool = Pool(processes=self.n_thread)
+        
+        Vario=np.zeros([len(self.hs),self.nR])
+        
+        x=np.linspace(0,self.mlen-1,self.mlen).reshape(self.mlen,1)
+        
+        hs=[];bw=[];temp=[];L=[]
+        
+        for i in range(self.nR):
+            temp.append(0)
+            L.append(np.hstack([x,self.RandomField[:,i].reshape(self.mlen,1)]))
+            hs.append(self.hs)
+            bw.append(self.bw)
+            
+        Z=pool.starmap(UC_SGSIM.Variogram,zip(temp,L,hs,bw))
+        Vario=np.array(Z).T
+        fig4.clear()
+        f4=fig4.add_subplot(111,title="Variogram(validation)",xlabel='Distance (m)',ylabel='Variogram')
+        f4.plot(Vario,alpha=0.2)
+        f4.plot(UC_SGSIM.Var_model(0,self.hs,self.model,self.a),'o',markeredgecolor='k',markerfacecolor='w',label='Theoritical variogram')
+        f4.grid(alpha=0.3)
+        f4.axhline(y=1, color='r', linestyle='--',zorder=1)
+        
+        
+        Vario_mean=np.zeros(len(self.hs))
+        
+        for i in range(len(self.hs)):
+            
+            Vario_mean[i]=np.mean(Vario[i,:])
+            
+        f4.plot(Vario_mean,'--',color='blue',label='Mean variogram')
+        f4.legend()
+        canvas4.draw_idle()
+
+
+
+
 
 
 if __name__=='__main__':
@@ -469,6 +611,8 @@ if __name__=='__main__':
     style = th.ThemedStyle(root)
     style.set_theme("black")
 
+
+
     #root.tk.call('source',r'C:\Users\3002shinning\Downloads\awthemes-10.4.0\awthemes-10.4.0\demottk.tcl')
     #style.theme_use('awdark')
     #root.tk.call('source',r'C:\Users\3002shinning\Downloads\Sun-Valley-ttk-theme-master\Sun-Valley-ttk-theme-master\sun-valley.tcl')
@@ -479,10 +623,8 @@ if __name__=='__main__':
     def drive(pjudge):
         global C1
         if pjudge==0:
-
             
             end=int(modellen_entry.get())
-                
             bw=int(Lagsteps_entry.get())
             hs=np.arange(0,int(Laglen_entry.get()),bw)
             nR=int(nR_entry.get())
@@ -490,7 +632,6 @@ if __name__=='__main__':
             C0=1
             randomseed=int(init_randomseed_entry.get())
             n_thread=int(Select.get())
-
             mean=float(mean_entry.get())
             std=float(std_entry.get())
             warning=0
@@ -523,8 +664,6 @@ if __name__=='__main__':
             if int(nR_entry.get())%int(Select.get()) !=0:
                 tk.messagebox.showerror(title = 'Error',message="Realization number should be divided evenly by the CPUs number")
                 return 0
-
-            
             try:
                 GUI_thread.thread(C1.Progress_start)
                 GUI_thread.thread(C1.Variogram_Plot_P,int(Select.get()))
@@ -533,28 +672,40 @@ if __name__=='__main__':
 
 
     def save():
-            
         C1.Savedata(dir_entry.get())  
         #try:
             #C1.Savedata(dir_entry.get())
         #except NameError as C1:
             #tk.messagebox.showerror(title = 'Error',message="Please run the simulation first")
+    def validate():
+
+        global C2
+        bw=int(Lagsteps_entry.get())
+        hs=np.arange(0,int(Laglen_entry.get()),bw)
+        C2=Validation(dir_entry.get(),int(Select.get()),hs,bw)
+        GUI_thread.thread(C2.Validate)
 
 
     tab_main=ttk.Notebook()
     tab_main.place(relx=0,rely=0,relwidth=1,relheight=1)
-            
 
-    Plot1=ttk.Notebook()
+    tab1=ttk.Frame(tab_main)
+    tab1.place(x=0,y=30)
+    tab_main.add(tab1,text='Simulation')
+
+            
+    #---------------------------------------- Simulation GUI----------------------------------------
+
+    Plot1=ttk.Notebook(tab1)
     Plot1.place(x=500,y=25,width=500,height=400)
 
-    Plot2=ttk.Notebook()
+    Plot2=ttk.Notebook(tab1)
     Plot2.place(x=500,y=450,width=500,height=400)
 
-    Plot3=ttk.Notebook()
+    Plot3=ttk.Notebook(tab1)
     Plot3.place(x=1050,y=25,width=500,height=400)
 
-    Plot4=ttk.Notebook()
+    Plot4=ttk.Notebook(tab1)
     Plot4.place(x=1050,y=450,width=500,height=400)
 
     global fig,fig2,fig3,fig4,canvas,canvas2,canvas3,canvas4
@@ -595,104 +746,107 @@ if __name__=='__main__':
     fig4.add_subplot(111,title="Variogram",xlabel='Lag dist',ylabel='Variogram')
     canvas4.draw_idle()
 
-    modellen_entry=ttk.Entry(tab_main)
+    modellen_entry=ttk.Entry(tab1)
     modellen_entry.insert(0,"150")
     modellen_entry.place(x=250,y=50,width=200)
 
-    nR_entry=ttk.Entry(tab_main)
+    nR_entry=ttk.Entry(tab1)
     nR_entry.insert(0,"10")
     nR_entry.place(x=250,y=100,width=200)
 
-    a_entry=ttk.Entry(tab_main)
+    a_entry=ttk.Entry(tab1)
     a_entry.insert(0,"17.32")
     a_entry.place(x=250,y=150,width=200)
 
-    init_randomseed_entry=ttk.Entry(tab_main)
+    init_randomseed_entry=ttk.Entry(tab1)
     init_randomseed_entry.insert(0,"1321")
     init_randomseed_entry.place(x=250,y=200,width=200)
 
-    Laglen_entry=ttk.Entry(tab_main)
+    Laglen_entry=ttk.Entry(tab1)
     Laglen_entry.insert(0,"35")
     Laglen_entry.place(x=250,y=250,width=90)
     
-    Lagsteps_entry=ttk.Entry(tab_main)
+    Lagsteps_entry=ttk.Entry(tab1)
     Lagsteps_entry.insert(0,"1")
     Lagsteps_entry.place(x=360,y=250,width=90)
 
-    dir_entry=ttk.Entry(tab_main)
+    dir_entry=ttk.Entry(tab1)
     dir_entry.place(x=250,y=400,width=200)
 
-    mean_entry=ttk.Entry(tab_main)
+    mean_entry=ttk.Entry(tab1)
     mean_entry.insert(0,"0")
     mean_entry.place(x=250,y=450,width=200)
 
-    std_entry=ttk.Entry(tab_main)
+    std_entry=ttk.Entry(tab1)
     std_entry.insert(0,"1")
     std_entry.place(x=250,y=500,width=200)
 
 
-    option1_Label=ttk.Label(tab_main,text="Simulation Options", foreground='white',font='24')
+    option1_Label=ttk.Label(tab1,text="Simulation Options", foreground='white',font='24')
     option1_Label.place(x=200,y=15)
 
-    modellen_Label=ttk.Label(tab_main,text="Model len")
+    modellen_Label=ttk.Label(tab1,text="Model len")
     modellen_Label.place(x=50,y=50)
 
 
-    nR_Label=ttk.Label(tab_main,text="Number of Realization")
+    nR_Label=ttk.Label(tab1,text="Number of Realization")
     nR_Label.place(x=50,y=100)
 
-    a_Label=ttk.Label(tab_main,text="Effective range")
+    a_Label=ttk.Label(tab1,text="Effective range")
     a_Label.place(x=50,y=150)
 
-    seed_Label=ttk.Label(tab_main,text="Initial seed")
+    seed_Label=ttk.Label(tab1,text="Initial seed")
     seed_Label.place(x=50,y=200)
 
-    Lag_Label=ttk.Label(tab_main,text="Lag len/steps")
+    Lag_Label=ttk.Label(tab1,text="Lag len/steps")
     Lag_Label.place(x=50,y=250)
 
-    model_label=ttk.Label(tab_main,text="Variogram model")
+    model_label=ttk.Label(tab1,text="Variogram model")
     model_label.place(x=50,y=300)
 
-    option2_Label=ttk.Label(tab_main,text="  Data Options  ", foreground='white',font='24')
+    option2_Label=ttk.Label(tab1,text="  Data Options  ", foreground='white',font='24')
     option2_Label.place(x=200,y=350)
 
-    dir_Label=ttk.Label(tab_main,text="Path for saving data")
+    dir_Label=ttk.Label(tab1,text="Path for saving data")
     dir_Label.place(x=50,y=400)
 
-    Mean_Label=ttk.Label(tab_main,text="Mean Value")
+    Mean_Label=ttk.Label(tab1,text="Mean Value")
     Mean_Label.place(x=50,y=450)
 
-    std_Label=ttk.Label(tab_main,text="Standard deviation")
+    std_Label=ttk.Label(tab1,text="Standard deviation")
     std_Label.place(x=50,y=500)
 
-    ncore_Label=ttk.Label(tab_main,text="CPUs number")
+    ncore_Label=ttk.Label(tab1,text="CPUs number")
     ncore_Label.place(x=50,y=550)
 
-    Data_Label=ttk.Label(tab_main,text="")
+    Data_Label=ttk.Label(tab1,text="")
     Data_Label.place(x=50,y=600)
 
 
     
-    run_button = ttk.Button(tab_main, text='Run', command=lambda:drive(0))
+    run_button = ttk.Button(tab1, text='Run', command=lambda:drive(0))
     run_button.place(x=150,y=670,height=30,width=130)
 
-    var_button = ttk.Button(tab_main, text='Variogram plot', command=lambda:drive(1))
+    var_button = ttk.Button(tab1, text='Variogram plot', command=lambda:drive(1))
     var_button.place(x=300,y=670,height=30,width=130)
 
-    save_button = ttk.Button(tab_main, text='Save', command=save)
+    save_button = ttk.Button(tab1, text='Save', command=save)
     save_button.place(x=225,y=720,height=30,width=130)
+
+    validate_button = ttk.Button(tab1, text='Validate', command=validate)
+    validate_button.place(x=225,y=770,height=30,width=130)
 
 
 
 
     number = tk.StringVar()
-    model_Select= ttk.Combobox(tab_main, width=12, textvariable=number, state='readonly')
+    model_Select= ttk.Combobox(tab1, width=12, textvariable=number, state='readonly')
     model_Select['values'] = ["Gaussian","Spherical","Exponential"]
     model_Select.place(x=250,y=300)      
     model_Select.current(0)
 
     number2 = tk.StringVar()
-    Select= ttk.Combobox(tab_main, width=12, textvariable=number2, state='readonly')
+    Select= ttk.Combobox(tab1, width=12, textvariable=number2, state='readonly')
     Select['values'] = clist
     Select.place(x=250,y=550)      
     Select.current(0)
