@@ -391,6 +391,7 @@ int main(void)
     fprintf(Para_output,"1 #Number of CPUs\n");
     fprintf(Para_output,"0 #Mean\n");
     fprintf(Para_output,"1 #Standard deviation\n");
+    fprintf(Para_output,"C #Programming language\n");
  
     fclose (Para_output); 
 
