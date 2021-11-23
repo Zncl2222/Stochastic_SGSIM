@@ -507,9 +507,11 @@ class Validation():
                 number='0'+str(i)
             elif i>=1000:
                 number=str(i)
-
-            Z=pd.read_table(self.path+"\\Realizations"+number+".txt",header=None,sep=' ')
-            
+            try:
+                Z=pd.read_table(self.path+"\\Realizations"+number+".txt",header=None,sep=' ')
+            except:
+                Z=pd.read_table(self.path+"\\Realizations"+str(i)+".txt",header=None,sep='\s+')
+            print(Z)
             self.RandomField[:,i]=Z.iloc[:,1]
         
         fig3.clear()
@@ -855,9 +857,6 @@ if __name__=='__main__':
 
     validate_button = ttk.Button(tab1, text='Validate', command=validate)
     validate_button.place(x=225,y=770,height=30,width=130)
-
-
-
 
     number = tk.StringVar()
     model_Select= ttk.Combobox(tab1, width=12, textvariable=number, state='readonly')
