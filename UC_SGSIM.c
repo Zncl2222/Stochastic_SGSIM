@@ -27,7 +27,8 @@ double**deter_temp,**fac_temp,** b_temp,**inverse,**b_temp2,**b,**datacov_temp,*
 
 
 FILE *output;
-char fhead[]="R";
+FILE *Para_output;
+char fhead[]="Realizations";
 char ftail[]=".txt";
 char path[]="./Realizations/";
 char number1[10];
@@ -380,7 +381,18 @@ int main(void)
 
     _mkdir(Folder);
 
-
+    Para_output= fopen ("./Realizations/ParameterSettings.txt", "w");
+    
+    fprintf(Para_output,"%d #Model len\n",mlen);
+    fprintf(Para_output,"%f #Effective range\n",a);
+    fprintf(Para_output,"Gaussian #Variogram model\n");
+    fprintf(Para_output,"%d #Number of Realizations\n",nR);
+    fprintf(Para_output,"%d #Initial seed\n",seed);
+    fprintf(Para_output,"1 #Number of CPUs\n");
+    fprintf(Para_output,"0 #Mean\n");
+    fprintf(Para_output,"1 #Standard deviation\n");
+ 
+    fclose (Para_output); 
 
     char fullname[strlen(path)+strlen(ftail)+strlen(fhead)+strlen(number1)];
     
