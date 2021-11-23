@@ -425,6 +425,7 @@ class UC_SGSIM():
             print(self.nCPUS," #Number of CPUs",file=ff)
             print(self.mean," #Mean",file=ff)
             print(self.std," #Standard deviation",file=ff)
+            print("Python #Programming language",file=ff)
             
         
         for i in range(self.nR):
@@ -507,11 +508,12 @@ class Validation():
                 number='0'+str(i)
             elif i>=1000:
                 number=str(i)
-            try:
+            if tempa.iloc[8,0]=="Python ":
                 Z=pd.read_table(self.path+"\\Realizations"+number+".txt",header=None,sep=' ')
-            except:
-                Z=pd.read_table(self.path+"\\Realizations"+str(i)+".txt",header=None,sep='\s+')
-            print(Z)
+            elif tempa.iloc[8,0]=="C ":
+                Z=pd.read_table(self.path+"\\Realizations"+str(i)+".txt",header=None,sep='\t')
+ 
+            
             self.RandomField[:,i]=Z.iloc[:,1]
         
         fig3.clear()
