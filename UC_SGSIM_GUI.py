@@ -467,18 +467,17 @@ class UC_SGSIM():
 
 class Validation():
 
-    
-
     def __init__(self,path,n_thread,hs,bw):
         self.path=path
         self.n_thread=n_thread
         self.hs=hs
         self.bw=bw
 
-
     def Validate(self):
+
+        self.judge=0
         import pandas as pd
-        tempa=pd.read_table(self.path+"\\UC_SGSIM_Realizations\\ParameterSettings.txt",header=None,sep='#')
+        tempa=pd.read_table(self.path+"\\ParameterSettings.txt",header=None,sep='#')
 
         self.mlen=int(tempa.iloc[0,0])
         self.a=float(tempa.iloc[1,0])
@@ -509,10 +508,9 @@ class Validation():
             elif i>=1000:
                 number=str(i)
 
-            Z=pd.read_table(self.path+"\\UC_SGSIM_Realizations\\Realizations"+number+".txt",header=None,sep=' ')
+            Z=pd.read_table(self.path+"\\Realizations"+number+".txt",header=None,sep=' ')
             
             self.RandomField[:,i]=Z.iloc[:,1]
-        
         
         fig3.clear()
         f3=fig3.add_subplot(111,title="Realizations(validation)",xlabel='Distance (m)',ylabel='Y')
@@ -584,11 +582,28 @@ class Validation():
         f4.plot(Vario_mean,'--',color='blue',label='Mean variogram')
         f4.legend()
         canvas4.draw_idle()
+        self.judge=1
 
+    def Progress_start(self):
+        import time
 
-
-
-
+        Data_Label["background"]='red'
+        
+        while self.judge==0:
+            Data_Label['text']='Processing.'
+            time.sleep(0.2)
+            Data_Label['text']='Processing..'
+            time.sleep(0.2)
+            Data_Label['text']='Processing...'
+            time.sleep(0.2)
+            Data_Label['text']='Processing....'
+            time.sleep(0.2)
+            Data_Label['text']='Processing.....'
+        if self.judge==2:
+            Data_Label["text"]="Error"
+        elif self.judge==1:
+            Data_Label["text"]="Done"
+            Data_Label["background"]='orange'
 
 if __name__=='__main__':
 
@@ -610,8 +625,6 @@ if __name__=='__main__':
 
     style = th.ThemedStyle(root)
     style.set_theme("black")
-
-
 
     #root.tk.call('source',r'C:\Users\3002shinning\Downloads\awthemes-10.4.0\awthemes-10.4.0\demottk.tcl')
     #style.theme_use('awdark')
@@ -670,19 +683,20 @@ if __name__=='__main__':
             except NameError as C1:
                 tk.messagebox.showerror(title = 'Error',message="Please run the simulation first")
 
-
     def save():
         C1.Savedata(dir_entry.get())  
         #try:
             #C1.Savedata(dir_entry.get())
         #except NameError as C1:
             #tk.messagebox.showerror(title = 'Error',message="Please run the simulation first")
+
     def validate():
 
         global C2
         bw=int(Lagsteps_entry.get())
         hs=np.arange(0,int(Laglen_entry.get()),bw)
-        C2=Validation(dir_entry.get(),int(Select.get()),hs,bw)
+        C2=Validation(validate_entry.get(),int(Select.get()),hs,bw)
+        GUI_thread.thread(C2.Progress_start)
         GUI_thread.thread(C2.Validate)
 
 
@@ -781,6 +795,9 @@ if __name__=='__main__':
     std_entry.insert(0,"1")
     std_entry.place(x=250,y=500,width=200)
 
+    validate_entry=ttk.Entry(tab1)
+    validate_entry.place(x=250,y=550,width=200)
+
 
     option1_Label=ttk.Label(tab1,text="Simulation Options", foreground='white',font='24')
     option1_Label.place(x=200,y=15)
@@ -816,11 +833,14 @@ if __name__=='__main__':
     std_Label=ttk.Label(tab1,text="Standard deviation")
     std_Label.place(x=50,y=500)
 
+    validate_Label=ttk.Label(tab1,text="Data path (Validation)")
+    validate_Label.place(x=50,y=550)
+
     ncore_Label=ttk.Label(tab1,text="CPUs number")
-    ncore_Label.place(x=50,y=550)
+    ncore_Label.place(x=50,y=600)
 
     Data_Label=ttk.Label(tab1,text="")
-    Data_Label.place(x=50,y=600)
+    Data_Label.place(x=50,y=650)
 
 
     
@@ -848,7 +868,7 @@ if __name__=='__main__':
     number2 = tk.StringVar()
     Select= ttk.Combobox(tab1, width=12, textvariable=number2, state='readonly')
     Select['values'] = clist
-    Select.place(x=250,y=550)      
+    Select.place(x=250,y=600)      
     Select.current(0)
 
 
