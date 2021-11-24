@@ -26,7 +26,7 @@ class GUI_thread():
 
 class UC_SGSIM():
     
-    def __init__(self,start,end,grid_size,model,hs,bw,nR,a,C0,randomseed,mean,std):
+    def __init__(self,start,end,grid_size,model,hs,bw,nR,a,C0,randomseed,mean,std,check_boundary):
         self.start=0
         self.end=end
         self.grid_size=grid_size
@@ -40,6 +40,7 @@ class UC_SGSIM():
         self.RandomField=np.empty([self.end-self.start+1,self.nR])
         self.mean=mean
         self.std=std
+        self.check_boundary=check_boundary
             
     def Variogram(self,L, hs, bw):
 
@@ -63,10 +64,7 @@ class UC_SGSIM():
 
                 variogram.append(np.sum(Z)/(2*len(Z)))
 
-
-
         return np.array(variogram)
-
 
 
     def Gaussian(h,a,C0):
@@ -156,14 +154,10 @@ class UC_SGSIM():
         except np.linalg.LinAlgError as err:
             return 9999.9999
 
-            
-
         residuals = (Y[:,1] - meanvalue)
 
         estimation=np.dot(weights.T,residuals)+meanvalue
         #estimation=np.dot(weights.T,Y[:,1])+(1-np.sum(weights))*meanvalue
-
-
         v=np.dot(weights.T,C_dist)
 
         var=float(1-v)
@@ -194,7 +188,7 @@ class UC_SGSIM():
         return np.array(A)
     
     
-    def Simulation_P(start,end,grid_size,model,hs,bw,nR,a,C0,randomseed):
+    def Simulation_P(start,end,grid_size,model,hs,bw,nR,a,C0,randomseed,constrain_boundary):
         
         import numpy as np
         RandomField=np.empty([int(end-start+1),nR])
@@ -202,20 +196,31 @@ class UC_SGSIM():
         counts=0
         warning_count=0
         warning_count2=0
-        
+
         while counts<nR:
             
             u=np.linspace(start,end,end-start+1)
-            
-            np.random.seed(randomseed)
-            first=np.random.randint(start,end,1)
-            k=np.array([first]).reshape(1,1)
-            t=np.random.normal(0,1,1).reshape(1,1)
-            Z = np.zeros(end-start+1)
-            Z[first]=t
-            u=np.delete(u,[first])
-            neigh=0
-            
+
+            if constrain_boundary==False:
+                np.random.seed(randomseed)
+                first=np.random.randint(start,end,1)
+                k=np.array([first]).reshape(1,1)
+                t=np.random.normal(0,1,1).reshape(1,1)
+                Z = np.zeros(end-start+1)
+                Z[first]=t
+                u=np.delete(u,[first])
+                neigh=0
+
+            elif constrain_boundary==True:
+                t=np.random.normal(0,1,2).reshape(2,1)
+                k=np.array([start,end]).reshape(2,1)
+                Z = np.zeros(end-start+1)
+                Z[start]=t[0]
+                Z[end]=t[1]
+                u=np.delete(u,[start,end])
+                print(u)
+                neigh=2
+                
             L=np.hstack([k,t])
             
             randompath=np.random.choice(u,len(u),replace=False)
@@ -241,7 +246,7 @@ class UC_SGSIM():
             Z_Gap=abs(Z.max()-Z.min())
                  
 
-            if 2<Z_Gap<=6.5:
+            if 2<Z_Gap<6 and 0.3<np.var(Z)<5:
                 RandomField[:,counts]=Z
                 counts=counts+1
                 warning_count2=warning_count
@@ -261,7 +266,7 @@ class UC_SGSIM():
         # initialize the map list for parallel computation
         pool = Pool(processes=n_thread)
 
-        start=[];end=[];grid_size=[];model=[];hs=[];bw=[];nR=[];a=[];C0=[];randomseed=[];
+        start=[];end=[];grid_size=[];model=[];hs=[];bw=[];nR=[];a=[];C0=[];randomseed=[];c_boundary=[]
 
         for i in range(n_thread):
             s=self.randomseed+int(i)*(self.nR/n_thread+300)*(self.end-self.start)
@@ -275,8 +280,9 @@ class UC_SGSIM():
             a.append(self.a)
             C0.append(self.C0)
             randomseed.append(int(s))
+            c_boundary.append(self.check_boundary)
 
-        Z=pool.starmap(UC_SGSIM.Simulation_P,zip(start,end,grid_size,model,hs,bw,nR,a,C0,randomseed))
+        Z=pool.starmap(UC_SGSIM.Simulation_P,zip(start,end,grid_size,model,hs,bw,nR,a,C0,randomseed,c_boundary))
         
 
         if np.max(Z)==0:
@@ -482,6 +488,7 @@ class Validation():
 
         self.mlen=int(tempa.iloc[0,0])
         self.a=float(tempa.iloc[1,0])
+    
         model=tempa.iloc[2,0]
         print(model)
         print(type(model))
@@ -492,9 +499,10 @@ class Validation():
         elif model=="Expenoential ":
             self.model=UC_SGSIM.Exponential
         self.nR=int(tempa.iloc[3,0])
+        #self.n_thread=int(tempa.iloc[5,0])
         self.mean=float(tempa.iloc[6,0])
         self.std=float(tempa.iloc[7,0])
-        print(self.model)
+        
 
         self.RandomField=np.zeros([self.mlen,self.nR])
 
@@ -552,7 +560,7 @@ class Validation():
         canvas2.draw_idle()
 
         #----------------------------------Variogram Plot--------------------------------------------
-
+        print(self.n_thread)
         pool = Pool(processes=self.n_thread)
         
         Vario=np.zeros([len(self.hs),self.nR])
@@ -651,6 +659,7 @@ if __name__=='__main__':
             n_thread=int(Select.get())
             mean=float(mean_entry.get())
             std=float(std_entry.get())
+            check=check_boundary.get()
             warning=0
 
             if nR%n_thread !=0:
@@ -670,7 +679,7 @@ if __name__=='__main__':
                 model=UC_SGSIM.Exponential
            
 
-            C1=UC_SGSIM(0,end,1,model,hs,bw,nR,a,C0,randomseed,mean,std)
+            C1=UC_SGSIM(0,end,1,model,hs,bw,nR,a,C0,randomseed,mean,std,check)
 
             GUI_thread.thread(C1.Progress_start)
                 
@@ -872,5 +881,10 @@ if __name__=='__main__':
     Select.place(x=250,y=600)      
     Select.current(0)
 
+    check_boundary=tk.BooleanVar()
+    check_boundary.set(True)
+
+    checkbox=ttk.Checkbutton(tab1,text="Constrain boundary",var=check_boundary)
+    checkbox.place(x=50,y=335)
 
     tk.mainloop()
