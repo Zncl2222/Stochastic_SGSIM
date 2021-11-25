@@ -632,7 +632,6 @@ int main(void)
                 strcat(fullname,n3);
             }
             
-
             strcat(fullname,number1);
             strcat(fullname,ftail);   
             
