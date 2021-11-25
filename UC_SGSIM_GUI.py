@@ -381,7 +381,7 @@ class UC_SGSIM():
         Z=pool.starmap(UC_SGSIM.Variogram,zip(temp,L,hs,bw))
         Vario=np.array(Z).T
         fig4.clear()
-        f4=fig4.add_subplot(111,title="Variogram",xlabel='Distance (m)',ylabel='Variogram')
+        f4=fig4.add_subplot(111,title="Normalized Variogram",xlabel='Distance (m)',ylabel='Variogram')
         f4.plot(Vario,alpha=0.2)
         f4.plot(self.Var_model(self.hs,self.model,self.a),'o',markeredgecolor='k',markerfacecolor='w',label='Theoritical variogram')
         f4.grid(alpha=0.3)
@@ -526,7 +526,7 @@ class Validation():
         
         fig3.clear()
         f3=fig3.add_subplot(111,title="Realizations(validation)",xlabel='Distance (m)',ylabel='Y')
-        f3.plot(self.RandomField*self.std+self.mean)
+        f3.plot(self.RandomField)
         f3.grid(alpha=0.3)
         f3.axhline(y=self.mean, color='r', linestyle='--',zorder=1)
         canvas3.draw_idle()
@@ -537,7 +537,7 @@ class Validation():
 
         for i in range(len(self.RandomField[:,0])):
 
-            Zmean[i]=np.mean(self.RandomField[i,:]*self.std+self.mean)
+            Zmean[i]=np.mean(self.RandomField[i,:])
         
         fig.clear()
         f1=fig.add_subplot(111,title="Mean(validation)",xlabel='Distance (m)',ylabel='Mean')#.plot(Zmean,'-o',color='k',markeredgecolor='k',markerfacecolor='r')
@@ -550,7 +550,7 @@ class Validation():
 
         for i in range(len(self.RandomField[:,0])):
 
-            Zvar[i]=np.var(self.RandomField[i,:]*self.std)
+            Zvar[i]=np.var(self.RandomField[i,:])
 
         fig2.clear()
         f2=fig2.add_subplot(111,title="Variance(validation)",xlabel='Distance (m)',ylabel='Variance')
@@ -571,14 +571,15 @@ class Validation():
         
         for i in range(self.nR):
             temp.append(0)
-            L.append(np.hstack([x,self.RandomField[:,i].reshape(self.mlen,1)]))
+            L.append(np.hstack([x,((self.RandomField[:,i]-self.mean)/self.std).reshape(self.mlen,1)]))
             hs.append(self.hs)
             bw.append(self.bw)
             
         Z=pool.starmap(UC_SGSIM.Variogram,zip(temp,L,hs,bw))
         Vario=np.array(Z).T
+
         fig4.clear()
-        f4=fig4.add_subplot(111,title="Variogram(validation)",xlabel='Distance (m)',ylabel='Variogram')
+        f4=fig4.add_subplot(111,title="Normalized Variogram(validation)",xlabel='Distance (m)',ylabel='Variogram')
         f4.plot(Vario,alpha=0.2)
         f4.plot(UC_SGSIM.Var_model(0,self.hs,self.model,self.a),'o',markeredgecolor='k',markerfacecolor='w',label='Theoritical variogram')
         f4.grid(alpha=0.3)
