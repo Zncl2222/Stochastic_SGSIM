@@ -245,7 +245,7 @@ class UC_SGSIM():
             Z_Gap=abs(Z.max()-Z.min())
                  
 
-            if 2<Z_Gap<6 and 0.3<np.var(Z)<5:
+            if 2<Z_Gap<8:
                 RandomField[:,counts]=Z
                 counts=counts+1
                 warning_count2=warning_count
@@ -501,17 +501,12 @@ class Validation():
         elif model=="Expenoential ":
             self.model=UC_SGSIM.Exponential
         self.nR=int(tempa.iloc[3,0])
-        self.logarithm=bool(tempa.iloc[9,0])
+        self.logarithm=tempa.iloc[9,0]
         #self.n_thread=int(tempa.iloc[5,0])
-        if self.logarithm==False:
-            self.mean=float(tempa.iloc[6,0])
-            self.std=float(tempa.iloc[7,0])
-        else:
-            self.mean=np.log(float(tempa.iloc[6,0]))
-            self.std=np.log(float(tempa.iloc[7,0]))
-        
-        
+        self.mean=float(tempa.iloc[6,0])
+        self.std=float(tempa.iloc[7,0])
 
+          
         self.RandomField=np.zeros([self.mlen,self.nR])
 
         for i in range(self.nR):
@@ -527,12 +522,11 @@ class Validation():
             if tempa.iloc[8,0]=="Python ":
                 Z=pd.read_table(self.path+"\\Realizations"+number+".txt",header=None,sep=' ')
             elif tempa.iloc[8,0]=="C ":
-                Z=pd.read_table(self.path+"\\Realizations"+str(i)+".txt",header=None,sep='\t')
- 
+                Z=pd.read_table(self.path+"\\Realizations"+number+".txt",header=None,sep='\t')
             
             self.RandomField[:,i]=Z.iloc[:,1]
             
-        if self.logarithm==True:
+        if (self.logarithm).startswith("T")==True:
             self.RandomField=np.log(self.RandomField)
         
         fig3.clear()
@@ -571,7 +565,6 @@ class Validation():
         canvas2.draw_idle()
 
         #----------------------------------Variogram Plot--------------------------------------------
-        print(self.n_thread)
         pool = Pool(processes=self.n_thread)
         
         Vario=np.zeros([len(self.hs),self.nR])
