@@ -218,7 +218,6 @@ class UC_SGSIM():
                 Z[start]=t[0]
                 Z[end]=t[1]
                 u=np.delete(u,[start,end])
-                print(u)
                 neigh=2
                 
             L=np.hstack([k,t])
@@ -432,6 +431,7 @@ class UC_SGSIM():
             print(self.mean," #Mean",file=ff)
             print(self.std," #Standard deviation",file=ff)
             print("Python #Programming language",file=ff)
+            print(check_logarithm.get()," #Logrithm data",file=ff)
             
         
         for i in range(self.nR):
@@ -448,8 +448,10 @@ class UC_SGSIM():
             with open(path+'Realizations'+number+'.txt', 'w') as f:
 
                 for j in range(0, mlen):
-
-                    print('%.2d' %(j) ,'%.12f' %(self.RandomField[j,i]*self.std+self.mean), file=f)
+                    if check_logarithm==False:
+                        print('%.2d' %(j) ,'%.12f' %(self.RandomField[j,i]*self.std+self.mean), file=f)
+                    else:
+                        print('%.2d' %(j) ,'%.12f' %(np.exp(self.RandomField[j,i]*self.std+self.mean)), file=f)
 
     def Progress_start(self):
         import time
@@ -499,9 +501,16 @@ class Validation():
         elif model=="Expenoential ":
             self.model=UC_SGSIM.Exponential
         self.nR=int(tempa.iloc[3,0])
+        self.logarithm=bool(tempa.iloc[9,0])
         #self.n_thread=int(tempa.iloc[5,0])
-        self.mean=float(tempa.iloc[6,0])
-        self.std=float(tempa.iloc[7,0])
+        print(type(self.logarithm))
+        if self.logarithm==False:
+            self.mean=float(tempa.iloc[6,0])
+            self.std=float(tempa.iloc[7,0])
+        else:
+            self.mean=np.log(float(tempa.iloc[6,0]))
+            self.std=np.log(float(tempa.iloc[7,0]))
+        
         
 
         self.RandomField=np.zeros([self.mlen,self.nR])
@@ -523,6 +532,9 @@ class Validation():
  
             
             self.RandomField[:,i]=Z.iloc[:,1]
+            
+        if self.logarithm==True:
+            self.RandomField=np.log(self.RandomField)
         
         fig3.clear()
         f3=fig3.add_subplot(111,title="Realizations(validation)",xlabel='Distance (m)',ylabel='Y')
@@ -536,7 +548,7 @@ class Validation():
         Zmean=np.zeros(len(self.RandomField[:,0]))
 
         for i in range(len(self.RandomField[:,0])):
-
+            
             Zmean[i]=np.mean(self.RandomField[i,:])
         
         fig.clear()
@@ -854,8 +866,7 @@ if __name__=='__main__':
     ncore_Label.place(x=50,y=600)
 
     Data_Label=ttk.Label(tab1,text="")
-    Data_Label.place(x=50,y=650)
-
+    Data_Label.place(x=50,y=675)
 
     
     run_button = ttk.Button(tab1, text='Run', command=lambda:drive(0))
@@ -887,5 +898,11 @@ if __name__=='__main__':
 
     checkbox=ttk.Checkbutton(tab1,text="Constrain boundary",var=check_boundary)
     checkbox.place(x=50,y=335)
+
+    check_logarithm=tk.BooleanVar()
+    check_logarithm.set(False)
+
+    checkbox_logarithm=ttk.Checkbutton(tab1,text="Back transformation (natural log)",var=check_logarithm)
+    checkbox_logarithm.place(x=50,y=635)
 
     tk.mainloop()
