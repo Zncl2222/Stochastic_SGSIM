@@ -18,6 +18,8 @@ int nR=5;
 int seed=1516;
 int neigh=0;
 int loglevel=0;
+float gmean=0;
+float gstd=1;
 
 
 int* model_x;
@@ -373,6 +375,14 @@ int main(void)
 
     scanf(" %f",&a);
 
+    printf("Mean value (Default is 0)\n");
+
+    scanf(" %f",&gmean);
+
+    printf("Standard deviation (Default is 1)\n");
+
+    scanf(" %f",&gstd);
+
     printf("Initial random seed number\n");
 
     scanf(" %d",&seed);
@@ -396,8 +406,8 @@ int main(void)
     fprintf(Para_output,"%d #Number of Realizations\n",nR);
     fprintf(Para_output,"%d #Initial seed\n",seed);
     fprintf(Para_output,"1 #Number of CPUs\n");
-    fprintf(Para_output,"0 #Mean\n");
-    fprintf(Para_output,"1 #Standard deviation\n");
+    fprintf(Para_output,"%f #Mean\n",gmean);
+    fprintf(Para_output,"%f #Standard deviation\n",gstd);
     fprintf(Para_output,"C #Programming language\n");
  
     fclose (Para_output); 
@@ -613,7 +623,7 @@ int main(void)
             
             for(int g=0;g<mlen;g++)
             {
-                fprintf(output,"%d\t%f\n",g,z[g]);
+                fprintf(output,"%d\t%.10f\n",g,z[g]*gstd+gmean);
             }
 
             fclose (output); 
