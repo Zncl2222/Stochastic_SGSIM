@@ -33,7 +33,7 @@ FILE *Para_output;
 char fhead[]="Realizations";
 char ftail[]=".txt";
 char path[]="./Realizations/";
-char number1[10];
+char number1[15];
 
 
 double variance(double* array)
@@ -100,7 +100,7 @@ void LUdecomposition(double** a ,double* b, double* x , int n)
                     l[j][i] = l[j][i] - l[j][k] * u[k][i];
                 }
             }
-      }
+        }
       for (j = 0; j < n; j++) 
       {
         if (j < i)
@@ -409,12 +409,17 @@ int main(void)
     fprintf(Para_output,"%f #Mean\n",gmean);
     fprintf(Para_output,"%f #Standard deviation\n",gstd);
     fprintf(Para_output,"C #Programming language\n");
+    fprintf(Para_output,"False #Logarithm data");
  
     fclose (Para_output); 
 
     char fullname[strlen(path)+strlen(ftail)+strlen(fhead)+strlen(number1)];
     
     srand(seed);
+
+    char n1[]="000";
+    char n2[]="00";
+    char n3[]="0";
 
     double z0=0;
     double svar=0;
@@ -469,168 +474,184 @@ int main(void)
 
     model_x=arange(mlen);
 
-        
+ 
     for (int n=0;n<nR;n++)
     {   
          
 
-    printf("\n\nRealizations: %d\n\n",n);
-    for (int i=0;i<mlen;i++)
-    {
-        z[i]=0;
-        u_array[i]=-1;
-        sampled[i]=0;
-    }
-
-    
-
-    model_x=randompath(model_x,mlen);
-
-
-    int neigh=0;
-    int currentlen=0;
-    int judge=0;
-
-    // Simple Kriging
-    
-    for (int i=0;i<mlen;i++)
-    {   
-        u=model_x[i];
-        
-        if (neigh==0)
+        printf("\n\nRealizations: %d\n\n",n);
+        for (int i=0;i<mlen;i++)
         {
-            z[(int)u]=random_normal();
-            sampled[i]=u;
+            z[i]=0;
+            u_array[i]=-1;
+            sampled[i]=0;
         }
 
-        else
-        { 
-          
-            for (int j=0; j<currentlen;j++)
-            {   
-                u_array[j]=fabs(sampled[j]-u);
-                
-            }
+        
 
-            
-            int close=0;
+        model_x=randompath(model_x,mlen);
 
-            for (int j=0;j<currentlen;j++)
-            {
-                if(u_array[j]<a*1.732){close++;}
-            }
+
+        int neigh=0;
+        int currentlen=0;
+        int judge=0;
+
+        // Simple Kriging
+        
+        for (int i=0;i<mlen;i++)
+        {   
+            u=model_x[i];
             
-            if (close==0)
+            if (neigh==0)
             {
                 z[(int)u]=random_normal();
                 sampled[i]=u;
-                
             }
 
             else
-            {
+            { 
+            
+                for (int j=0; j<currentlen;j++)
+                {   
+                    u_array[j]=fabs(sampled[j]-u);
+                    
+                }
+
+                
+                int close=0;
 
                 for (int j=0;j<currentlen;j++)
                 {
-                    z_array[j][0]=sampled[j];
-                    z_array[j][1]=z[(int)(sampled[j])]; 
-                    z_array[j][2]=u_array[j];
-                }
-
-                if (neigh>=2)
-                {
-                    z_array=sort2d(z_array,currentlen);
-                }
-
-                
-                for (int j=0;j<neigh;j++)
-                {
-                    dist_temp[j]=z_array[j][0];
-                    data_temp[j]=z_array[j][1];
-                    dist_temp2[j]=z_array[j][2];
-                }
-   
-                // data cov matrix
-                pdist(dist_temp,pdist_temp,neigh);
-                
-                Cov_model2(pdist_temp,flatten_temp,neigh);
-
-                matrixform(flatten_temp,datacov_temp,neigh);
-                
-                // dist cov matrix
-                Cov_model(dist_temp2,distcov_temp,neigh);
-  
-                if (neigh>=1)
-                {   
-                    LUdecomposition(datacov_temp,distcov_temp,weights,neigh);
-                }
-
-                z0=0;
-                svar=0;
-                fix=0;
-
-                for (int j=0;j<neigh;j++)
-                {   
-                    z0=z0+data_temp[j]*weights[j];
-                    svar=svar+distcov_temp[j]*weights[j];
-                }
-
-                svar=1-svar;
-                if(svar<0){svar=0;}
-                fix=random_normal()*pow(svar,0.5);
-
-                z[(int)u]=z0+fix;
-                seed++;
-
-                if (loglevel==1)
-                {
-                    Print_Log1(dist_temp,data_temp,dist_temp2,currentlen,neigh);
-                }
-                else if (loglevel==2)
-                {
-                    Print_Log1(dist_temp,data_temp,dist_temp2,currentlen,neigh);
-                    Print_Log2(pdist_temp,datacov_temp,distcov_temp,weights,z0,fix,neigh);
+                    if(u_array[j]<a*1.732){close++;}
                 }
                 
-                if (isfinite(z[(int)u])==0)
+                if (close==0)
                 {
-                    judge++;
+                    z[(int)u]=random_normal();
+                    sampled[i]=u;
+                    
                 }
 
-            }
-            
+                else
+                {
 
-        }
+                    for (int j=0;j<currentlen;j++)
+                    {
+                        z_array[j][0]=sampled[j];
+                        z_array[j][1]=z[(int)(sampled[j])]; 
+                        z_array[j][2]=u_array[j];
+                    }
+
+                    if (neigh>=2)
+                    {
+                        z_array=sort2d(z_array,currentlen);
+                    }
+
+                    
+                    for (int j=0;j<neigh;j++)
+                    {
+                        dist_temp[j]=z_array[j][0];
+                        data_temp[j]=z_array[j][1];
+                        dist_temp2[j]=z_array[j][2];
+                    }
     
-        if (neigh<5){neigh+=1;}
-        sampled[i]=u;
-        currentlen++;
-        seed++;
+                    // data cov matrix
+                    pdist(dist_temp,pdist_temp,neigh);
+                    
+                    Cov_model2(pdist_temp,flatten_temp,neigh);
 
-    }   
+                    matrixform(flatten_temp,datacov_temp,neigh);
+                    
+                    // dist cov matrix
+                    Cov_model(dist_temp2,distcov_temp,neigh);
+    
+                    if (neigh>=1)
+                    {   
+                        LUdecomposition(datacov_temp,distcov_temp,weights,neigh);
+                    }
+
+                    z0=0;
+                    svar=0;
+                    fix=0;
+
+                    for (int j=0;j<neigh;j++)
+                    {   
+                        z0=z0+data_temp[j]*weights[j];
+                        svar=svar+distcov_temp[j]*weights[j];
+                    }
+
+                    svar=1-svar;
+                    if(svar<0){svar=0;}
+                    fix=random_normal()*pow(svar,0.5);
+
+                    z[(int)u]=z0+fix;
+                    seed++;
+
+                    if (loglevel==1)
+                    {
+                        Print_Log1(dist_temp,data_temp,dist_temp2,currentlen,neigh);
+                    }
+                    else if (loglevel==2)
+                    {
+                        Print_Log1(dist_temp,data_temp,dist_temp2,currentlen,neigh);
+                        Print_Log2(pdist_temp,datacov_temp,distcov_temp,weights,z0,fix,neigh);
+                    }
+                    
+                    if (isfinite(z[(int)u])==0)
+                    {
+                        judge++;
+                    }
+
+                }
+                
+
+            }
         
-        sprintf(number1,"%d", n);
-        memset(fullname,'\0',strlen(path)+strlen(ftail)+strlen(fhead)+strlen(number1));
-        strcat(fullname,path);
-        strcat(fullname,fhead);
-        strcat(fullname,number1);
-        strcat(fullname,ftail);   
-        
-        if(0.35<variance(z)<10 && judge==0)
-        {
-        
-            output= fopen (fullname, "w");
+            if (neigh<5){neigh+=1;}
+            sampled[i]=u;
+            currentlen++;
+            seed++;
+
+        }   
             
-            for(int g=0;g<mlen;g++)
+            sprintf(number1,"%d", n);
+            memset(fullname,'\0',strlen(path)+strlen(ftail)+strlen(fhead)+5+strlen(number1));
+            strcat(fullname,path);
+            strcat(fullname,fhead);
+        
+            if (n<10)
+            {   
+                strcat(fullname,n1);
+            }
+            else if (n<100 && n>=10)
+            {   
+                strcat(fullname,n2);
+            }
+            else if (n<1000 && n>=100)
+            {   
+                strcat(fullname,n3);
+            }
+            
+
+            strcat(fullname,number1);
+            strcat(fullname,ftail);   
+            
+            if(judge==0)
             {
-                fprintf(output,"%d\t%.10f\n",g,z[g]*gstd+gmean);
+            
+                output= fopen (fullname, "w");
+                
+                for(int g=0;g<mlen;g++)
+                {
+                    fprintf(output,"%d\t%.10f\n",g,z[g]*gstd+gmean);
+                }
+
+                fclose (output); 
             }
 
-            fclose (output); 
-        }
-
-        else{n--;}
-        seed++;
+            else{n--;}
+            seed++;
+            
     }
        
 
