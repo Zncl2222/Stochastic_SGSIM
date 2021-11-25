@@ -503,7 +503,6 @@ class Validation():
         self.nR=int(tempa.iloc[3,0])
         self.logarithm=bool(tempa.iloc[9,0])
         #self.n_thread=int(tempa.iloc[5,0])
-        print(type(self.logarithm))
         if self.logarithm==False:
             self.mean=float(tempa.iloc[6,0])
             self.std=float(tempa.iloc[7,0])
@@ -650,13 +649,6 @@ if __name__=='__main__':
 
     style = th.ThemedStyle(root)
     style.set_theme("black")
-
-    #root.tk.call('source',r'C:\Users\3002shinning\Downloads\awthemes-10.4.0\awthemes-10.4.0\demottk.tcl')
-    #style.theme_use('awdark')
-    #root.tk.call('source',r'C:\Users\3002shinning\Downloads\Sun-Valley-ttk-theme-master\Sun-Valley-ttk-theme-master\sun-valley.tcl')
-    #root.tk.call("set_theme", "dark")
-    #root.tk.call('source', r'C:\Users\3002shinning\Downloads\Azure-ttk-theme-main\Azure-ttk-theme-main\\azure.tcl')
-    #root.tk.call("set_theme", "light")
         
     def drive(pjudge):
         global C1
