@@ -448,7 +448,7 @@ class UC_SGSIM():
             with open(path+'Realizations'+number+'.txt', 'w') as f:
 
                 for j in range(0, mlen):
-                    if check_logarithm==False:
+                    if check_logarithm.get()==False:
                         print('%.2d' %(j) ,'%.12f' %(self.RandomField[j,i]*self.std+self.mean), file=f)
                     else:
                         print('%.2d' %(j) ,'%.12f' %(np.exp(self.RandomField[j,i]*self.std+self.mean)), file=f)
