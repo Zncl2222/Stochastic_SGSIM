@@ -41,6 +41,7 @@ class UC_SGSIM():
         self.mean=mean
         self.std=std
         self.check_boundary=check_boundary
+        self.Vario=np.zeros(10)
             
     def Variogram(self,L, hs, bw):
 
@@ -365,7 +366,7 @@ class UC_SGSIM():
         
         model_len=self.end-self.start+1
         
-        Vario=np.zeros([len(self.hs),self.nR])
+        self.Vario=np.zeros([len(self.hs),self.nR])
         
         x=np.linspace(self.start,self.end,model_len).reshape(model_len,1)
         
@@ -378,10 +379,10 @@ class UC_SGSIM():
             bw.append(self.bw)
             
         Z=pool.starmap(UC_SGSIM.Variogram,zip(temp,L,hs,bw))
-        Vario=np.array(Z).T
+        self.Vario=np.array(Z).T
         fig4.clear()
         f4=fig4.add_subplot(111,title="Normalized Variogram",xlabel='Distance (m)',ylabel='Variogram')
-        f4.plot(Vario,alpha=0.2)
+        f4.plot(self.Vario,alpha=0.2)
         f4.plot(self.Var_model(self.hs,self.model,self.a),'o',markeredgecolor='k',markerfacecolor='w',label='Theoritical variogram')
         f4.grid(alpha=0.3)
         f4.axhline(y=1, color='r', linestyle='--',zorder=1)
@@ -391,7 +392,7 @@ class UC_SGSIM():
         
         for i in range(len(self.hs)):
             
-            Vario_mean[i]=np.mean(Vario[i,:])
+            Vario_mean[i]=np.mean(self.Vario[i,:])
             
         f4.plot(Vario_mean,'--',color='blue',label='Mean variogram')
         f4.legend()
@@ -408,6 +409,13 @@ class UC_SGSIM():
             os.mkdir(path+"\\UC_SGSIM_Realizations")
         except:
             print("Folder has already existed")
+
+        if np.max(self.Vario)!=0:
+            try:
+                os.mkdir(path+"\\UC_SGSIM_Realizations\\Variogram")
+            except:
+                print("Folder has already existed")
+
 
         time.sleep(1)
         
@@ -432,6 +440,10 @@ class UC_SGSIM():
             print(self.std," #Standard deviation",file=ff)
             print("Python #Programming language",file=ff)
             print(check_logarithm.get()," #Logrithm data",file=ff)
+            if np.max(self.Vario)!=0:
+                print("y #Variogram calculation",file=ff)
+            else:
+                print("n #Variogram calculation",file=ff)
             
         
         for i in range(self.nR):
@@ -452,6 +464,13 @@ class UC_SGSIM():
                         print('%.2d' %(j) ,'%.12f' %(self.RandomField[j,i]*self.std+self.mean), file=f)
                     else:
                         print('%.2d' %(j) ,'%.12f' %(np.exp(self.RandomField[j,i]*self.std+self.mean)), file=f)
+
+            if np.max(self.Vario)!=0:
+                with open(path+'\Variogram\\Variogram'+number+'.txt', 'w') as f:
+                    for j in range(0, len(self.hs),self.bw):
+                            print('%.2d' %(j) ,'%.12f' %(self.Vario[j,i]), file=f)
+
+
 
     def Progress_start(self):
         import time
@@ -486,14 +505,14 @@ class Validation():
 
         self.judge=0
         import pandas as pd
+        import os
         tempa=pd.read_table(self.path+"\\ParameterSettings.txt",header=None,sep='#')
 
         self.mlen=int(tempa.iloc[0,0])
         self.a=float(tempa.iloc[1,0])
     
         model=tempa.iloc[2,0]
-        print(model)
-        print(type(model))
+ 
         if model=="Gaussian ":
             self.model=UC_SGSIM.Gaussian
         elif model=="Spherical ":
@@ -501,11 +520,11 @@ class Validation():
         elif model=="Expenoential ":
             self.model=UC_SGSIM.Exponential
         self.nR=int(tempa.iloc[3,0])
-        self.logarithm=tempa.iloc[9,0]
         #self.n_thread=int(tempa.iloc[5,0])
         self.mean=float(tempa.iloc[6,0])
         self.std=float(tempa.iloc[7,0])
-
+        self.logarithm=tempa.iloc[9,0]
+        self.vario_check=tempa.iloc[10,0]
           
         self.RandomField=np.zeros([self.mlen,self.nR])
 
@@ -565,26 +584,41 @@ class Validation():
         canvas2.draw_idle()
 
         #----------------------------------Variogram Plot--------------------------------------------
-        pool = Pool(processes=self.n_thread)
+        if self.vario_check=="y ":
+
+            a=os.listdir(self.path+"\\Variogram\\")
         
-        Vario=np.zeros([len(self.hs),self.nR])
-        
-        x=np.linspace(0,self.mlen-1,self.mlen).reshape(self.mlen,1)
-        
-        hs=[];bw=[];temp=[];L=[]
-        
-        for i in range(self.nR):
-            temp.append(0)
-            L.append(np.hstack([x,((self.RandomField[:,i]-self.mean)/self.std).reshape(self.mlen,1)]))
-            hs.append(self.hs)
-            bw.append(self.bw)
+            xf=pd.read_table(self.path+"\\Variogram\\"+a[0],header=None,encoding='gb2312',sep='\s+')
             
-        Z=pool.starmap(UC_SGSIM.Variogram,zip(temp,L,hs,bw))
-        Vario=np.array(Z).T
+            self.vario_len=len(xf)
+            
+            self.Variogram=np.empty([self.vario_len,self.nR])
+            
+            for i in range(self.nR):
+                x = pd.read_table(self.path+"\Variogram\\"+a[i],header=None,encoding='gb2312',sep='\s+')
+                self.Variogram[:,i]=x.iloc[:,1]
+                
+        else:
+            pool = Pool(processes=self.n_thread)
+            
+            self.Variogram=np.zeros([len(self.hs),self.nR])
+            
+            x=np.linspace(0,self.mlen-1,self.mlen).reshape(self.mlen,1)
+            
+            hs=[];bw=[];temp=[];L=[]
+            
+            for i in range(self.nR):
+                temp.append(0)
+                L.append(np.hstack([x,((self.RandomField[:,i]-self.mean)/self.std).reshape(self.mlen,1)]))
+                hs.append(self.hs)
+                bw.append(self.bw)
+                
+            Z=pool.starmap(UC_SGSIM.Variogram,zip(temp,L,hs,bw))
+            self.Variogram=np.array(Z).T
 
         fig4.clear()
         f4=fig4.add_subplot(111,title="Normalized Variogram(validation)",xlabel='Distance (m)',ylabel='Variogram')
-        f4.plot(Vario,alpha=0.2)
+        f4.plot(self.Variogram,alpha=0.2)
         f4.plot(UC_SGSIM.Var_model(0,self.hs,self.model,self.a),'o',markeredgecolor='k',markerfacecolor='w',label='Theoritical variogram')
         f4.grid(alpha=0.3)
         f4.axhline(y=1, color='r', linestyle='--',zorder=1)
@@ -594,7 +628,7 @@ class Validation():
         
         for i in range(len(self.hs)):
             
-            Vario_mean[i]=np.mean(Vario[i,:])
+            Vario_mean[i]=np.mean(self.Variogram[i,:])
             
         f4.plot(Vario_mean,'--',color='blue',label='Mean variogram')
         f4.legend()
