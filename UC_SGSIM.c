@@ -20,20 +20,27 @@ int neigh=0;
 int loglevel=0;
 float gmean=0;
 float gstd=1;
+int hs=35;
+int steps=1;
+
 
 
 int* model_x;
 double u;
-double*u_array,*dist_temp,*data_temp,*weights,*dist_temp2,*flatten_temp,*distcov_temp,*sampled,*z;
-double**deter_temp,**fac_temp,** b_temp,**inverse,**b_temp2,**b,**datacov_temp,**z_array,**inv_temp,**pdist_temp;
+double*u_array,*dist_temp,*data_temp,*weights,*dist_temp2,*flatten_temp,*distcov_temp,*sampled,*z,*v_temp;
+double**deter_temp,**fac_temp,** b_temp,**inverse,**b_temp2,**b,**datacov_temp,**z_array,**inv_temp,**pdist_temp,**pdist_temp2;
 
 
 FILE *output;
 FILE *Para_output;
+FILE *vario_output;
 char fhead[]="Realizations";
 char ftail[]=".txt";
 char path[]="./Realizations/";
+char path_v[]="./Realizations/Variogram/";
+char vario_fhead[]="Variogram";
 char number1[15];
+char vario_check='n';
 
 
 double variance(double* array)
@@ -218,6 +225,19 @@ int* arange(int x)
     return space;
 }
 
+double* d_arange(int x)
+{
+    double* space;
+
+    space=(double*)malloc(x*sizeof(double));
+
+    for (int i=0;i<x;i++)
+    {
+        space[i]=i;
+    }
+    return space;
+}
+
 
 float random_normal()
 {   
@@ -230,7 +250,6 @@ float random_normal()
 
 void pdist(double* x, double** c,int n_dim)
 {
-
 
     for (int i=0;i<n_dim;i++)
     {
@@ -272,7 +291,7 @@ void Cov_model2(double **x,double* cov,int n_dim)
 
 void flatten(double** x, int n_dim)
 {
-    double *flat;
+    double* flat;
 
     flat=(double*)malloc(n_dim*n_dim*sizeof(double));
 
@@ -287,6 +306,43 @@ void flatten(double** x, int n_dim)
 
 }
 
+
+void variogram(double* array, double* v ,int hs, int steps)
+{ 
+    double Z_temp;
+    double* temp;
+    int count;
+
+    temp=d_arange(mlen);
+    pdist(temp,pdist_temp2,mlen);
+
+    for (int i=0;i<hs;i+=steps)
+    {   
+        Z_temp=0;
+        count=0;
+
+        for (int j=0;j<mlen;j++)
+        {
+            for (int k=j+1;k<mlen;k++)
+            {   
+                
+                if (pdist_temp2[j][k]>=i-steps && pdist_temp2[j][k]<=i-steps)
+                {
+                    Z_temp=Z_temp+pow((array[j]-array[k]),2);
+                    
+                    count+=1;
+                }
+            }
+        }
+
+        if (Z_temp>=1e-10)
+        {
+            v[i]=Z_temp/(2*count);
+        }
+        
+    }
+
+}
 
 int Print_Log1(double* a,double* b,double* c, int curr, int n_dim)
 {
@@ -387,16 +443,33 @@ int main(void)
 
     scanf(" %d",&seed);
 
+    printf("Calculate variogram? (y/n)\n");
+
+    scanf(" %c",&vario_check);
+
+    if (vario_check=='y')
+    {
+        printf("Input the len of lag distance\n");
+        scanf(" %d",&hs);
+        printf("Inpute the steps of lag distance\n");
+        scanf(" %d",&steps);
+    }
+
     printf("Log level (0,1,2,3)?  (defaule is 0)\n");
 
     scanf(" %d", &loglevel);
 
     mlen=end+1;
 
-    const char *Folder="./Realizations/";
-
+    const char* Folder="./Realizations/";
+    const char* Folder_v="./Realizations/Variogram/";
 
     _mkdir(Folder);
+
+    if (vario_check=='y')
+    {   
+        _mkdir(Folder_v);
+    }
 
     Para_output= fopen ("./Realizations/ParameterSettings.txt", "w");
     
@@ -429,8 +502,9 @@ int main(void)
     start=clock();
 
     /* Memory allocation*/
-
+    
     pdist_temp=(double**)malloc(6*sizeof(double));
+    pdist_temp2=(double**)malloc(mlen*sizeof(double));
     dist_temp=(double*)malloc(6*sizeof(double));
     dist_temp2=(double*)malloc(6*sizeof(double));
     data_temp=(double*)malloc(6*sizeof(double));
@@ -441,6 +515,7 @@ int main(void)
     flatten_temp=(double*)malloc(6*6*sizeof(double));
     datacov_temp=(double**)malloc(6*sizeof(double));
     distcov_temp=(double*)malloc(6*sizeof(double));
+    v_temp=(double*)malloc(hs*sizeof(double));
 
     deter_temp=(double**)malloc(6*sizeof(double*));
     fac_temp=(double**)malloc(6*sizeof(double*));
@@ -452,6 +527,7 @@ int main(void)
     for (int i=0;i<mlen;i++)
     {
         z_array[i]=(double*)malloc(3*sizeof(double));
+        pdist_temp2[i]=(double*)malloc(mlen*sizeof(double));
     }
 
     for (int i=0;i<6;i++)
@@ -646,6 +722,40 @@ int main(void)
                 }
 
                 fclose (output); 
+
+                if (vario_check=='y')
+                {   
+
+                    variogram(z,v_temp,hs,steps);
+
+                    memset(fullname,'\0',strlen(path)+strlen(ftail)+strlen(fhead)+12+strlen(number1));
+                    strcat(fullname,path_v);
+                    strcat(fullname,vario_fhead);
+                    if (n<10)
+                    {   
+                        strcat(fullname,n1);
+                    }
+                    else if (n<100 && n>=10)
+                    {   
+                        strcat(fullname,n2);
+                    }
+                    else if (n<1000 && n>=100)
+                    {   
+                        strcat(fullname,n3);
+                    }
+                    
+                    strcat(fullname,number1);
+                    strcat(fullname,ftail);   
+                    vario_output=fopen(fullname,"w");
+
+                    for (int g=0;g<hs;g+=steps)
+                    {
+                        fprintf(vario_output,"%d\t%.10f\n",g,v_temp[g]);
+                    }
+
+                    fclose(vario_output);
+                }
+
             }
 
             else{n--;}
