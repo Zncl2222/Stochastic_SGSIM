@@ -311,7 +311,7 @@ void variogram(double* array, double* v ,int hs, int steps)
 { 
     double Z_temp;
     double* temp;
-    int count;
+    double count;
 
     temp=d_arange(mlen);
     pdist(temp,pdist_temp2,mlen);
@@ -326,17 +326,16 @@ void variogram(double* array, double* v ,int hs, int steps)
             for (int k=j+1;k<mlen;k++)
             {   
                 
-                if (pdist_temp2[j][k]>=i-steps && pdist_temp2[j][k]<=i-steps)
+                if (pdist_temp2[j][k]>=i-steps && pdist_temp2[j][k]<=i+steps)
                 {
                     Z_temp=Z_temp+pow((array[j]-array[k]),2);
-                    
                     count+=1;
                 }
             }
         }
 
-        if (Z_temp>=1e-10)
-        {
+        if (Z_temp>=1e-6)
+        {   
             v[i]=Z_temp/(2*count);
         }
         
@@ -482,7 +481,8 @@ int main(void)
     fprintf(Para_output,"%f #Mean\n",gmean);
     fprintf(Para_output,"%f #Standard deviation\n",gstd);
     fprintf(Para_output,"C #Programming language\n");
-    fprintf(Para_output,"False #Logarithm data");
+    fprintf(Para_output,"False #Logarithm data\n");
+    fprintf(Para_output,"%c #Variogram calculation\n",vario_check);
  
     fclose (Para_output); 
 
@@ -725,7 +725,10 @@ int main(void)
 
                 if (vario_check=='y')
                 {   
-
+                    for (int h=0;h<hs;h+=steps)
+                    {
+                        v_temp[h]=0;
+                    }
                     variogram(z,v_temp,hs,steps);
 
                     memset(fullname,'\0',strlen(path)+strlen(ftail)+strlen(fhead)+12+strlen(number1));
