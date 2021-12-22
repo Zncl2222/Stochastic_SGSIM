@@ -729,7 +729,7 @@ if __name__=='__main__':
                 tk.messagebox.showerror(title = 'Error',message="Please run the simulation first")
 
     def save():
-        C1.Savedata(dir_entry.get())  
+        C1.Savedata(savedir_entry.get())  
         #try:
             #C1.Savedata(dir_entry.get())
         #except NameError as C1:
@@ -751,21 +751,28 @@ if __name__=='__main__':
     tab1=ttk.Frame(tab_main)
     tab1.place(x=0,y=30)
     tab_main.add(tab1,text='Simulation')
-
-            
+    #---------------------------------------- Browse function--------------------------------------
+    def Save_browse():
+        filename = tk.filedialog.askdirectory()
+        savedir_entry.delete(0,tk.END)
+        savedir_entry.insert(0,filename)
+    def Validate_browse():
+        filename = tk.filedialog.askdirectory()
+        validate_entry.delete(0,tk.END)
+        validate_entry.insert(0,filename)
     #---------------------------------------- Simulation GUI----------------------------------------
 
     Plot1=ttk.Notebook(tab1)
-    Plot1.place(x=500,y=25,width=500,height=400)
+    Plot1.place(x=550,y=25,width=500,height=400)
 
     Plot2=ttk.Notebook(tab1)
-    Plot2.place(x=500,y=450,width=500,height=400)
+    Plot2.place(x=550,y=450,width=500,height=400)
 
     Plot3=ttk.Notebook(tab1)
-    Plot3.place(x=1050,y=25,width=500,height=400)
+    Plot3.place(x=1100,y=25,width=500,height=400)
 
     Plot4=ttk.Notebook(tab1)
-    Plot4.place(x=1050,y=450,width=500,height=400)
+    Plot4.place(x=1100,y=450,width=500,height=400)
 
     global fig,fig2,fig3,fig4,canvas,canvas2,canvas3,canvas4
 
@@ -774,12 +781,9 @@ if __name__=='__main__':
     fig3 = Figure(figsize=(2, 2), dpi=100,tight_layout=True)
     fig4= Figure(figsize=(2, 2), dpi=100,tight_layout=True)
 
-
-
     canvas = FigureCanvasTkAgg(fig, master=Plot1)  
     canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
     toolbar = NavigationToolbar2Tk(canvas, Plot1)
-
 
     canvas2 = FigureCanvasTkAgg(fig2, master=Plot2)  
     canvas2.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
@@ -829,8 +833,8 @@ if __name__=='__main__':
     Lagsteps_entry.insert(0,"1")
     Lagsteps_entry.place(x=360,y=250,width=90)
 
-    dir_entry=ttk.Entry(tab1)
-    dir_entry.place(x=250,y=400,width=200)
+    savedir_entry=ttk.Entry(tab1)
+    savedir_entry.place(x=250,y=400,width=200)
 
     mean_entry=ttk.Entry(tab1)
     mean_entry.insert(0,"0")
@@ -842,7 +846,6 @@ if __name__=='__main__':
 
     validate_entry=ttk.Entry(tab1)
     validate_entry.place(x=250,y=550,width=200)
-
 
     option1_Label=ttk.Label(tab1,text="Simulation Options", foreground='white',font='24')
     option1_Label.place(x=200,y=15)
@@ -887,7 +890,8 @@ if __name__=='__main__':
     Data_Label=ttk.Label(tab1,text="")
     Data_Label.place(x=50,y=675)
 
-    
+    #------------------------------------------Button---------------------------------
+
     run_button = ttk.Button(tab1, text='Run', command=lambda:drive(0))
     run_button.place(x=150,y=670,height=30,width=130)
 
@@ -911,6 +915,12 @@ if __name__=='__main__':
     Select['values'] = clist
     Select.place(x=250,y=600)      
     Select.current(0)
+
+    Save_browse_button=ttk.Button(tab1,text="Browse",command=Save_browse)
+    Save_browse_button.place(x=460,y=398)
+
+    Validate_browse_button=ttk.Button(tab1,text="Browse",command=Validate_browse)
+    Validate_browse_button.place(x=460,y=548)
 
     check_boundary=tk.BooleanVar()
     check_boundary.set(True)
