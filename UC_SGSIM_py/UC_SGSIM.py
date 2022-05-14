@@ -33,9 +33,9 @@ class Simulation:
 
         start_time = time.time()
 
-        while counts < self.nR:
+        while counts < self.nR // self.n_process:
             
-            boundary_constrained = 1 
+            boundary_constrained = 0 
             unsampled = np.linspace(0, self.size-1, self.size)
             
             if boundary_constrained == 0:
@@ -76,23 +76,24 @@ class Simulation:
             if 2<Z_Gap<=6.5:
                 self.RandomField[:,counts] = Z
                 counts = counts+1
-                print('Progress = %.2f' % (counts/self.nR*100)+'%', end='\r')
+                #print('Progress = %.2f' % (counts/self.nR*100)+'%', end='\r')
 
             self.randomseed += 1
             
-        print('Progress = %.2f' % 100+'%\n', end='\r')
+        #print('Progress = %.2f' % 100+'%\n', end='\r')
         
         end_time = time.time()
         
-        print('Time = %f'%(end_time-start_time),'s\n')
-        print("Last RandomSeed = %d" %(self.randomseed),'\n')
-        print("RandomSeed passed = %d" %(self.randomseed-initial_seed),'\n')
+        #print('Time = %f'%(end_time-start_time),'s\n')
+        #print("Last RandomSeed = %d" %(self.randomseed),'\n')
+        #print("RandomSeed passed = %d" %(self.randomseed-initial_seed),'\n')
         #print("Theroritical Randomseed = %d" %(initial_seed+(self.end-self.start)*self.nR))
         return self.RandomField
 
     def compute_async(self, n_process, randomseed):
 
         pool = Pool(processes = n_process)
+        self.n_process = n_process
         self.nR = self.nR * n_process
         self.RandomField = np.empty([self.size, self.nR])
 
@@ -104,8 +105,7 @@ class Simulation:
             parallel.append(True)
 
         Z = pool.starmap(self.compute,zip(randomseed,parallel))
-        #Z = np.array(Z)
-        print("Zshape=",np.shape(Z))
+        #print("Zshape=",np.shape(Z))
         
         for i in range(n_process):
             for j in range(int(self.nR/n_process)):
@@ -117,7 +117,6 @@ class Simulation:
         
         pool = Pool(processes=n_process)
         model_len = self.size
-        #self.Variogram = np.zeros([len(self.hs),self.nR])
         
         x=np.linspace(0,self.size-1,model_len).reshape(model_len,1)
         
@@ -125,7 +124,6 @@ class Simulation:
         for i in range(self.nR):
             L.append(np.hstack([x,self.RandomField[:,i].reshape(model_len,1)]))
             
-        #self.Variogram[:,i]=self.model.Variogram(L)
         self.Variogram = pool.starmap(self.model.Variogram, zip(L))
         self.Variogram = np.array(self.Variogram).T
 
@@ -134,27 +132,28 @@ class Simulation:
         m_plot = Visualize(self.model, self.RandomField)
         m_plot.MeanPlot(n, mean, std)
         
-    def StatPlot(self,mean=0,std=1):
+    def VarPlot(self,mean=0,std=1):
     
         s_plot = Visualize(self.model, self.RandomField)
-        s_plot.Statistic_Plot(mean, std)
+        s_plot.Variance_Plot(mean, std)
+
+    def Cdf_Plot(self):
+
+        c_plot = Visualize(self.model, self.RandomField)
+        c_plot.CDF_Plot()
+    
+    def Hist_Plot(self):
+
+        h_plot = Visualize(self.model, self.RandomField)
+        h_plot.HIST()
 
     def VarioPlot(self):
 
         v_plot = Visualize(self.model, self.RandomField)
-        v_plot.Variogram_Plot()
-
-    def VarioPlot_async(self, n_process):
-
-        v_plot = Visualize(self.model, self.RandomField)
-        v_plot.Variogram_Plot()
+        v_plot.Variogram_Plot(self.Variogram)
 
     def Savedata(self,path):
-        
-        path=path+"\\"
-        
-        mlen=self.end-self.start+1
-        
+                
         for i in range(self.nR):
             
             if i<10:
@@ -168,7 +167,7 @@ class Simulation:
             
             with open(path+'Realizations'+number+'.txt', 'w') as f:
 
-                for j in range(0, mlen):
+                for j in range(0, self.size):
 
                     print('%.2d' %(j) ,'%10.6f' %(self.RandomField[j,i]), file=f)
 
