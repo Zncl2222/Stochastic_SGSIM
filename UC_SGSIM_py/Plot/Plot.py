@@ -63,9 +63,9 @@ class Visualize(Plot_Base):
         plt.axhline(y=std**2, color='b', linestyle='--',zorder=1)
         plt.xticks(fontsize=17),plt.yticks(fontsize=17)
   
-    def CDF_Plot(self):
+    def CDF_Plot(self, x_location):
         
-        X = self.RandomField[:,1]
+        X=self.RandomField[x_location,:]
 
         mu = np.mean(X)
         sigma = np.std(X)
@@ -85,13 +85,13 @@ class Visualize(Plot_Base):
 
         ax.grid(True)
         ax.legend(loc='right')
-        ax.set_title('Cumulative step histograms')
+        ax.set_title('Cumulative step histograms, x = '+str(x_location))
         ax.set_xlabel('Random Variable (mm)')
         ax.set_ylabel('Occurrence')
         
-    def HIST(self):
+    def HIST(self, x_location):
        
-        X=self.RandomField[:,1]
+        X=self.RandomField[x_location,:]
 
         mu = np.mean(X) 
         sigma = np.std(X)
@@ -111,7 +111,7 @@ class Visualize(Plot_Base):
         plt.xlabel('X-Axis') 
         plt.ylabel('Y-Axis') 
 
-        plt.title('Histogram') 
+        plt.title('Histogram, x = '+str(x_location)) 
     
     def Variogram_Plot(self, Variogram):
 
