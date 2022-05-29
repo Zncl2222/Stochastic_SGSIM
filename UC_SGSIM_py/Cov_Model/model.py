@@ -3,23 +3,20 @@ import numpy as np
 
 class Gaussian(cov_model):
 
-    def __init__(self, hs, bw, randomseed, a, C0):
+    def __init__(self, hs, bw, a, C0):
 
-        super().__init__(hs, bw, randomseed, a, C0)
+        super().__init__(hs, bw, a, C0)
         self.model_name = "Gaussian"
 
     def model(self, h):
 
         return self.C0*(1-np.exp(-3*h**2/self.a**2))
-    
-    def exist(self):
-        return True
 
 class Spherical(cov_model):
 
-    def __init__(self, model, hs, bw, randomseed, a, C0):
+    def __init__(self, hs, bw, a, C0):
 
-        super().__init__(hs, bw, randomseed, a, C0)
+        super().__init__(hs, bw, a, C0)
         self.model_name = "Spherical"
 
     def model(self, h):
@@ -31,21 +28,21 @@ class Spherical(cov_model):
 
 class Exponential(cov_model):
 
-    def __init__(self, model, hs, bw, randomseed, a, C0):
+    def __init__(self, model, hs, bw, a, C0):
 
-        super().__init__(hs, bw, randomseed, a, C0)
+        super().__init__(hs, bw, a, C0)
         self.model_name = "Exponential"
 
 class Circular(cov_model):
 
-    def __init__(self, model, hs, bw, randomseed, a, C0):
+    def __init__(self, model, hs, bw, a, C0):
 
-        super().__init__(hs, bw, randomseed, a, C0)
+        super().__init__(hs, bw, a, C0)
         self.model_name = "Circular"
 
 class Linear(cov_model):
 
-    def __init__(self, model, hs, bw, randomseed, a, C0):
+    def __init__(self, model, hs, bw, a, C0):
 
-        super().__init__(hs, bw, randomseed, a, C0)
+        super().__init__(hs, bw, a, C0)
         self.model_name = "Circular"
