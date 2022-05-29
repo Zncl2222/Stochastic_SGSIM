@@ -1,0 +1,7 @@
+__pycache__/
+.vscode/
+Realizations/
+*.o
+*.dll
+*.so
+*.exe
