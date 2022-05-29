@@ -3,10 +3,9 @@ from scipy.spatial.distance import pdist, squareform
 
 class cov_model:
 
-    def __init__(self, hs, bw,randomseed, a, C0 = 1):
+    def __init__(self, hs, bw, a, C0 = 1):
         self.hs = hs
         self.bw = bw
-        self.randomseed = randomseed
         self.a = a
         self.C0 = C0
         
