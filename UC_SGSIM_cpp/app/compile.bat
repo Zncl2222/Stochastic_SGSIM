@@ -1,0 +1,1 @@
+g++ app.cpp ../model/sgsim.cpp  ../model/random_tools.cpp  ../model/matrix_tools.cpp  ../model/krige.cpp  ../model/cov_model.cpp  ../model/sort_tools.cpp

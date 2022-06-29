@@ -1,0 +1,9 @@
+cmake_minimum_required(VERSION 2.6)
+
+include_directories(${PROJECT_SOURCE_DIR})
+
+project(model)
+
+
+add_executable(model ../app/app.cpp cov_model.cpp krige.cpp matrix_tools.cpp random_tools.cpp sgsim.cpp sort_tools.cpp )
+
