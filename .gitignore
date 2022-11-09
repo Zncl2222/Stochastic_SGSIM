@@ -1,0 +1,7 @@
+__pycache__/
+.env
+.vscode/
+validation
+build
+dist
+ucsgsim.egg-info
