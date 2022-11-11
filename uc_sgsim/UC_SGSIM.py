@@ -1,10 +1,13 @@
 import time
+from pathlib import Path
 from ctypes import CDLL, POINTER, c_double, c_int
 from multiprocessing import Pool
 
 import numpy as np
 import uc_sgsim as UC
 from uc_sgsim.Plot.Plot import Visualize
+
+BASE_DIR = Path(__file__).resolve().parent
 
 
 class Simulation:
@@ -95,10 +98,7 @@ class Simulation:
         print('Time = %f' % (end_time-start_time), 's\n')
         print('Last RandomSeed = %d' % (self.randomseed), '\n')
         print('RandomSeed passed = %d' % (self.randomseed-initial_seed), '\n')
-        print(
-            'Theroritical Randomseed = %d'
-            % (initial_seed + (self.end - self.start) * self.nR),
-        )
+
         return self.RandomField
 
     def compute_async(self, n_process, randomseed):
@@ -209,8 +209,7 @@ class Simulation_byC(Simulation):
         super().__init__(Y, model, nR, randomseed, krige_method)
 
     def cpdll(self, randomseed):
-
-        dll = CDLL(r'.\lib\sgsim.dll')
+        dll = CDLL(str(BASE_DIR) + r'\c_core\uc_sgsim.dll')
         sgsim = dll.sgsim_dll
         sgsim.argtypes = (
             POINTER(c_double), c_int, c_int,
@@ -255,8 +254,7 @@ class Simulation_byC(Simulation):
         return self.RandomField
 
     def vario_cpdll(self, cpu_number):
-
-        dll = CDLL(r'.\lib\sgsim.dll')
+        dll = CDLL(str(BASE_DIR) + r'\c_core\uc_sgsim.dll')
         vario = dll.variogram
         vario.argtypes = (
             POINTER(c_double), POINTER(
