@@ -21,11 +21,15 @@ if __name__ == '__main__':
 
     # Create Covariance model first
     Cov_model = Gaussian(hs, bw, a, C0)
+
     # Create simulation and input the Cov model
     sgsim = UC.Simulation(X, Cov_model, nR, randomseed)
+    # sgsim_c = UC.Simulation_byC(X, Cov_model, nR, randomseed)
 
     # Start compute with n CPUs
     sgsim.compute_async(n_process=8, randomseed=454)
+    # sgsim_c.compute_by_dll(n_process=1, randomseed=1231)
+
     mid = time.time()
 
     # Save data wiht .txt file
