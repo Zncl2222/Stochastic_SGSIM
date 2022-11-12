@@ -1,7 +1,8 @@
 // Copyright 2022 Zncl2222
 
-# include "..\header\cov_model.h"
 # include <math.h>
+
+# include "..\header\cov_model.h"
 
 
 void Cov_model(double *x, double* cov, int n_dim, double a, double C0) {

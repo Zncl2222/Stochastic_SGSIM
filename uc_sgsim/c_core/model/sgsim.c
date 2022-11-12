@@ -1,10 +1,12 @@
 // Copyright 2022 Zncl2222
 
-# include "..\header\sgsim.h"
+
 # include <stdio.h>
 # include <malloc.h>
 # include <stdlib.h>
 # include <math.h>
+
+# include "..\header\sgsim.h"
 # include "..\header\krige.h"
 # include "..\header\random_tools.h"
 # include "..\header\matrix_tools.h"

@@ -3,6 +3,7 @@
 # include <stdio.h>
 # include <math.h>
 # include <malloc.h>
+
 # include "..\header\variogram.h"
 # include "..\header\matrix_tools.h"
 

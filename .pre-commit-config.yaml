@@ -36,4 +36,4 @@ repos:
     rev: v1.3.5
     hooks:
       - id: cpplint
-        args: ["--filter=-readability/casting,-runtime/threadsafe_fn"]
+        args: ["--filter=-readability/casting,-runtime/threadsafe_fn,-build/include_what_you_use"]

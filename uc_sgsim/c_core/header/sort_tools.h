@@ -1,7 +1,6 @@
 // Copyright 2022 Zncl2222
 #ifndef UC_SGSIM_C_CORE_HEADER_SORT_TOOLS_H_
 #define UC_SGSIM_C_CORE_HEADER_SORT_TOOLS_H_
-#include <utility>
 
 double** sort2d(double** x, int n_dim);
 

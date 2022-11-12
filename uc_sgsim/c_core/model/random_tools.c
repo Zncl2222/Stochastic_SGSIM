@@ -1,9 +1,10 @@
 // Copyright 2022 Zncl2222
 
-# include "..\header\random_tools.h"
 # include <stdlib.h>
 # include <stdio.h>
 # include <math.h>
+
+# include "..\header\random_tools.h"
 
 int* randompath(int* rpath, int length) {
     int rtemp;
