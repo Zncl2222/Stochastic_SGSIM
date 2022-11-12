@@ -3,17 +3,10 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 name = "pypi"
 
-[[source]]
-url = "https://test.pypi.org/simple/"
-verify_ssl = true
-name = "testpypi"
-
 [packages]
 numpy = "*"
 scipy = "*"
 matplotlib = "*"
-ucsgsim = {version = "==0.1.1", index = "testpypi"}
-pandas = "*"
 
 [dev-packages]
 
