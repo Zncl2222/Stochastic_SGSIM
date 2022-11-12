@@ -5,7 +5,7 @@
 
 
 ## Introduction of UCSGSIM
-Sequential Gaussian Simulation is a random field generation method which was based on the kriging interporlation method. 
+Sequential Gaussian Simulation is a random field generation method which was based on the kriging interporlation method.
 
 Unconditonal simulation don't follow the patterns of "data", but follow the users's settings like mean and variance.
 
@@ -14,7 +14,7 @@ Unconditonal simulation don't follow the patterns of "data", but follow the user
 
 $$ \Omega\to R $$
 
-2. Visit random point of the model (draw one random value of the x_grid) 
+2. Visit random point of the model (draw one random value of the x_grid)
 
 $$ X = RandomValue(\Omega),  X:\Omega\to R $$
 
@@ -38,7 +38,7 @@ $$ \sum_{j=1}^{n}\omega_{j} = C(X_{data}^{i},X_{data}^{i})C^{-1}(X_i,X_i), i=1..
 
 $$ Z_{k}(X_{estimate}) = \sum_{i=1}^{n} \omega_{i} Z(X_{data}) + (1- \sum_{i=1}^{n} \omega_{i} m_{g}) $$
 
-7. Calculate the **kriging error (kriging variance)** from **weights** and **data covariance** 
+7. Calculate the **kriging error (kriging variance)** from **weights** and **data covariance**
 
 $$ \sigma_{krige}^{2} = \sum_{i=1}^{n}\omega_{i}C(X_{data}^{i},X_{data}^{i}) $$
 
@@ -91,13 +91,13 @@ if __name__ == '__main__':
     sgsim_c.compute_by_dll(n_process = 4, randomseed = 77875) # Use four process to do the parallel computing
 
     sgsim.MeanPlot("ALL")                 # Plot mean
-    sgsim.VarPlot()                       # Plot variance 
+    sgsim.VarPlot()                       # Plot variance
     sgsim.Cdf_Plot(x_location=11)         # CDF at certain location
     sgsim.Hist_Plot(x_location=11)        # Hist at certain location
     sgsim.variogram_compute(n_process=8)  # Compute variogram before plotting
     sgsim.VarioPlot()                     # Plot Variogram of each realizations and it's mean value
 
-    # Please note that the parameter "n_realizations" means the number of realizations calculate in each process, 
+    # Please note that the parameter "n_realizations" means the number of realizations calculate in each process,
     # so this case will generate total 20 * 4(process) = 80 realizations
 
 ```
