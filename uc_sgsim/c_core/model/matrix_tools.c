@@ -1,11 +1,12 @@
 // Copyright 2022 Zncl2222
 
-# include "..\header\matrix_tools.h"
 # include <stdio.h>
 # include <math.h>
 # include <stdlib.h>
 # include <string.h>
 # include <io.h>
+
+# include "..\header\matrix_tools.h"
 
 void LUdecomposition(double** a , double* b, double* x , int n) {
     int i = 0, j = 0, k = 0;
