@@ -5,3 +5,4 @@ validation
 build
 dist
 uc_sgsim.egg-info
+setup.py
