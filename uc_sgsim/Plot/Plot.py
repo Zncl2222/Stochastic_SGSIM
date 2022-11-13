@@ -6,18 +6,16 @@ from uc_sgsim.Plot.base import Plot_Base
 
 
 class Visualize(Plot_Base):
-    def __init__(self, model, RandomField):
-        super().__init__(model, RandomField)
+    def __init__(self, model, random_field):
+        super().__init__(model, random_field)
 
     def MeanPlot(self, n, mean=0, std=1):
-
-        nR = len(self.RandomField[:, 0])
+        realization_number = len(self.random_field[:, 0])
 
         if n == 'ALL':
-
-            for i in range(nR):
+            for i in range(realization_number):
                 plt.figure(77879, figsize=self.figsize)
-                plt.plot(self.RandomField[i, :] * std + mean)
+                plt.plot(self.random_field[i, :] * std + mean)
                 plt.title('Realizations: ' + self.model_name, fontsize=20)
                 plt.xlabel('Distance(-)', fontsize=20)
                 plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
@@ -26,19 +24,17 @@ class Visualize(Plot_Base):
         else:
             for item in n:
                 plt.figure(77879, figsize=self.figsize)
-                plt.plot(self.RandomField[item, i] * std + mean)
+                plt.plot(self.random_field[item, i] * std + mean)
                 plt.title('Realizations: ' + self.model_name, fontsize=20)
                 plt.xlabel('Distance(-)', fontsize=20)
                 plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
                 plt.ylabel('Y', fontsize=20)
 
     def Variance_Plot(self, mean=0, std=1):
+        Zmean = np.zeros(len(self.random_field[0, :]))
 
-        Zmean = np.zeros(len(self.RandomField[0, :]))
-
-        for i in range(len(self.RandomField[0, :])):
-
-            Zmean[i] = np.mean(self.RandomField[:, i] * std + mean)
+        for i in range(len(self.random_field[0, :])):
+            Zmean[i] = np.mean(self.random_field[:, i] * std + mean)
 
         plt.figure(5212, figsize=self.figsize)
         plt.plot(
@@ -53,11 +49,10 @@ class Visualize(Plot_Base):
         plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
         plt.xticks(fontsize=17), plt.yticks(fontsize=17)
 
-        Zvar = np.zeros(len(self.RandomField[0, :]))
+        Zvar = np.zeros(len(self.random_field[0, :]))
 
-        for i in range(len(self.RandomField[0, :])):
-
-            Zvar[i] = np.var(self.RandomField[:, i] * std)
+        for i in range(len(self.random_field[0, :])):
+            Zvar[i] = np.var(self.random_field[:, i] * std)
 
         plt.figure(52712, figsize=self.figsize)
         plt.plot(
@@ -67,7 +62,6 @@ class Visualize(Plot_Base):
             markeredgecolor='k',
             markerfacecolor='r',
         )
-        # plt.title("Variance",fontsize=24)
         plt.xlabel('Distance(-)', fontsize=20)
         plt.ylabel('Variance', fontsize=20)
         plt.axhline(y=std**2, color='b', linestyle='--', zorder=1)
@@ -75,15 +69,15 @@ class Visualize(Plot_Base):
 
     def CDF_Plot(self, x_location):
 
-        X = self.RandomField[:, x_location]
+        X = self.random_field[:, x_location]
 
         mu = np.mean(X)
         sigma = np.std(X)
         n_bins = 50
 
-        fig, ax = plt.subplots(figsize=(8, 4))
+        _, ax = plt.subplots(figsize=(8, 4))
 
-        n, bins, patches = ax.hist(
+        _, bins, _ = ax.hist(
             X,
             n_bins,
             density=True,
@@ -108,7 +102,7 @@ class Visualize(Plot_Base):
 
     def HIST(self, x_location):
 
-        X = self.RandomField[:, x_location]
+        X = self.random_field[:, x_location]
 
         mu = np.mean(X)
         sigma = np.std(X)
@@ -136,28 +130,26 @@ class Visualize(Plot_Base):
         plt.title('Histogram, x = ' + str(x_location))
 
     def Variogram_Plot(self, Variogram):
-
         start_time = time.time()
-        print(self.nR)
-        for i in range(self.nR):
+        print(self.realization_number)
+        for i in range(self.realization_number):
             plt.figure(123456, figsize=(10, 6))
             plt.plot(Variogram[:, i], alpha=0.1)
             plt.title('Model: ' + self.model_name, fontsize=20)
             plt.xlabel('Lag(m)', fontsize=20)
             plt.ylabel('Variogram', fontsize=20)
             plt.xticks(fontsize=17), plt.yticks(fontsize=17)
-            print('Progress = %.2f' % (i / self.nR * 100) + '%', end='\r')
+            print('Progress = %.2f' % (i / self.realization_number * 100) + '%', end='\r')
 
         plt.plot(
-            self.model.Var_compute(self.hs),
+            self.model.Var_compute(self.bandwidth_step),
             'o',
             markeredgecolor='k',
             markerfacecolor='w',
         )
 
-        Vario_mean = np.zeros(len(self.hs))
-        for i in range(len(self.hs)):
-
+        Vario_mean = np.zeros(len(self.bandwidth_step))
+        for i in range(len(self.bandwidth_step)):
             Vario_mean[i] = np.mean(Variogram[i, :])
 
         plt.plot(Vario_mean, '--', color='blue')

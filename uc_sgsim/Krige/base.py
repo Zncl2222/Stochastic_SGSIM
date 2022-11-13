@@ -1,7 +1,7 @@
 class Kriging:
     def __init__(self, model):
         self.model = model
-        self.hs = model.hs
-        self.bw = model.bw
+        self.bandwidth_step = model.bandwidth_step
+        self.bandwidth = model.bandwidth
         self.a = model.a
         self.C0 = model.C0
