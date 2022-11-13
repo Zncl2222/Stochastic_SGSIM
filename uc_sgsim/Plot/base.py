@@ -1,5 +1,4 @@
 class Plot_Base:
-
     def __init__(self, model, RandomField, figsize=(10, 8)):
         self.model = model
         self.RandomField = RandomField

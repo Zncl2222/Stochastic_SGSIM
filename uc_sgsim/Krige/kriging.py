@@ -4,7 +4,6 @@ from uc_sgsim.Krige.base import Kriging
 
 
 class SimpleKrige(Kriging):
-
     def __init__(self, model):
         super().__init__(model)
 
@@ -37,7 +36,7 @@ class SimpleKrige(Kriging):
         Cov_data = Cov_data.reshape(N, N)
 
         weights = np.linalg.inv(Cov_data) * Cov_dist
-        residuals = (L[:, 1] - meanvalue)
+        residuals = L[:, 1] - meanvalue
         estimation = np.dot(weights.T, residuals) + meanvalue
         krige_var = float(1 - np.dot(weights.T, Cov_dist))
 
