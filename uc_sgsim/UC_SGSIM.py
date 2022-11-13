@@ -20,7 +20,7 @@ class Simulation:
         self.randomseed = randomseed
         self.krige_method = krige_method
         self.size = len(self.Y)
-        self.RandomField = np.empty([self.size, self.nR])
+        self.RandomField = np.empty([self.nR, self.size])
         self.parallel_times = 0
 
     def compute(self, randomseed=0, parallel=False):
@@ -89,7 +89,7 @@ class Simulation:
             Z_Gap = abs(Z.max() - Z.min())
 
             if 2 < Z_Gap <= 6.5:
-                self.RandomField[:, counts] = Z
+                self.RandomField[counts, :] = Z
                 counts = counts + 1
                 print('Progress = %.2f' % (counts / self.nR * 100) + '%', end='\r')
 
@@ -110,7 +110,7 @@ class Simulation:
         pool = Pool(processes=n_process)
         self.n_process = n_process
         self.nR = self.nR * n_process
-        self.RandomField = np.empty([self.size, self.nR])
+        self.RandomField = np.empty([self.nR, self.size])
 
         randomseed = []
         parallel = []
@@ -120,11 +120,10 @@ class Simulation:
             parallel.append(True)
 
         Z = pool.starmap(self.compute, zip(randomseed, parallel))
-        # print("Zshape=",np.shape(Z))
 
         for i in range(n_process):
             for j in range(int(self.nR / n_process)):
-                self.RandomField[:, (j + int(i * self.nR / n_process))] = Z[i][:, j]
+                self.RandomField[(j + int(i * self.nR / n_process)), :] = Z[i][j, :]
 
         return self.RandomField
 
@@ -138,7 +137,7 @@ class Simulation:
         L = []
         for i in range(self.nR):
             L.append(
-                np.hstack([x, self.RandomField[:, i].reshape(model_len, 1)]),
+                np.hstack([x, self.RandomField[i, :].reshape(model_len, 1)]),
             )
 
         self.Variogram = pool.starmap(self.model.Variogram, zip(L))
@@ -227,13 +226,13 @@ class Simulation_byC(Simulation):
         sgsim.restype = None
         mlen = int(self.size)
         nR = int(self.nR // self.n_process)
-        RandomField = np.empty([self.size, nR])
+        RandomField = np.empty([nR, self.size])
         array = (c_double * (mlen * nR))()
 
         sgsim(array, mlen, nR, 17.32, 1, randomseed)
 
         for i in range(nR):
-            RandomField[:, i] = list(array)[i * mlen : (i + 1) * mlen]
+            RandomField[i, :] = list(array)[i * mlen : (i + 1) * mlen]
         return RandomField
 
     def compute_by_dll(self, n_process, randomseed):
@@ -247,7 +246,7 @@ class Simulation_byC(Simulation):
         else:
             self.nR = self.nR
 
-        self.RandomField = np.empty([self.size, self.nR])
+        self.RandomField = np.empty([self.nR, self.size])
 
         randomseed = []
         for i in range(n_process):
@@ -258,7 +257,7 @@ class Simulation_byC(Simulation):
 
         for i in range(n_process):
             for j in range(int(self.nR / n_process)):
-                self.RandomField[:, (j + int(i * self.nR / n_process))] = Z[i][:, j]
+                self.RandomField[(j + int(i * self.nR / n_process)), :] = Z[i][j, :]
 
         return self.RandomField
 
