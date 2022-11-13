@@ -11,13 +11,13 @@ class Visualize(Plot_Base):
 
     def MeanPlot(self, n, mean=0, std=1):
 
-        nR = len(self.RandomField[0])
+        nR = len(self.RandomField[:, 0])
 
         if n == 'ALL':
 
             for i in range(nR):
                 plt.figure(77879, figsize=self.figsize)
-                plt.plot(self.RandomField[:, i] * std + mean)
+                plt.plot(self.RandomField[i, :] * std + mean)
                 plt.title('Realizations: ' + self.model_name, fontsize=20)
                 plt.xlabel('Distance(-)', fontsize=20)
                 plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
@@ -26,7 +26,7 @@ class Visualize(Plot_Base):
         else:
             for item in n:
                 plt.figure(77879, figsize=self.figsize)
-                plt.plot(self.RandomField[:, item] * std + mean)
+                plt.plot(self.RandomField[item, i] * std + mean)
                 plt.title('Realizations: ' + self.model_name, fontsize=20)
                 plt.xlabel('Distance(-)', fontsize=20)
                 plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
@@ -34,11 +34,11 @@ class Visualize(Plot_Base):
 
     def Variance_Plot(self, mean=0, std=1):
 
-        Zmean = np.zeros(len(self.RandomField[:, 0]))
+        Zmean = np.zeros(len(self.RandomField[0, :]))
 
-        for i in range(len(self.RandomField[:, 0])):
+        for i in range(len(self.RandomField[0, :])):
 
-            Zmean[i] = np.mean(self.RandomField[i, :] * std + mean)
+            Zmean[i] = np.mean(self.RandomField[:, i] * std + mean)
 
         plt.figure(5212, figsize=self.figsize)
         plt.plot(
@@ -53,11 +53,11 @@ class Visualize(Plot_Base):
         plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
         plt.xticks(fontsize=17), plt.yticks(fontsize=17)
 
-        Zvar = np.zeros(len(self.RandomField[:, 0]))
+        Zvar = np.zeros(len(self.RandomField[0, :]))
 
-        for i in range(len(self.RandomField[:, 0])):
+        for i in range(len(self.RandomField[0, :])):
 
-            Zvar[i] = np.var(self.RandomField[i, :] * std)
+            Zvar[i] = np.var(self.RandomField[:, i] * std)
 
         plt.figure(52712, figsize=self.figsize)
         plt.plot(
@@ -75,7 +75,7 @@ class Visualize(Plot_Base):
 
     def CDF_Plot(self, x_location):
 
-        X = self.RandomField[x_location, :]
+        X = self.RandomField[:, x_location]
 
         mu = np.mean(X)
         sigma = np.std(X)
@@ -108,14 +108,14 @@ class Visualize(Plot_Base):
 
     def HIST(self, x_location):
 
-        X = self.RandomField[x_location, :]
+        X = self.RandomField[:, x_location]
 
         mu = np.mean(X)
         sigma = np.std(X)
 
         num_bins = 50
         plt.figure(num=1151)
-        n, bins, patches = plt.hist(
+        _, bins, _ = plt.hist(
             X,
             num_bins,
             density=1,
@@ -138,7 +138,7 @@ class Visualize(Plot_Base):
     def Variogram_Plot(self, Variogram):
 
         start_time = time.time()
-
+        print(self.nR)
         for i in range(self.nR):
             plt.figure(123456, figsize=(10, 6))
             plt.plot(Variogram[:, i], alpha=0.1)

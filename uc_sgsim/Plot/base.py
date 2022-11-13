@@ -9,4 +9,4 @@ class Plot_Base:
         self.a = model.a
         self.C0 = model.C0
         self.size = len(RandomField)
-        self.nR = len(RandomField[0])
+        self.nR = len(RandomField[:, 0])
