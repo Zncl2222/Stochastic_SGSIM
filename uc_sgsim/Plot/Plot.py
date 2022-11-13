@@ -6,7 +6,6 @@ from uc_sgsim.Plot.base import Plot_Base
 
 
 class Visualize(Plot_Base):
-
     def __init__(self, model, RandomField):
         super().__init__(model, RandomField)
 
@@ -18,8 +17,8 @@ class Visualize(Plot_Base):
 
             for i in range(nR):
                 plt.figure(77879, figsize=self.figsize)
-                plt.plot(self.RandomField[:, i]*std+mean)
-                plt.title('Realizations: '+self.model_name, fontsize=20)
+                plt.plot(self.RandomField[:, i] * std + mean)
+                plt.title('Realizations: ' + self.model_name, fontsize=20)
                 plt.xlabel('Distance(-)', fontsize=20)
                 plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
                 plt.ylabel('Y', fontsize=20)
@@ -27,8 +26,8 @@ class Visualize(Plot_Base):
         else:
             for item in n:
                 plt.figure(77879, figsize=self.figsize)
-                plt.plot(self.RandomField[:, item]*std+mean)
-                plt.title('Realizations: '+self.model_name, fontsize=20)
+                plt.plot(self.RandomField[:, item] * std + mean)
+                plt.title('Realizations: ' + self.model_name, fontsize=20)
                 plt.xlabel('Distance(-)', fontsize=20)
                 plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
                 plt.ylabel('Y', fontsize=20)
@@ -39,12 +38,15 @@ class Visualize(Plot_Base):
 
         for i in range(len(self.RandomField[:, 0])):
 
-            Zmean[i] = np.mean(self.RandomField[i, :]*std+mean)
+            Zmean[i] = np.mean(self.RandomField[i, :] * std + mean)
 
         plt.figure(5212, figsize=self.figsize)
         plt.plot(
-            Zmean, '-s', color='k',
-            markeredgecolor='k', markerfacecolor='y',
+            Zmean,
+            '-s',
+            color='k',
+            markeredgecolor='k',
+            markerfacecolor='y',
         )
         plt.xlabel('Distance(-)', fontsize=20)
         plt.ylabel('Mean', fontsize=20)
@@ -55,12 +57,15 @@ class Visualize(Plot_Base):
 
         for i in range(len(self.RandomField[:, 0])):
 
-            Zvar[i] = np.var(self.RandomField[i, :]*std)
+            Zvar[i] = np.var(self.RandomField[i, :] * std)
 
         plt.figure(52712, figsize=self.figsize)
         plt.plot(
-            Zvar, '-o', color='k',
-            markeredgecolor='k', markerfacecolor='r',
+            Zvar,
+            '-o',
+            color='k',
+            markeredgecolor='k',
+            markerfacecolor='r',
         )
         # plt.title("Variance",fontsize=24)
         plt.xlabel('Distance(-)', fontsize=20)
@@ -79,12 +84,17 @@ class Visualize(Plot_Base):
         fig, ax = plt.subplots(figsize=(8, 4))
 
         n, bins, patches = ax.hist(
-            X, n_bins, density=True, histtype='step',
-            cumulative=True, label='Empirical',
+            X,
+            n_bins,
+            density=True,
+            histtype='step',
+            cumulative=True,
+            label='Empirical',
         )
 
-        y = ((1 / (np.sqrt(2 * np.pi) * sigma)) *
-             np.exp(-0.5 * (1 / sigma * (bins - mu))**2))
+        y = (1 / (np.sqrt(2 * np.pi) * sigma)) * np.exp(
+            -0.5 * (1 / sigma * (bins - mu)) ** 2,
+        )
         y = y.cumsum()
         y /= y[-1]
 
@@ -92,7 +102,7 @@ class Visualize(Plot_Base):
 
         ax.grid(True)
         ax.legend(loc='right')
-        ax.set_title('Cumulative step histograms, x = '+str(x_location))
+        ax.set_title('Cumulative step histograms, x = ' + str(x_location))
         ax.set_xlabel('Random Variable (mm)')
         ax.set_ylabel('Occurrence')
 
@@ -106,22 +116,24 @@ class Visualize(Plot_Base):
         num_bins = 50
         plt.figure(num=1151)
         n, bins, patches = plt.hist(
-            X, num_bins,
+            X,
+            num_bins,
             density=1,
             color='blue',
             alpha=0.5,
             edgecolor='k',
         )
 
-        y = ((1 / (np.sqrt(2 * np.pi) * sigma)) *
-             np.exp(-0.5 * (1 / sigma * (bins - mu))**2))
+        y = (1 / (np.sqrt(2 * np.pi) * sigma)) * np.exp(
+            -0.5 * (1 / sigma * (bins - mu)) ** 2,
+        )
 
         plt.plot(bins, y, '--', color='black')
 
         plt.xlabel('X-Axis')
         plt.ylabel('Y-Axis')
 
-        plt.title('Histogram, x = '+str(x_location))
+        plt.title('Histogram, x = ' + str(x_location))
 
     def Variogram_Plot(self, Variogram):
 
@@ -130,15 +142,17 @@ class Visualize(Plot_Base):
         for i in range(self.nR):
             plt.figure(123456, figsize=(10, 6))
             plt.plot(Variogram[:, i], alpha=0.1)
-            plt.title('Model: '+self.model_name, fontsize=20)
+            plt.title('Model: ' + self.model_name, fontsize=20)
             plt.xlabel('Lag(m)', fontsize=20)
             plt.ylabel('Variogram', fontsize=20)
             plt.xticks(fontsize=17), plt.yticks(fontsize=17)
-            print('Progress = %.2f' % (i/self.nR*100)+'%', end='\r')
+            print('Progress = %.2f' % (i / self.nR * 100) + '%', end='\r')
 
         plt.plot(
-            self.model.Var_compute(self.hs), 'o',
-            markeredgecolor='k', markerfacecolor='w',
+            self.model.Var_compute(self.hs),
+            'o',
+            markeredgecolor='k',
+            markerfacecolor='w',
         )
 
         Vario_mean = np.zeros(len(self.hs))
@@ -148,8 +162,8 @@ class Visualize(Plot_Base):
 
         plt.plot(Vario_mean, '--', color='blue')
 
-        print('Progress = %.2f' % 100+'%\n', end='\r')
+        print('Progress = %.2f' % 100 + '%\n', end='\r')
 
         end_time = time.time()
 
-        print('Time = ', end_time-start_time, 's')
+        print('Time = ', end_time - start_time, 's')

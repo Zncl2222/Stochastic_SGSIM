@@ -3,7 +3,6 @@ from scipy.spatial.distance import pdist, squareform
 
 
 class cov_model:
-
     def __init__(self, hs, bw, a, C0=1):
         self.hs = hs
         self.bw = bw
@@ -31,11 +30,10 @@ class cov_model:
         for h in self.hs:
             Z = []
             for i in range(len(dist[:, 0])):
-                for j in range(i+1, len(dist[:, 0])):
-                    if ((dist[i, j] >= h - self.bw) and
-                            (dist[i, j] <= h + self.bw)):
-                        Z.append(np.power(Y[i, 1]-Y[j, 1], 2))
+                for j in range(i + 1, len(dist[:, 0])):
+                    if (dist[i, j] >= h - self.bw) and (dist[i, j] <= h + self.bw):
+                        Z.append(np.power(Y[i, 1] - Y[j, 1], 2))
             if np.sum(Z) >= 1e-7:
-                variogram.append(np.sum(Z)/(2*len(Z)))
+                variogram.append(np.sum(Z) / (2 * len(Z)))
 
         return np.array(variogram)

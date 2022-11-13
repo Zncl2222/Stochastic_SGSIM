@@ -1,5 +1,4 @@
 class Kriging:
-
     def __init__(self, model):
         self.model = model
         self.hs = model.hs
