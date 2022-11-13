@@ -3,8 +3,8 @@ from uc_sgsim.Cov_Model.base import cov_model
 
 
 class Gaussian(cov_model):
-    def __init__(self, hs, bw, a, C0):
-        super().__init__(hs, bw, a, C0)
+    def __init__(self, bandwidth_step, bandwidth, a, C0):
+        super().__init__(bandwidth_step, bandwidth, a, C0)
         self.model_name = 'Gaussian'
 
     def model(self, h):
@@ -12,8 +12,8 @@ class Gaussian(cov_model):
 
 
 class Spherical(cov_model):
-    def __init__(self, hs, bw, a, C0):
-        super().__init__(hs, bw, a, C0)
+    def __init__(self, bandwidth_step, bandwidth, a, C0):
+        super().__init__(bandwidth_step, bandwidth, a, C0)
         self.model_name = 'Spherical'
 
     def model(self, h):
@@ -24,18 +24,18 @@ class Spherical(cov_model):
 
 
 class Exponential(cov_model):
-    def __init__(self, model, hs, bw, a, C0):
-        super().__init__(hs, bw, a, C0)
+    def __init__(self, model, bandwidth_step, bandwidth, a, C0):
+        super().__init__(bandwidth_step, bandwidth, a, C0)
         self.model_name = 'Exponential'
 
 
 class Circular(cov_model):
-    def __init__(self, model, hs, bw, a, C0):
-        super().__init__(hs, bw, a, C0)
+    def __init__(self, model, bandwidth_step, bandwidth, a, C0):
+        super().__init__(bandwidth_step, bandwidth, a, C0)
         self.model_name = 'Circular'
 
 
 class Linear(cov_model):
-    def __init__(self, model, hs, bw, a, C0):
-        super().__init__(hs, bw, a, C0)
+    def __init__(self, model, bandwidth_step, bandwidth, a, C0):
+        super().__init__(bandwidth_step, bandwidth, a, C0)
         self.model_name = 'Circular'

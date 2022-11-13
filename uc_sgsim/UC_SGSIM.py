@@ -11,16 +11,16 @@ BASE_DIR = Path(__file__).resolve().parent
 
 
 class Simulation:
-    def __init__(self, Y, model, nR, randomseed=0, krige_method='SimpleKrige'):
+    def __init__(self, Y, model, realization_number, randomseed=0, krige_method='SimpleKrige'):
         self.Y = Y
         self.model = model
-        self.nR = nR
-        self.hs = model.hs
-        self.bw = model.bw
+        self.realization_number = realization_number
+        self.bandwidth_step = model.bandwidth_step
+        self.bandwidth = model.bandwidth
         self.randomseed = randomseed
         self.krige_method = krige_method
         self.size = len(self.Y)
-        self.RandomField = np.empty([self.nR, self.size])
+        self.random_field = np.empty([self.realization_number, self.size])
         self.parallel_times = 0
 
     def compute(self, randomseed=0, parallel=False):
@@ -32,15 +32,13 @@ class Simulation:
         initial_seed = self.randomseed
 
         if self.krige_method == 'SimpleKrige':
-
             self.krige = UC.SimpleKrige(self.model)
 
         counts = 0
 
         start_time = time.time()
 
-        while counts < self.nR // self.n_process:
-
+        while counts < self.realization_number // self.n_process:
             boundary_constrained = 0
             unsampled = np.linspace(0, self.size - 1, self.size)
 
@@ -70,7 +68,6 @@ class Simulation:
             )
 
             for i in range(len(unsampled)):
-
                 Z[int(randompath[i])] = self.krige.compute(
                     L,
                     randompath[i],
@@ -89,9 +86,9 @@ class Simulation:
             Z_Gap = abs(Z.max() - Z.min())
 
             if 2 < Z_Gap <= 6.5:
-                self.RandomField[counts, :] = Z
+                self.random_field[counts, :] = Z
                 counts = counts + 1
-                print('Progress = %.2f' % (counts / self.nR * 100) + '%', end='\r')
+                print('Progress = %.2f' % (counts / self.realization_number * 100) + '%', end='\r')
 
             self.randomseed += 1
 
@@ -103,69 +100,66 @@ class Simulation:
         print('Last RandomSeed = %d' % (self.randomseed), '\n')
         print('RandomSeed passed = %d' % (self.randomseed - initial_seed), '\n')
 
-        return self.RandomField
+        return self.random_field
 
     def compute_async(self, n_process, randomseed):
-
         pool = Pool(processes=n_process)
         self.n_process = n_process
-        self.nR = self.nR * n_process
-        self.RandomField = np.empty([self.nR, self.size])
+        self.realization_number = self.realization_number * n_process
+        self.random_field = np.empty([self.realization_number, self.size])
 
         randomseed = []
         parallel = []
         for i in range(n_process):
-            s = self.randomseed + int(i) * (self.nR + 300) * (self.size)
+            s = self.randomseed + int(i) * (self.realization_number + 300) * (self.size)
             randomseed.append(int(s))
             parallel.append(True)
 
         Z = pool.starmap(self.compute, zip(randomseed, parallel))
 
         for i in range(n_process):
-            for j in range(int(self.nR / n_process)):
-                self.RandomField[(j + int(i * self.nR / n_process)), :] = Z[i][j, :]
+            for j in range(int(self.realization_number / n_process)):
+                start = int(i * self.realization_number / n_process)
+                self.random_field[j + start, :] = Z[i][j, :]
 
-        return self.RandomField
+        return self.random_field
 
     def variogram_compute(self, n_process=1):
         pool = Pool(processes=n_process)
         model_len = self.size
-
         x = np.linspace(0, self.size - 1, model_len).reshape(model_len, 1)
-        print(np.shape(self.RandomField))
-        print(np.shape(x))
+
         L = []
-        for i in range(self.nR):
+        for i in range(self.realization_number):
             L.append(
-                np.hstack([x, self.RandomField[i, :].reshape(model_len, 1)]),
+                np.hstack([x, self.random_field[i, :].reshape(model_len, 1)]),
             )
 
         self.Variogram = pool.starmap(self.model.Variogram, zip(L))
         self.Variogram = np.array(self.Variogram).T
 
     def MeanPlot(self, n, mean=0, std=1):
-        m_plot = Visualize(self.model, self.RandomField)
+        m_plot = Visualize(self.model, self.random_field)
         m_plot.MeanPlot(n, mean, std)
 
     def VarPlot(self, mean=0, std=1):
-        s_plot = Visualize(self.model, self.RandomField)
+        s_plot = Visualize(self.model, self.random_field)
         s_plot.Variance_Plot(mean, std)
 
     def Cdf_Plot(self, x_location):
-        c_plot = Visualize(self.model, self.RandomField)
+        c_plot = Visualize(self.model, self.random_field)
         c_plot.CDF_Plot(x_location)
 
     def Hist_Plot(self, x_location):
-        h_plot = Visualize(self.model, self.RandomField)
+        h_plot = Visualize(self.model, self.random_field)
         h_plot.HIST(x_location)
 
     def VarioPlot(self):
-        v_plot = Visualize(self.model, self.RandomField)
-        print(np.shape(self.Variogram))
+        v_plot = Visualize(self.model, self.random_field)
         v_plot.Variogram_Plot(self.Variogram)
 
-    def Save_RandomField(self, path):
-        for i in range(self.nR):
+    def Save_random_field(self, path):
+        for i in range(self.realization_number):
             if i < 10:
                 number = '000' + str(i)
             elif 10 <= i < 100:
@@ -176,19 +170,15 @@ class Simulation:
                 number = str(i)
 
             with open(path + 'Realizations' + number + '.txt', 'w') as f:
-
                 for j in range(0, self.size):
-
                     print(
                         '%.2d' % (j),
-                        '%10.6f' % (self.RandomField[j, i]),
+                        '%10.6f' % (self.random_field[j, i]),
                         file=f,
                     )
 
     def Save_Variogram(self, path):
-
-        for i in range(self.nR):
-
+        for i in range(self.realization_number):
             if i < 10:
                 number = '000' + str(i)
             elif 10 <= i < 100:
@@ -199,18 +189,17 @@ class Simulation:
                 number = str(i)
 
             with open(path + 'Variogram' + number + '.txt', 'w') as f:
-                for j in range(0, len(self.hs)):
-
+                for j in range(0, len(self.bandwidth_step)):
                     print(
                         '%.2d' % (j),
-                        '%10.6f' % (self.RandomField[j, i]),
+                        '%10.6f' % (self.random_field[j, i]),
                         file=f,
                     )
 
 
 class Simulation_byC(Simulation):
-    def __init__(self, Y, model, nR, randomseed=0, krige_method='SimpleKrige'):
-        super().__init__(Y, model, nR, randomseed, krige_method)
+    def __init__(self, Y, model, realization_number, randomseed=0, krige_method='SimpleKrige'):
+        super().__init__(Y, model, realization_number, randomseed, krige_method)
 
     def cpdll(self, randomseed):
         dll = CDLL(str(BASE_DIR) + r'\c_core\uc_sgsim.dll')
@@ -225,50 +214,48 @@ class Simulation_byC(Simulation):
         )
         sgsim.restype = None
         mlen = int(self.size)
-        nR = int(self.nR // self.n_process)
-        RandomField = np.empty([nR, self.size])
-        array = (c_double * (mlen * nR))()
+        realization_number = int(self.realization_number // self.n_process)
+        random_field = np.empty([realization_number, self.size])
+        array = (c_double * (mlen * realization_number))()
 
-        sgsim(array, mlen, nR, 17.32, 1, randomseed)
+        sgsim(array, mlen, realization_number, 17.32, 1, randomseed)
 
-        for i in range(nR):
-            RandomField[i, :] = list(array)[i * mlen : (i + 1) * mlen]
-        return RandomField
+        for i in range(realization_number):
+            random_field[i, :] = list(array)[i * mlen : (i + 1) * mlen]
+        return random_field
 
     def compute_by_dll(self, n_process, randomseed):
-
         pool = Pool(processes=n_process)
         self.n_process = n_process
 
         if self.parallel_times < 1:
-            self.nR = self.nR * n_process
+            self.realization_number = self.realization_number * n_process
             self.parallel_times += 1
         else:
-            self.nR = self.nR
+            self.realization_number = self.realization_number
 
-        self.RandomField = np.empty([self.nR, self.size])
+        self.random_field = np.empty([self.realization_number, self.size])
 
         randomseed = []
         for i in range(n_process):
-            s = self.randomseed + int(i) * (self.nR + 300) * (self.size)
+            s = self.randomseed + int(i) * (self.realization_number + 300) * (self.size)
             randomseed.append(int(s))
 
         Z = pool.starmap(self.cpdll, zip(randomseed))
 
         for i in range(n_process):
-            for j in range(int(self.nR / n_process)):
-                self.RandomField[(j + int(i * self.nR / n_process)), :] = Z[i][j, :]
+            for j in range(int(self.realization_number / n_process)):
+                start = int(i * self.realization_number / n_process)
+                self.random_field[j + start, :] = Z[i][j, :]
 
-        return self.RandomField
+        return self.random_field
 
     def vario_cpdll(self, cpu_number):
         dll = CDLL(str(BASE_DIR) + r'\c_core\uc_sgsim.dll')
         vario = dll.variogram
         vario.argtypes = (
             POINTER(c_double),
-            POINTER(
-                c_double,
-            ),
+            POINTER(c_double),
             c_int,
             c_int,
             c_int,
@@ -276,34 +263,34 @@ class Simulation_byC(Simulation):
         vario.restype = None
 
         mlen = int(self.size)
-        nR = int(self.nR // self.n_process)
+        realization_number = int(self.realization_number // self.n_process)
 
-        Variogram = np.empty([self.size, nR])
-        vario_size = len(self.hs)
+        Variogram = np.empty([self.size, realization_number])
+        vario_size = len(self.bandwidth_step)
 
         vario_array = (c_double * (vario_size))()
-        RandomField_array = (c_double * (mlen))()
+        random_field_array = (c_double * (mlen))()
 
-        Variogram = np.empty([vario_size, nR])
+        Variogram = np.empty([vario_size, realization_number])
 
-        for i in range(nR):
-            RandomField_array[:] = self.RandomField[:, i + cpu_number * nR]
-            vario(RandomField_array, vario_array, mlen, vario_size, 1)
+        for i in range(realization_number):
+            random_field_array[:] = self.random_field[:, i + cpu_number * realization_number]
+            vario(random_field_array, vario_array, mlen, vario_size, 1)
             Variogram[:, i] = list(vario_array)
 
         return Variogram
 
     def vario_compute_by_dll(self, n_process=1):
-
         pool = Pool(processes=n_process)
         self.n_process = n_process
+
         if self.parallel_times < 1:
-            self.nR = self.nR * n_process
+            self.realization_number = self.realization_number * n_process
             self.parallel_times += 1
         else:
-            self.nR = self.nR
+            self.realization_number = self.realization_number
 
-        self.Variogram = np.empty([len(self.hs), self.nR])
+        self.Variogram = np.empty([len(self.bandwidth_step), self.realization_number])
         cpu_number = []
         for i in range(self.n_process):
             cpu_number.append(i)
@@ -311,6 +298,6 @@ class Simulation_byC(Simulation):
         Z = pool.starmap(self.vario_cpdll, zip(cpu_number))
 
         for i in range(n_process):
-            for j in range(int(self.nR / n_process)):
-                self.Variogram[:, (j + int(i * self.nR / n_process))] = Z[i][:, j]
+            for j in range(int(self.realization_number / n_process)):
+                self.Variogram[:, (j + int(i * self.realization_number / n_process))] = Z[i][:, j]
         return self.Variogram
