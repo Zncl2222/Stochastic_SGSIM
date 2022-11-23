@@ -6,12 +6,12 @@
 # include <stdlib.h>
 # include <math.h>
 
-# include "..\header\sgsim.h"
-# include "..\header\krige.h"
-# include "..\header\random_tools.h"
-# include "..\header\matrix_tools.h"
-# include "..\header\variogram.h"
-# include "..\header\sort_tools.h"
+# include "../header/sgsim.h"
+# include "../header/krige.h"
+# include "../header/random_tools.h"
+# include "../header/matrix_tools.h"
+# include "../header/variogram.h"
+# include "../header/sort_tools.h"
 
 int* x_grid;
 int currentlen;
