@@ -4,7 +4,7 @@
 # include <stdio.h>
 # include <math.h>
 
-# include "..\header\random_tools.h"
+# include "../header/random_tools.h"
 
 int* randompath(int* rpath, int length) {
     int rtemp;

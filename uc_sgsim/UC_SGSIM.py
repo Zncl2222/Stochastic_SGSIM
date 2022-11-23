@@ -1,4 +1,5 @@
 import time
+import sys
 from pathlib import Path
 from ctypes import CDLL, POINTER, c_double, c_int
 from multiprocessing import Pool
@@ -201,9 +202,16 @@ class Simulation_byC(Simulation):
     def __init__(self, Y, model, realization_number, randomseed=0, krige_method='SimpleKrige'):
         super().__init__(Y, model, realization_number, randomseed, krige_method)
 
+    def lib_read(self):
+        if sys.platform.startswith('linux'):
+            lib = CDLL(str(BASE_DIR) + r'/c_core/uc_sgsim.so')
+        elif sys.platform.startswith('win32'):
+            lib = CDLL(str(BASE_DIR) + r'/c_core/uc_sgsim.dll')
+        return lib
+
     def cpdll(self, randomseed):
-        dll = CDLL(str(BASE_DIR) + r'\c_core\uc_sgsim.dll')
-        sgsim = dll.sgsim_dll
+        lib = self.lib_read()
+        sgsim = lib.sgsim_dll
         sgsim.argtypes = (
             POINTER(c_double),
             c_int,
@@ -251,8 +259,8 @@ class Simulation_byC(Simulation):
         return self.random_field
 
     def vario_cpdll(self, cpu_number):
-        dll = CDLL(str(BASE_DIR) + r'\c_core\uc_sgsim.dll')
-        vario = dll.variogram
+        lib = self.lib_read()
+        vario = lib.variogram
         vario.argtypes = (
             POINTER(c_double),
             POINTER(c_double),

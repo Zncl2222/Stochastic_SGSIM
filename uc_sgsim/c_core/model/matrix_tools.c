@@ -4,9 +4,13 @@
 # include <math.h>
 # include <stdlib.h>
 # include <string.h>
+# ifdef __WIN32__
 # include <io.h>
+# elif __LINUX__
+# include <sys/io.h>
+# endif
 
-# include "..\header\matrix_tools.h"
+# include "../header/matrix_tools.h"
 
 void LUdecomposition(double** a , double* b, double* x , int n) {
     int i = 0, j = 0, k = 0;
