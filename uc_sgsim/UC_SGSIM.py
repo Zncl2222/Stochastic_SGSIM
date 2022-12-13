@@ -137,7 +137,7 @@ class Simulation:
             )
 
         self.Variogram = pool.starmap(self.model.Variogram, zip(L))
-        self.Variogram = np.array(self.Variogram).T
+        self.Variogram = np.array(self.Variogram)
 
     def MeanPlot(self, n, mean=0, std=1):
         m_plot = Visualize(self.model, self.random_field)
@@ -273,18 +273,17 @@ class Simulation_byC(Simulation):
         mlen = int(self.size)
         realization_number = int(self.realization_number // self.n_process)
 
-        Variogram = np.empty([self.size, realization_number])
         vario_size = len(self.bandwidth_step)
 
         vario_array = (c_double * (vario_size))()
         random_field_array = (c_double * (mlen))()
 
-        Variogram = np.empty([vario_size, realization_number])
+        Variogram = np.empty([realization_number, vario_size])
 
         for i in range(realization_number):
-            random_field_array[:] = self.random_field[:, i + cpu_number * realization_number]
+            random_field_array[:] = self.random_field[i + cpu_number * realization_number, :]
             vario(random_field_array, vario_array, mlen, vario_size, 1)
-            Variogram[:, i] = list(vario_array)
+            Variogram[i, :] = list(vario_array)
 
         return Variogram
 
@@ -298,7 +297,7 @@ class Simulation_byC(Simulation):
         else:
             self.realization_number = self.realization_number
 
-        self.Variogram = np.empty([len(self.bandwidth_step), self.realization_number])
+        self.Variogram = np.empty([self.realization_number, len(self.bandwidth_step)])
         cpu_number = []
         for i in range(self.n_process):
             cpu_number.append(i)
@@ -307,5 +306,5 @@ class Simulation_byC(Simulation):
 
         for i in range(n_process):
             for j in range(int(self.realization_number / n_process)):
-                self.Variogram[:, (j + int(i * self.realization_number / n_process))] = Z[i][:, j]
+                self.Variogram[(j + int(i * self.realization_number / n_process)), :] = Z[i][j, :]
         return self.Variogram
