@@ -134,7 +134,7 @@ class Visualize(Plot_Base):
         print(self.realization_number)
         for i in range(self.realization_number):
             plt.figure(123456, figsize=(10, 6))
-            plt.plot(Variogram[:, i], alpha=0.1)
+            plt.plot(Variogram[i, :], alpha=0.1)
             plt.title('Model: ' + self.model_name, fontsize=20)
             plt.xlabel('Lag(m)', fontsize=20)
             plt.ylabel('Variogram', fontsize=20)
@@ -150,7 +150,7 @@ class Visualize(Plot_Base):
 
         Vario_mean = np.zeros(len(self.bandwidth_step))
         for i in range(len(self.bandwidth_step)):
-            Vario_mean[i] = np.mean(Variogram[i, :])
+            Vario_mean[i] = np.mean(Variogram[:, i])
 
         plt.plot(Vario_mean, '--', color='blue')
 
