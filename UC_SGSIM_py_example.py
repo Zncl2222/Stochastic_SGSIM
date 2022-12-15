@@ -15,7 +15,7 @@ if __name__ == '__main__':
     a = 17.32  # effective range of covariance model
     C0 = 1  # sill of covariance model
 
-    nR = 100  # numbers of realizations in each CPU cores,
+    nR = 10  # numbers of realizations in each CPU cores,
     # if nR = 1 n_process = 8
     # than you will compute total 8 realizations
 
@@ -27,7 +27,7 @@ if __name__ == '__main__':
     # sgsim_c = UC.Simulation_byC(X, Cov_model, nR, randomseed)
 
     # Start compute with n CPUs
-    sgsim.compute_async(n_process=8, randomseed=454)
+    sgsim.compute_async(n_process=1, randomseed=454)
     # sgsim_c.compute_by_dll(n_process=1, randomseed=1231)
 
     mid = time.time()
@@ -42,12 +42,14 @@ if __name__ == '__main__':
     sgsim.variogram_compute(n_process=8)  # Compute variogram before plotting
     # Plot variogram and mean variogram for validation
     sgsim.VarioPlot()
-
+    # Save random_field and variogram
+    sgsim.save_random_field('randomfiel.csv', save_single=True)
+    sgsim.save_variogram('')
     end = time.time()
     print('SGSIM time =', mid - start)
     print('Plot and variogram time =', end - mid)
     print('total time =', end - start)
-    print(np.shape(sgsim.RandomField))
+    print(np.shape(sgsim.random_field))
 
     # plt.show() to show the matplotlib plot
     plt.show()
