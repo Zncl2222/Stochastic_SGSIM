@@ -6,6 +6,7 @@ from multiprocessing import Pool
 
 import numpy as np
 import uc_sgsim as UC
+from uc_sgsim.utils import save_as_multiple_file, save_as_one_file
 from uc_sgsim.Plot.Plot import Visualize
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -136,8 +137,8 @@ class Simulation:
                 np.hstack([x, self.random_field[i, :].reshape(model_len, 1)]),
             )
 
-        self.Variogram = pool.starmap(self.model.Variogram, zip(L))
-        self.Variogram = np.array(self.Variogram)
+        self.variogram = pool.starmap(self.model.Variogram, zip(L))
+        self.variogram = np.array(self.variogram)
 
     def MeanPlot(self, n, mean=0, std=1):
         m_plot = Visualize(self.model, self.random_field)
@@ -157,45 +158,51 @@ class Simulation:
 
     def VarioPlot(self):
         v_plot = Visualize(self.model, self.random_field)
-        v_plot.Variogram_Plot(self.Variogram)
+        v_plot.Variogram_Plot(self.variogram)
 
-    def Save_random_field(self, path):
-        for i in range(self.realization_number):
-            if i < 10:
-                number = '000' + str(i)
-            elif 10 <= i < 100:
-                number = '00' + str(i)
-            elif 100 <= i < 1000:
-                number = '0' + str(i)
-            elif i >= 1000:
-                number = str(i)
+    def save_random_field(self, path, file_type='csv', save_single=False):
+        digit = int(np.log10(self.realization_number))
+        number_head = ''
+        for i in range(digit):
+            number_head += '0'
+        num_val = 1
+        if save_single is False:
+            for i in range(self.realization_number):
+                if i // num_val == 10:
+                    num_val *= 10
+                    number_head = number_head[:-1]
+                number = number_head + str(i)
+                save_as_multiple_file(
+                    number,
+                    self.size,
+                    self.random_field,
+                    file_type,
+                    'Realizations',
+                )
+        else:
+            save_as_one_file(path, self.random_field)
 
-            with open(path + 'Realizations' + number + '.txt', 'w') as f:
-                for j in range(0, self.size):
-                    print(
-                        '%.2d' % (j),
-                        '%10.6f' % (self.random_field[j, i]),
-                        file=f,
-                    )
-
-    def Save_Variogram(self, path):
-        for i in range(self.realization_number):
-            if i < 10:
-                number = '000' + str(i)
-            elif 10 <= i < 100:
-                number = '00' + str(i)
-            elif 100 <= i < 1000:
-                number = '0' + str(i)
-            elif i >= 1000:
-                number = str(i)
-
-            with open(path + 'Variogram' + number + '.txt', 'w') as f:
-                for j in range(0, len(self.bandwidth_step)):
-                    print(
-                        '%.2d' % (j),
-                        '%10.6f' % (self.random_field[j, i]),
-                        file=f,
-                    )
+    def save_variogram(self, path, file_type='csv', save_single=False):
+        digit = int(np.log10(self.realization_number))
+        number_head = ''
+        for i in range(digit):
+            number_head += '0'
+        num_val = 1
+        if save_single is False:
+            for i in range(self.realization_number):
+                if i // num_val == 10:
+                    num_val *= 10
+                    number_head = number_head[:-1]
+                number = number_head + str(i)
+                save_as_multiple_file(
+                    number,
+                    len(self.bandwidth_step),
+                    self.variogram,
+                    file_type,
+                    'Variogram',
+                )
+        else:
+            save_as_one_file(path, self.variogram)
 
 
 class Simulation_byC(Simulation):
@@ -297,7 +304,7 @@ class Simulation_byC(Simulation):
         else:
             self.realization_number = self.realization_number
 
-        self.Variogram = np.empty([self.realization_number, len(self.bandwidth_step)])
+        self.variogram = np.empty([self.realization_number, len(self.bandwidth_step)])
         cpu_number = []
         for i in range(self.n_process):
             cpu_number.append(i)
@@ -306,5 +313,5 @@ class Simulation_byC(Simulation):
 
         for i in range(n_process):
             for j in range(int(self.realization_number / n_process)):
-                self.Variogram[(j + int(i * self.realization_number / n_process)), :] = Z[i][j, :]
-        return self.Variogram
+                self.variogram[(j + int(i * self.realization_number / n_process)), :] = Z[i][j, :]
+        return self.variogram
