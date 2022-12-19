@@ -137,28 +137,28 @@ class Simulation:
                 np.hstack([x, self.random_field[i, :].reshape(model_len, 1)]),
             )
 
-        self.variogram = pool.starmap(self.model.Variogram, zip(L))
+        self.variogram = pool.starmap(self.model.variogram, zip(L))
         self.variogram = np.array(self.variogram)
 
-    def MeanPlot(self, n, mean=0, std=1):
+    def mean_plot(self, n, mean=0, std=1):
         m_plot = Visualize(self.model, self.random_field)
-        m_plot.MeanPlot(n, mean, std)
+        m_plot.mean_plot(n, mean, std)
 
-    def VarPlot(self, mean=0, std=1):
+    def variance_plot(self, mean=0, std=1):
         s_plot = Visualize(self.model, self.random_field)
-        s_plot.Variance_Plot(mean, std)
+        s_plot.variance_plot(mean, std)
 
-    def Cdf_Plot(self, x_location):
+    def cdf_plot(self, x_location):
         c_plot = Visualize(self.model, self.random_field)
-        c_plot.CDF_Plot(x_location)
+        c_plot.cdf_plot(x_location)
 
-    def Hist_Plot(self, x_location):
+    def hist_plot(self, x_location):
         h_plot = Visualize(self.model, self.random_field)
-        h_plot.HIST(x_location)
+        h_plot.hist_plot(x_location)
 
-    def VarioPlot(self):
+    def vario_plot(self):
         v_plot = Visualize(self.model, self.random_field)
-        v_plot.Variogram_Plot(self.variogram)
+        v_plot.variogram_plot(self.variogram)
 
     def save_random_field(self, path, file_type='csv', save_single=False):
         digit = int(np.log10(self.realization_number))
