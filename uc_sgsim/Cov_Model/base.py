@@ -9,21 +9,21 @@ class cov_model:
         self.a = a
         self.C0 = C0
 
-    def Cov_compute(self, Y):
+    def cov_compute(self, Y):
         Z = np.empty(len(Y))
         for i in range(len(Y)):
             Z[i] = self.C0 - self.model(Y[i])
 
         return Z
 
-    def Var_compute(self, Y):
+    def var_compute(self, Y):
         Z = np.empty(len(Y))
         for i in range(len(Y)):
             Z[i] = self.model(Y[i])
 
         return Z
 
-    def Variogram(self, Y):
+    def variogram(self, Y):
         dist = squareform(pdist(Y[:, :1]))
         variogram = []
 

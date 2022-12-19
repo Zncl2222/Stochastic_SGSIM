@@ -24,24 +24,24 @@ if __name__ == '__main__':
 
     # Create simulation and input the Cov model
     sgsim = UC.Simulation(X, Cov_model, nR, randomseed)
-    # sgsim_c = UC.Simulation_byC(X, Cov_model, nR, randomseed)
+    # sgsim = UC.Simulation_byC(X, Cov_model, nR, randomseed)
 
     # Start compute with n CPUs
     sgsim.compute_async(n_process=1, randomseed=454)
-    # sgsim_c.compute_by_dll(n_process=1, randomseed=1231)
+    # sgsim.compute_by_dll(n_process=1, randomseed=1231)
 
     mid = time.time()
 
     # Save data wiht .txt file
     # sgsim.Savedata(r"The path you want to save data")
 
-    sgsim.MeanPlot('ALL')  # Plot mean
-    sgsim.VarPlot()  # Plot variance
-    sgsim.Cdf_Plot(x_location=10)  # CDF
-    sgsim.Hist_Plot(x_location=10)  # Hist
-    sgsim.variogram_compute(n_process=8)  # Compute variogram before plotting
+    sgsim.mean_plot('ALL')  # Plot mean
+    sgsim.variance_plot()  # Plot variance
+    sgsim.cdf_plot(x_location=10)  # CDF
+    sgsim.hist_plot(x_location=10)  # Hist
+    sgsim.variogram_compute(n_process=1)  # Compute variogram before plotting
     # Plot variogram and mean variogram for validation
-    sgsim.VarioPlot()
+    sgsim.vario_plot()
     # Save random_field and variogram
     sgsim.save_random_field('randomfiel.csv', save_single=True)
     sgsim.save_variogram('')

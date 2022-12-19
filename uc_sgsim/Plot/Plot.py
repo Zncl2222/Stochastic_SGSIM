@@ -9,7 +9,7 @@ class Visualize(Plot_Base):
     def __init__(self, model, random_field):
         super().__init__(model, random_field)
 
-    def MeanPlot(self, n, mean=0, std=1):
+    def mean_plot(self, n, mean=0, std=1):
         realization_number = len(self.random_field[:, 0])
 
         if n == 'ALL':
@@ -30,7 +30,7 @@ class Visualize(Plot_Base):
                 plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
                 plt.ylabel('Y', fontsize=20)
 
-    def Variance_Plot(self, mean=0, std=1):
+    def variance_plot(self, mean=0, std=1):
         Zmean = np.zeros(len(self.random_field[0, :]))
 
         for i in range(len(self.random_field[0, :])):
@@ -67,7 +67,7 @@ class Visualize(Plot_Base):
         plt.axhline(y=std**2, color='b', linestyle='--', zorder=1)
         plt.xticks(fontsize=17), plt.yticks(fontsize=17)
 
-    def CDF_Plot(self, x_location):
+    def cdf_plot(self, x_location):
 
         X = self.random_field[:, x_location]
 
@@ -100,7 +100,7 @@ class Visualize(Plot_Base):
         ax.set_xlabel('Random Variable (mm)')
         ax.set_ylabel('Occurrence')
 
-    def HIST(self, x_location):
+    def hist_plot(self, x_location):
 
         X = self.random_field[:, x_location]
 
@@ -129,7 +129,7 @@ class Visualize(Plot_Base):
 
         plt.title('Histogram, x = ' + str(x_location))
 
-    def Variogram_Plot(self, Variogram):
+    def variogram_plot(self, Variogram):
         start_time = time.time()
         print(self.realization_number)
         for i in range(self.realization_number):
@@ -142,7 +142,7 @@ class Visualize(Plot_Base):
             print('Progress = %.2f' % (i / self.realization_number * 100) + '%', end='\r')
 
         plt.plot(
-            self.model.Var_compute(self.bandwidth_step),
+            self.model.var_compute(self.bandwidth_step),
             'o',
             markeredgecolor='k',
             markerfacecolor='w',

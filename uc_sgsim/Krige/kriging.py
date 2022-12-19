@@ -30,9 +30,9 @@ class SimpleKrige(Kriging):
 
         meanvalue = 0
 
-        Cov_dist = np.matrix(self.model.Cov_compute(L[:, 2])).T
+        Cov_dist = np.matrix(self.model.cov_compute(L[:, 2])).T
         Cov_data = squareform(pdist(L[:, :1])).flatten()
-        Cov_data = np.array(self.model.Cov_compute(Cov_data))
+        Cov_data = np.array(self.model.cov_compute(Cov_data))
         Cov_data = Cov_data.reshape(N, N)
 
         weights = np.linalg.inv(Cov_data) * Cov_dist
