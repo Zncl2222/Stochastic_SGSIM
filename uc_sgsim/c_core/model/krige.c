@@ -26,22 +26,22 @@ static float fix;
 void Krige_paramsetting(int mlen, double a, double C0) {
     range = a;
     sill = C0;
-    dist_temp = (double*)malloc(6 * sizeof(double));
-    distcov_temp = (double*)malloc(6 * sizeof(double));
-    distcov_temp2 = (double*)malloc(6 * sizeof(double));
-    flatten_temp = (double*)malloc(6 * 6 * sizeof(double));
-    weights = (double*)malloc(6 * sizeof(double));
-    pdist_temp = (double**)malloc(6 * sizeof(double*));
-    datacov_temp = (double**)malloc(6 * sizeof(double*));
+    dist_temp = (double*)malloc(10 * sizeof(double));
+    distcov_temp = (double*)malloc(10 * sizeof(double));
+    distcov_temp2 = (double*)malloc(10 * sizeof(double));
+    flatten_temp = (double*)malloc(10 * 10 * sizeof(double));
+    weights = (double*)malloc(10 * sizeof(double));
+    pdist_temp = (double**)malloc(10 * sizeof(double*));
+    datacov_temp = (double**)malloc(10 * sizeof(double*));
     array2d_temp = (double**)malloc(mlen * sizeof(double*));
 
     for (int i = 0; i < mlen; i++) {
         array2d_temp[i] = (double*)malloc(3 * sizeof(double));
     }
 
-    for (int i = 0; i < 6; i++) {
-        pdist_temp[i] = (double*)malloc(6 * sizeof(double));
-        datacov_temp[i] = (double*)malloc(6 * sizeof(double));
+    for (int i = 0; i < 10; i++) {
+        pdist_temp[i] = (double*)malloc(10 * sizeof(double));
+        datacov_temp[i] = (double*)malloc(10 * sizeof(double));
     }
 }
 
@@ -104,13 +104,13 @@ void SimpleKrige(double* array, double* sampled, double* u_array, int currlen,
 
             array[(int)unsampled_point] = zvalue + fix;
             // printf("VALUE = %lf \n", zvalue + fix);
-            // Print_Log1(dist_temp,*array2d_temp,distcov_temp2,currlen,neighbor,unsampled_point);
+            // Print_Log1(dist_temp,array2d_temp,distcov_temp2,currlen,neighbor,unsampled_point);
             // Print_Log2(pdist_temp,datacov_temp,distcov_temp,weights,zvalue,fix,neighbor);
         }
     }
 }
 
-void Print_Log1(double* a, double* b, double* c,
+void Print_Log1(double* a, double** b, double* c,
                 int curr, int n_dim, double u) {
     printf("\nU=%d, current=%d\n\n", (int)u, curr);
     printf("Location = ");
@@ -120,7 +120,7 @@ void Print_Log1(double* a, double* b, double* c,
 
     printf("\nData =    ");
     for (int j = 0; j < n_dim; j++) {
-        printf("%lf   ", b[j]);
+        printf("%lf   ", b[j][1]);
     }
 
     printf("\nDistdiff = ");

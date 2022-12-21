@@ -56,7 +56,7 @@ void sgsim(int X, int nR, int hs, int bw,
             SimpleKrige(sgsim_array, sampled, u_array,
                         currentlen, x_grid[i], i, neighbor);
 
-            if (neighbor < 5) {
+            if (neighbor < 8) {
                 neighbor++;
             }
 
@@ -96,7 +96,7 @@ void sgsim_dll(double* RandomFieldX, int X, int nR,
     x_grid = arange(X);
 
     while (count < nR) {
-        printf("NUmber = %d\n", count);
+        printf("Number = %d\n", count);
         currentlen = 0;
         neighbor = 0;
         flag = 0;
@@ -114,7 +114,7 @@ void sgsim_dll(double* RandomFieldX, int X, int nR,
                         x_grid[i], i, neighbor);
             RandomFieldX[(int)x_grid[i]+X*count] = sgsim_array[(int)x_grid[i]];
 
-            if (neighbor < 5)
+            if (neighbor < 8)
                 neighbor++;
 
             sampled[i] = x_grid[i];

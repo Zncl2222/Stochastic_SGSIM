@@ -6,7 +6,7 @@
 
 
 void Cov_model(double *x, double* cov, int n_dim, double a, double C0) {
-    for (int i = 0; i < n_dim * n_dim; i++) {
+    for (int i = 0; i < n_dim; i++) {
         cov[i] = C0 - (C0 * (1 - exp(-3 * pow(x[i], 2) / pow(a, 2))));
     }
 }

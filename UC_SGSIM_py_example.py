@@ -15,7 +15,7 @@ if __name__ == '__main__':
     a = 17.32  # effective range of covariance model
     C0 = 1  # sill of covariance model
 
-    nR = 10  # numbers of realizations in each CPU cores,
+    nR = 100  # numbers of realizations in each CPU cores,
     # if nR = 1 n_process = 8
     # than you will compute total 8 realizations
 
@@ -23,12 +23,12 @@ if __name__ == '__main__':
     Cov_model = Gaussian(hs, bw, a, C0)
 
     # Create simulation and input the Cov model
-    sgsim = UC.Simulation(X, Cov_model, nR, randomseed)
-    # sgsim = UC.Simulation_byC(X, Cov_model, nR, randomseed)
+    # sgsim = UC.Simulation(X, Cov_model, nR, randomseed)
+    sgsim = UC.Simulation_byC(X, Cov_model, nR, randomseed)
 
     # Start compute with n CPUs
-    sgsim.compute_async(n_process=1, randomseed=454)
-    # sgsim.compute_by_dll(n_process=1, randomseed=1231)
+    # sgsim.compute_async(n_process=1, randomseed=454)
+    sgsim.compute_by_dll(n_process=1, randomseed=151)
 
     mid = time.time()
 
@@ -39,7 +39,8 @@ if __name__ == '__main__':
     sgsim.variance_plot()  # Plot variance
     sgsim.cdf_plot(x_location=10)  # CDF
     sgsim.hist_plot(x_location=10)  # Hist
-    sgsim.variogram_compute(n_process=1)  # Compute variogram before plotting
+    sgsim.vario_compute_by_dll(n_process=1)
+    # sgsim.variogram_compute(n_process=1)  # Compute variogram before plotting
     # Plot variogram and mean variogram for validation
     sgsim.vario_plot()
     # Save random_field and variogram
