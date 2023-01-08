@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 2.4.0)
 
-project(UC_SGSIM_c)
+project(uc_sgsim)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # Find source files
 add_library(
-    UC_SGSIM_c SHARED
-    UC_SGSIM_c_example.c
+    uc_sgsim SHARED
     model/cov_model.c
     model/krige.c
     model/matrix_tools.c
@@ -19,17 +19,6 @@ add_library(
 include_directories(header/)
 
 # Install library
-install(TARGETS UC_SGSIM_c DESTINATION lib/UC_SGSIM_c)
+install(TARGETS uc_sgsim)
 
-# Install library headers
-add_library(
-    UC_SGSIM_c SHARED
-    header/cov_model.h
-    header/krige.h
-    header/matrix_tools.h
-    header/random_tools.h
-    header/sgsim.h
-    header/sort_tools.h
-    header/variogram.h
-)
-install(FILES ${HEADERS} DESTINATION include/UC_SGSIM_c)
+set_target_properties(uc_sgsim PROPERTIES PREFIX "")
