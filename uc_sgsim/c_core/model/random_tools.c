@@ -6,6 +6,10 @@
 
 # include "../header/random_tools.h"
 
+# ifndef M_PI
+# define M_PI 3.1415926
+# endif
+
 int* randompath(int* rpath, int length) {
     int rtemp;
 
