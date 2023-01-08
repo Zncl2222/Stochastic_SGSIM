@@ -1,3 +1,6 @@
+![licence](https://img.shields.io/github/license/Zncl2222/Stochastic_UC_SGSIM)
+![python](https://img.shields.io/pypi/pyversions/uc-sgsim)
+
 ## UnConditional Sequential Gaussian SIMulation (UCSGSIM)
 
 
