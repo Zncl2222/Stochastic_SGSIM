@@ -3,12 +3,8 @@
 # include <stdio.h>
 # include <stdlib.h>
 
-# include ".\uc_sgsim\c_core\header\matrix_tools.h"
-# include ".\uc_sgsim\c_core\header\variogram.h"
-# include ".\uc_sgsim\c_core\header\krige.h"
-# include ".\uc_sgsim\c_core\header\cov_model.h"
-# include ".\uc_sgsim\c_core\header\sort_tools.h"
-# include ".\uc_sgsim\c_core\header\sgsim.h"
+# include "./uc_sgsim/c_core/header/sgsim.h"
+
 
 int main() {
     /*
@@ -22,13 +18,12 @@ int main() {
     */
 
     int mlen = 150;
-    int randomseed = 891212;
     int nR = 500;
     int hs = 35;
     int bw = 1;
     int vario_flag = 1;
 
-    sgsim(mlen, nR, hs, bw, 17.32, 1, randomseed, vario_flag);
+    sgsim(mlen, nR, hs, bw, 17.32, 1, vario_flag);
 
     system("PAUSE");
     return 0;
