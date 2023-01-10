@@ -6,3 +6,4 @@ build
 dist
 uc_sgsim.egg-info
 setup.py
+cmake_build/
