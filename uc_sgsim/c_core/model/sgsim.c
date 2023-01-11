@@ -82,6 +82,8 @@ void sgsim(int X, int nR, int hs, int bw,
             }
         }
     }
+    krige_memory_free(X);
+    sgsim_memory_free();
 }
 
 void sgsim_dll(double* RandomFieldX, int X, int nR,
@@ -127,4 +129,12 @@ void sgsim_dll(double* RandomFieldX, int X, int nR,
         if (flag > 0)
             count--;
     }
+}
+
+void sgsim_memory_free() {
+    free(sampled);
+    free(u_array);
+    free(variogram_array);
+    free(sgsim_array);
+    free(x_grid);
 }

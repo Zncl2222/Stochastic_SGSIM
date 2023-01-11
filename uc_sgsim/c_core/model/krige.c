@@ -110,6 +110,27 @@ void SimpleKrige(double* array, double* sampled, double* u_array, int currlen,
     }
 }
 
+void krige_memory_free(int mlen) {
+    free(dist_temp);
+    free(distcov_temp);
+    free(data_temp);
+    free(distcov_temp2);
+    free(flatten_temp);
+    free(weights);
+
+    for (int i = 0; i < mlen; i++) {
+        free(array2d_temp[i]);
+    }
+    free(array2d_temp);
+
+    for (int i = 0; i < 10; i++) {
+        free(pdist_temp[i]);
+        free(datacov_temp[i]);
+    }
+    free(pdist_temp);
+    free(datacov_temp);
+}
+
 void Print_Log1(double* a, double** b, double* c,
                 int curr, int n_dim, double u) {
     printf("\nU=%d, current=%d\n\n", (int)u, curr);
