@@ -6,7 +6,7 @@
 # include <string.h>
 # ifdef __WIN32__
 # include <io.h>
-# elif __LINUX__
+# elif defined(__linux__) || defined(__unix__)
 # include <sys/io.h>
 # endif
 

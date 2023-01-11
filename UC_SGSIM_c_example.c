@@ -4,7 +4,11 @@
 # include <stdlib.h>
 
 # include "./uc_sgsim/c_core/header/sgsim.h"
-
+# if defined(__linux__) || defined(__unix__)
+# define PAUSE printf("Press Enter key to continue..."); fgetc(stdin);//NOLINT
+# elif _WIN32
+# define PAUSE system("PAUSE");
+# endif
 
 int main() {
     /*
@@ -14,17 +18,16 @@ int main() {
         (int) nR = number of realizations
         (int) hs = lag tolal distance (for variogram calculation)
         (int) bw = steps of lag distance
-        (int) vario_flag => if 0 then don't calulate variogram, else 1 then calculate it.
+        (int) vario_flag => 0 won't calulate the variogram.
     */
 
     int mlen = 150;
-    int nR = 500;
+    int nR = 5;
     int hs = 35;
     int bw = 1;
-    int vario_flag = 1;
+    int vario_flag = 0;
 
     sgsim(mlen, nR, hs, bw, 17.32, 1, vario_flag);
-
-    system("PAUSE");
+    PAUSE
     return 0;
 }
