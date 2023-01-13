@@ -13,4 +13,6 @@ void Print_Log1(double* a, double** b, double* c,
 void Print_Log2(double** a, double** b, double* c, double* d,
                 double z_temp, double fix_temp, int n_dim);
 
+void krige_memory_free(int X);
+
 #endif  // UC_SGSIM_C_CORE_HEADER_KRIGE_H_

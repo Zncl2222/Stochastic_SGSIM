@@ -129,6 +129,8 @@ void sgsim_dll(double* RandomFieldX, int X, int nR,
         if (flag > 0)
             count--;
     }
+    krige_memory_free(X);
+    sgsim_memory_free();
 }
 
 void sgsim_memory_free() {
