@@ -1,6 +1,6 @@
 ![licence](https://img.shields.io/github/license/Zncl2222/Stochastic_UC_SGSIM)
 ![python](https://img.shields.io/pypi/pyversions/uc-sgsim)
-![ci](https://img.shields.io/github/actions/workflow/status/Zncl2222/Stochastic_UC_SGSIM/github-pre-commit.yml)
+[![ci](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/github-pre-commit.yml/badge.svg)](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/github-pre-commit.yml)
 ![language](https://img.shields.io/badge/Solutions-black.svg?style=flat&logo=c%2B%2B)
 ![language](https://img.shields.io/badge/Solutions-black.svg?style=flat&logo=python)
 
