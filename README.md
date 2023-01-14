@@ -1,8 +1,10 @@
 ![licence](https://img.shields.io/github/license/Zncl2222/Stochastic_UC_SGSIM)
 ![python](https://img.shields.io/pypi/pyversions/uc-sgsim)
+![ci](https://img.shields.io/github/actions/workflow/status/Zncl2222/Stochastic_UC_SGSIM/github-pre-commit.yml)
+![language](https://img.shields.io/badge/Solutions-black.svg?style=flat&logo=c%2B%2B)
+![language](https://img.shields.io/badge/Solutions-black.svg?style=flat&logo=python)
 
 ## UnConditional Sequential Gaussian SIMulation (UCSGSIM)
-
 
 <h3 align="center">An unconditional random field generation tools that are easy to use.</h3>
 
@@ -122,7 +124,7 @@ if __name__ == '__main__':
 * Performance enhanced
 * More completely documents and easy to use designs.
 
-## Efficiency Comparison
+## Performance
 <p align="center">
 <img src="https://github.com/Zncl2222/Stochastic_SGSIM/blob/main/figure/C_Cpp_py_comparision.png"  width="70%"/>
 </p>
