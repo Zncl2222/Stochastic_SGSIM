@@ -3,7 +3,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 
-# include "./uc_sgsim/c_core/header/sgsim.h"
+# include "./uc_sgsim/c_core/include/sgsim.h"
 # if defined(__linux__) || defined(__unix__)
 # define PAUSE printf("Press Enter key to continue..."); fgetc(stdin);//NOLINT
 # elif _WIN32

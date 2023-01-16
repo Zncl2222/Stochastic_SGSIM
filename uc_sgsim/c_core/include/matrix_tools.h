@@ -1,6 +1,6 @@
 // Copyright 2022 Zncl2222
-#ifndef UC_SGSIM_C_CORE_HEADER_MATRIX_TOOLS_H_
-#define UC_SGSIM_C_CORE_HEADER_MATRIX_TOOLS_H_
+#ifndef UC_SGSIM_C_CORE_INCLUDE_MATRIX_TOOLS_H_
+#define UC_SGSIM_C_CORE_INCLUDE_MATRIX_TOOLS_H_
 
 void LUdecomposition(double** a, double* b, double* x, int n);
 
@@ -20,4 +20,4 @@ int** matrixReshape(int** mat, int matSize,
 void save_1darray(double* array, int array_size,
                 char* fhead, char* path, int n_realizations);
 
-#endif  // UC_SGSIM_C_CORE_HEADER_MATRIX_TOOLS_H_
+#endif  // UC_SGSIM_C_CORE_INCLUDE_MATRIX_TOOLS_H_

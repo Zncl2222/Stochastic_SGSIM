@@ -2,7 +2,7 @@
 
 # include <stdio.h>
 
-# include "../header/sort_tools.h"
+# include "../include/sort_tools.h"
 
 
 void swap(double** x, int i, int j) {
