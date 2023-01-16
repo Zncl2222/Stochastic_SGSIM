@@ -11,18 +11,18 @@ else()
 endif()
 
 # Include header files
-include_directories(header/)
+include_directories(include/)
 
 # Link each file
 add_library(
     uc_sgsim ${LIB_TYPE}
-    model/cov_model.c
-    model/krige.c
-    model/matrix_tools.c
-    model/random_tools.c
-    model/sgsim.c
-    model/sort_tools.c
-    model/variogram.c
+    src/cov_model.c
+    src/krige.c
+    src/matrix_tools.c
+    src/random_tools.c
+    src/sgsim.c
+    src/sort_tools.c
+    src/variogram.c
 )
 
 # compile and install the shared library

@@ -1,6 +1,6 @@
 // Copyright 2022 Zncl2222
-#ifndef UC_SGSIM_C_CORE_HEADER_SORT_TOOLS_H_
-#define UC_SGSIM_C_CORE_HEADER_SORT_TOOLS_H_
+#ifndef UC_SGSIM_C_CORE_INCLUDE_SORT_TOOLS_H_
+#define UC_SGSIM_C_CORE_INCLUDE_SORT_TOOLS_H_
 
 double** sort2d(double** x, int n_dim);
 
@@ -18,4 +18,4 @@ int Partition1d(double* array, int front, int end);
 
 void swap1d(double* X, double* Y);
 
-#endif  // UC_SGSIM_C_CORE_HEADER_SORT_TOOLS_H_
+#endif  // UC_SGSIM_C_CORE_INCLUDE_SORT_TOOLS_H_

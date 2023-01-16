@@ -1,6 +1,6 @@
 // Copyright 2022 Zncl2222
-#ifndef UC_SGSIM_C_CORE_HEADER_KRIGE_H_
-#define UC_SGSIM_C_CORE_HEADER_KRIGE_H_
+#ifndef UC_SGSIM_C_CORE_INCLUDE_KRIGE_H_
+#define UC_SGSIM_C_CORE_INCLUDE_KRIGE_H_
 
 void Krige_paramsetting(int X, double a, double C0);
 
@@ -15,4 +15,4 @@ void Print_Log2(double** a, double** b, double* c, double* d,
 
 void krige_memory_free(int X);
 
-#endif  // UC_SGSIM_C_CORE_HEADER_KRIGE_H_
+#endif  // UC_SGSIM_C_CORE_INCLUDE_KRIGE_H_

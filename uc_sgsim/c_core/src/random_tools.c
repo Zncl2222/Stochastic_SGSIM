@@ -4,7 +4,7 @@
 # include <stdio.h>
 # include <math.h>
 
-# include "../header/random_tools.h"
+# include "../include/random_tools.h"
 
 # ifndef M_PI
 # define M_PI 3.1415926

@@ -3,11 +3,11 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <math.h>
-# include "../header/krige.h"
-# include "../header/random_tools.h"
-# include "../header/cov_model.h"
-# include "../header/matrix_tools.h"
-# include "../header/sort_tools.h"
+# include "../include/krige.h"
+# include "../include/random_tools.h"
+# include "../include/cov_model.h"
+# include "../include/matrix_tools.h"
+# include "../include/sort_tools.h"
 
 static double range;
 static double sill;
