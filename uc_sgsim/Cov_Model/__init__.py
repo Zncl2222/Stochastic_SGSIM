@@ -1,5 +1,5 @@
-from uc_sgsim.Cov_Model.base import cov_model
-from uc_sgsim.Cov_Model.model import (
+from uc_sgsim.cov_model.base import cov_model
+from uc_sgsim.cov_model.model import (
     Circular,
     Exponential,
     Gaussian,

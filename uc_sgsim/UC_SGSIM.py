@@ -7,7 +7,7 @@ from multiprocessing import Pool
 import numpy as np
 import uc_sgsim as UC
 from uc_sgsim.utils import save_as_multiple_file, save_as_one_file
-from uc_sgsim.Plot.Plot import Visualize
+from uc_sgsim.plot.plot import Visualize
 
 BASE_DIR = Path(__file__).resolve().parent
 

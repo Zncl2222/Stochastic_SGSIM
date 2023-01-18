@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
-from uc_sgsim.Krige.base import Kriging
+from uc_sgsim.krige.base import Kriging
 
 
 class SimpleKrige(Kriging):

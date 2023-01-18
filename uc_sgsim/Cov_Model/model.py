@@ -1,5 +1,5 @@
 import numpy as np
-from uc_sgsim.Cov_Model.base import cov_model
+from uc_sgsim.cov_model.base import cov_model
 
 
 class Gaussian(cov_model):

@@ -2,7 +2,7 @@ import time
 
 import matplotlib.pyplot as plt
 import numpy as np
-from uc_sgsim.Plot.base import Plot_Base
+from uc_sgsim.plot.base import Plot_Base
 
 
 class Visualize(Plot_Base):

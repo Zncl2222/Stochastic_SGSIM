@@ -3,7 +3,7 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 import uc_sgsim as UC
-from uc_sgsim.Cov_Model import Gaussian
+from uc_sgsim.cov_model import Gaussian
 
 if __name__ == '__main__':
     start = time.time()
