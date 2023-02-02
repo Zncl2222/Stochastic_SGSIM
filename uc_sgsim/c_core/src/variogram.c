@@ -4,8 +4,8 @@
 # include <math.h>
 # include <malloc.h>
 
-# include "../header/variogram.h"
-# include "../header/matrix_tools.h"
+# include "../include/variogram.h"
+# include "../include/matrix_tools.h"
 
 void variogram(double* array, double* v , int mlen, int hs, int steps) {
     double Z_temp;
