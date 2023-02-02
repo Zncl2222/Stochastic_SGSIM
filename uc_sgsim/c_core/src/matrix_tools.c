@@ -8,6 +8,8 @@
 # include <io.h>
 # elif defined(__linux__) || defined(__unix__)
 # include <sys/io.h>
+# include <sys/stat.h>
+struct stat st = {0};
 # endif
 
 # include "../include/matrix_tools.h"
@@ -143,8 +145,13 @@ void save_1darray(double* array, int array_size,
     char number1[15];
     char fullname[200];
     int max_len =  strlen(path) + strlen(ftail) + strlen(fhead) + 12 + 4;
-
+    # ifdef __linux__
+    if (stat(path, &st) == -1) {
+        mkdir(path, 0777);
+    }
+    # elif defined(__WIN32__)
     mkdir(path);
+    # endif
 
     snprintf(number1, sizeof(number1), "%d", n_realizations);
 
