@@ -175,6 +175,10 @@ void save_1darray(double* array, int array_size,
     snprintf(fullname + strlen(fullname), max_len - strlen(ftail), "%s", ftail);
 
     output = fopen(fullname, "w");
+    if (output == NULL) {
+        perror("Failed to open the file");
+        exit(1);
+    }
 
     for (int i = 0; i < array_size; i++) {
         fprintf(output, "%d\t%.10f\n", i, array[i]);
