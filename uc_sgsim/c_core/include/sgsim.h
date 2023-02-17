@@ -5,7 +5,7 @@
 void sgsim(int X, int nR, int hs, int bw,
         double range, double sill, int vario_flag);
 
-void sgsim_dll(double* RandomFieldX, int X, int nR, double a, double C0);
+void sgsim_dll(double* RandomFieldX, int X, int nR, double a, double C0, int randomseed);
 
 void sgsim_memory_free();
 

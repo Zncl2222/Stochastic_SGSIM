@@ -6,28 +6,26 @@
 
 # include "../include/variogram.h"
 # include "../include/matrix_tools.h"
+# include "../include/c_array.h"
 
 void variogram(double* array, double* v , int mlen, int hs, int steps) {
     double Z_temp;
-    double* temp;
     double count;
-    double** pdist_temp = (double**)malloc(mlen*sizeof(double));
+    c_array(double) temp;
+    c_matrix(double) pdist_temp;
+    c_matrix_init(&pdist_temp, mlen, mlen);
 
-    for (int i = 0; i < mlen; i++) {
-        pdist_temp[i] = (double*)malloc(mlen * sizeof(double));
-    }
+    temp.data = d_arange(mlen);
 
-    temp = d_arange(mlen);
-
-    pdist(temp, pdist_temp, mlen);
+    pdist(temp.data, pdist_temp.data, mlen);
 
     for (int i = 0; i < hs; i += steps) {
         Z_temp = 0;
         count = 0;
         for (int j = 0; j < mlen; j++) {
             for (int k = j + 1; k < mlen; k++) {
-                if (pdist_temp[j][k] >= i - steps &&
-                    pdist_temp[j][k] <= i + steps) {
+                if (pdist_temp.data[j][k] >= i - steps &&
+                    pdist_temp.data[j][k] <= i + steps) {
                     Z_temp = Z_temp+pow((array[j] - array[k]), 2);
                     count += 1;
                 }
@@ -38,6 +36,8 @@ void variogram(double* array, double* v , int mlen, int hs, int steps) {
             v[i] = Z_temp / (2 * count);
         }
     }
+    c_array_free(&temp);
+    c_matrix_free(&pdist_temp);
 }
 
 double variance(double* array, int mlen) {

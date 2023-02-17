@@ -8,41 +8,37 @@
 # include "../include/cov_model.h"
 # include "../include/matrix_tools.h"
 # include "../include/sort_tools.h"
+# include "../include/c_array.h"
 
 static double range;
 static double sill;
-static double** array2d_temp;
-static double* dist_temp;
-static double* distcov_temp;
-static double* data_temp;
-static double* distcov_temp2;
-static double* flatten_temp;
-static double* weights;
-static double** pdist_temp;
-static double** datacov_temp;
-static double zvalue, svar;
+static double zvalue;
+static double svar;
 static float fix;
+
+static c_array(double) dist_temp;
+static c_array(double) distcov_temp;
+static c_array(double) data_temp;
+static c_array(double) distcov_temp2;
+static c_array(double) flatten_temp;
+static c_array(double) weights;
+static c_matrix(double) array2d_temp;
+static c_matrix(double) pdist_temp;
+static c_matrix(double) datacov_temp;
+
 
 void Krige_paramsetting(int mlen, double a, double C0) {
     range = a;
     sill = C0;
-    dist_temp = (double*)malloc(10 * sizeof(double));
-    distcov_temp = (double*)malloc(10 * sizeof(double));
-    distcov_temp2 = (double*)malloc(10 * sizeof(double));
-    flatten_temp = (double*)malloc(10 * 10 * sizeof(double));
-    weights = (double*)malloc(10 * sizeof(double));
-    pdist_temp = (double**)malloc(10 * sizeof(double*));
-    datacov_temp = (double**)malloc(10 * sizeof(double*));
-    array2d_temp = (double**)malloc(mlen * sizeof(double*));
-
-    for (int i = 0; i < mlen; i++) {
-        array2d_temp[i] = (double*)malloc(3 * sizeof(double));
-    }
-
-    for (int i = 0; i < 10; i++) {
-        pdist_temp[i] = (double*)malloc(10 * sizeof(double));
-        datacov_temp[i] = (double*)malloc(10 * sizeof(double));
-    }
+    c_array_init(&dist_temp, 10);
+    c_array_init(&distcov_temp, 10);
+    c_array_init(&distcov_temp2, 10);
+    c_array_init(&weights, 10);
+    c_array_init(&flatten_temp, 10 * 10);
+    c_array_init(&data_temp, 10);
+    c_matrix_init(&pdist_temp, 10, 10);
+    c_matrix_init(&datacov_temp, 10, 10);
+    c_matrix_init(&array2d_temp, 150, 3);
 }
 
 void SimpleKrige(double* array, double* sampled, double* u_array, int currlen,
@@ -65,36 +61,35 @@ void SimpleKrige(double* array, double* sampled, double* u_array, int currlen,
             sampled[idx] = unsampled_point;
         } else {
             for (int j = 0; j < currlen; j++) {
-                array2d_temp[j][0] = sampled[j];
-                array2d_temp[j][1] = array[(int)sampled[j]];
-                array2d_temp[j][2] = u_array[j];
+                array2d_temp.data[j][0] = sampled[j];
+                array2d_temp.data[j][1] = array[(int)sampled[j]];
+                array2d_temp.data[j][2] = u_array[j];
             }
 
             if (neighbor >= 2) {
-                // array2d_temp = sort2d(array2d_temp, currlen);
-                quicksort2d(array2d_temp, 0, currlen - 1);
+                quicksort2d(array2d_temp.data, 0, currlen - 1);
             }
 
             for (int j = 0; j < neighbor; j++) {
-                dist_temp[j] = array2d_temp[j][0];
-                distcov_temp2[j] = array2d_temp[j][2];
+                dist_temp.data[j] = array2d_temp.data[j][0];
+                distcov_temp2.data[j] = array2d_temp.data[j][2];
             }
 
-            pdist(dist_temp, pdist_temp, neighbor);
-            Cov_model2d(pdist_temp, flatten_temp, neighbor, range, sill);
-            matrixform(flatten_temp, datacov_temp, neighbor);
-            Cov_model(distcov_temp2, distcov_temp, neighbor, range, sill);
+            pdist(dist_temp.data, pdist_temp.data, neighbor);
+            Cov_model2d(pdist_temp.data, flatten_temp.data, neighbor, range, sill);
+            matrixform(flatten_temp.data, datacov_temp.data, neighbor);
+            Cov_model(distcov_temp2.data, distcov_temp.data, neighbor, range, sill);
 
             if (neighbor >= 1)
-                LUdecomposition(datacov_temp, distcov_temp, weights, neighbor);
+                LUdecomposition(datacov_temp.data, distcov_temp.data, weights.data, neighbor);
 
             zvalue = 0;
             svar = 0;
             fix = 0;
 
             for (int j = 0; j < neighbor; j++) {
-                zvalue = zvalue + array2d_temp[j][1] * weights[j];
-                svar = svar + distcov_temp[j] * weights[j];
+                zvalue = zvalue + array2d_temp.data[j][1] * weights.data[j];
+                svar = svar + distcov_temp.data[j] * weights.data[j];
             }
 
             svar = 1 - svar;
@@ -103,7 +98,6 @@ void SimpleKrige(double* array, double* sampled, double* u_array, int currlen,
             fix = random_normal() * pow(svar, 0.5);
 
             array[(int)unsampled_point] = zvalue + fix;
-            // printf("VALUE = %lf \n", zvalue + fix);
             // Print_Log1(dist_temp,array2d_temp,distcov_temp2,currlen,neighbor,unsampled_point);
             // Print_Log2(pdist_temp,datacov_temp,distcov_temp,weights,zvalue,fix,neighbor);
         }
@@ -111,24 +105,15 @@ void SimpleKrige(double* array, double* sampled, double* u_array, int currlen,
 }
 
 void krige_memory_free(int mlen) {
-    free(dist_temp);
-    free(distcov_temp);
-    free(data_temp);
-    free(distcov_temp2);
-    free(flatten_temp);
-    free(weights);
-
-    for (int i = 0; i < mlen; i++) {
-        free(array2d_temp[i]);
-    }
-    free(array2d_temp);
-
-    for (int i = 0; i < 10; i++) {
-        free(pdist_temp[i]);
-        free(datacov_temp[i]);
-    }
-    free(pdist_temp);
-    free(datacov_temp);
+    c_array_free(&dist_temp);
+    c_array_free(&distcov_temp);
+    c_array_free(&data_temp);
+    c_array_free(&distcov_temp2);
+    c_array_free(&flatten_temp);
+    c_array_free(&weights);
+    c_matrix_free(&array2d_temp);
+    c_matrix_free(&pdist_temp);
+    c_matrix_free(&datacov_temp);
 }
 
 void Print_Log1(double* a, double** b, double* c,
