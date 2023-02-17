@@ -28,7 +28,6 @@ int count;
 void sgsim(int X, int nR, int hs, int bw,
         double range, double sill, int vario_flag) {
     u_array = (double*)malloc(X * sizeof(double));
-    x_grid = (int*)malloc(X * sizeof(int));
     sampled = (double*)malloc(X * sizeof(double));
 
     variogram_array = (double*)malloc(hs * sizeof(double));
