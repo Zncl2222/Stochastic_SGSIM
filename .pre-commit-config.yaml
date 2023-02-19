@@ -34,4 +34,7 @@ repos:
     rev: v1.3.5
     hooks:
       - id: cpplint
-        args: ["--filter=-readability/casting,-runtime/threadsafe_fn,-build/include_what_you_use"]
+        args: [
+            "--filter=-readability/casting,-runtime/threadsafe_fn,-build/include_what_you_use",
+            "--exclude=uc_sgsim/c_core/include/c_array.h", "--linelength=100"
+        ]
