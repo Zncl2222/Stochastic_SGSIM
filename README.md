@@ -7,7 +7,7 @@
 <h3 align="center">
 
 > __Warning__
-> This project is still in the pre-dev stage, the API usuage may be be subject to change
+> This project is still in the pre-dev stage, the API usuage may be subject to change
 
 </h3>
 
