@@ -42,9 +42,9 @@ void Krige_paramsetting(int mlen, double a, double C0) {
 }
 
 void SimpleKrige(double* array, double* sampled, double* u_array, int currlen,
-                double unsampled_point, int idx, int neighbor) {
+                double unsampled_point, int idx, int neighbor, mt19937_state* rng_state) {
     if (neighbor == 0) {
-        array[(int)unsampled_point] = random_normal();
+        array[(int)unsampled_point] = mt19937_random_normal(rng_state);
         sampled[idx] = unsampled_point;
     } else {
         int close = 0;
@@ -57,7 +57,7 @@ void SimpleKrige(double* array, double* sampled, double* u_array, int currlen,
         }
 
         if (close == 0) {
-            array[(int)unsampled_point] = random_normal();
+            array[(int)unsampled_point] = mt19937_random_normal(rng_state);
             sampled[idx] = unsampled_point;
         } else {
             for (int j = 0; j < currlen; j++) {
@@ -95,7 +95,7 @@ void SimpleKrige(double* array, double* sampled, double* u_array, int currlen,
             svar = 1 - svar;
             if (svar < 0)
                 svar = 0;
-            fix = random_normal() * pow(svar, 0.5);
+            fix = mt19937_random_normal(rng_state) * pow(svar, 0.5);
 
             array[(int)unsampled_point] = zvalue + fix;
             // Print_Log1(dist_temp,array2d_temp,distcov_temp2,currlen,neighbor,unsampled_point);

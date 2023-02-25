@@ -5,16 +5,17 @@
 # include <math.h>
 
 # include "../include/random_tools.h"
+# include "../include/c_array.h"
 
 # ifndef M_PI
 # define M_PI 3.1415926
 # endif
 
-int* randompath(int* rpath, int length) {
+int* randompath(int* rpath, int length, mt19937_state* rng_state) {
     int rtemp;
 
     for (int i = length - 1; i; i--) {
-        int rindex = rand() % i;
+        int rindex = mt19937_generate(rng_state) % i;
 
         do {
             rtemp = rpath[rindex];
