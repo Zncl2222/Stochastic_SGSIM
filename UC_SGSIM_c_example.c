@@ -26,8 +26,9 @@ int main() {
     int hs = 35;
     int bw = 1;
     int vario_flag = 0;
+    int randomseed = 12345;
 
-    sgsim(mlen, nR, hs, bw, 17.32, 1, vario_flag);
+    sgsim(mlen, nR, hs, bw, 17.32, 1, randomseed, vario_flag);
     PAUSE
     return 0;
 }
