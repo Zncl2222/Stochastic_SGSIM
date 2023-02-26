@@ -25,12 +25,12 @@ static int neighbor;
 static int flag;
 static int count;
 
-void set_random_seed(unsigned int seed) {
-    srand(seed);
-}
 
 void sgsim(int X, int nR, int hs, int bw,
-        double range, double sill, int vario_flag) {
+        double range, double sill, int randomseed, int vario_flag) {
+    mt19937_state rng_state;
+    mt19937_init(&rng_state, randomseed);
+
     c_array_init(&u_array, X);
     c_array_init(&sampled, X);
     c_array_init(&variogram_array, hs);
@@ -46,7 +46,7 @@ void sgsim(int X, int nR, int hs, int bw,
         neighbor = 0;
         flag = 0;
 
-        x_grid.data = randompath(x_grid.data, X);
+        x_grid.data = randompath(x_grid.data, X, &rng_state);
 
         for (int i = 0; i < X; i ++) {
             sgsim_array.data[i] = 0;
@@ -56,7 +56,7 @@ void sgsim(int X, int nR, int hs, int bw,
 
         for (int i = 0; i < X; i++) {
             SimpleKrige(sgsim_array.data, sampled.data, u_array.data,
-                        currentlen, x_grid.data[i], i, neighbor);
+                        currentlen, x_grid.data[i], i, neighbor, &rng_state);
 
             if (neighbor < 8) {
                 neighbor++;
@@ -90,7 +90,9 @@ void sgsim(int X, int nR, int hs, int bw,
 
 void sgsim_dll(double* RandomFieldX, int X, int nR,
             double range, double sill, int randomseed) {
-    set_random_seed(randomseed);
+    mt19937_state rng_state;
+    mt19937_init(&rng_state, randomseed);
+
     c_array_init(&x_grid, X);
     c_array_init(&u_array, X);
     c_array_init(&sampled, X);
@@ -106,7 +108,7 @@ void sgsim_dll(double* RandomFieldX, int X, int nR,
         neighbor = 0;
         flag = 0;
 
-        x_grid.data = randompath(x_grid.data, X);
+        x_grid.data = randompath(x_grid.data, X, &rng_state);
 
         for (int i = 0; i < X; i ++) {
             sgsim_array.data[i] = 0;
@@ -116,7 +118,7 @@ void sgsim_dll(double* RandomFieldX, int X, int nR,
 
         for (int i = 0; i < X; i++) {
             SimpleKrige(sgsim_array.data, sampled.data, u_array.data, currentlen,
-                        x_grid.data[i], i, neighbor);
+                        x_grid.data[i], i, neighbor, &rng_state);
             RandomFieldX[(int)x_grid.data[i]+X*count] = sgsim_array.data[(int)x_grid.data[i]];
 
             if (neighbor < 8)
