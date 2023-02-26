@@ -7,7 +7,7 @@ from uc_sgsim.Cov_Model import Gaussian
 
 if __name__ == '__main__':
     start = time.time()
-    X = range(151)  # Model grid, only 1D case is support now
+    X = 151  # Model grid, only 1D case is support now
 
     bw = 1  # lag step
     hs = np.arange(0.0, 35, bw)  # lag range
@@ -15,7 +15,7 @@ if __name__ == '__main__':
     a = 17.32  # effective range of covariance model
     C0 = 1  # sill of covariance model
 
-    nR = 100  # numbers of realizations in each CPU cores,
+    nR = 10  # numbers of realizations in each CPU cores,
     # if nR = 1 n_process = 8
     # than you will compute total 8 realizations
 
@@ -23,8 +23,8 @@ if __name__ == '__main__':
     Cov_model = Gaussian(hs, bw, a, C0)
 
     # Create simulation and input the Cov model
-    # sgsim = UC.Simulation(X, Cov_model, nR, randomseed)
-    sgsim = UC.Simulation_byC(X, Cov_model, nR, randomseed)
+    # sgsim = UC.Simulation(X, Cov_model, nR)
+    sgsim = UC.Simulation_byC(X, Cov_model, nR)
 
     # Start compute with n CPUs
     # sgsim.compute_async(n_process=1, randomseed=454)

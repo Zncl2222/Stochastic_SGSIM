@@ -7,33 +7,18 @@ class SimpleKrige(Kriging):
     def __init__(self, model):
         super().__init__(model)
 
-    def compute(self, L, u, N, randomseed):
-        np.random.seed(randomseed)
+    def prediction(self, sample, unsampled):
+        n_sampled = len(sample)
+        dist_diff = abs(sample[:, 0] - unsampled)
+        dist_diff = dist_diff.reshape(len(dist_diff), 1)
 
-        if N == 0:
-            return np.random.normal(0, 1, 1)
-
-        dist = abs(L[:, 0] - u)
-        dist = dist.reshape(len(dist), 1)
-
-        close_point = 0
-
-        for item in dist:
-            if item <= self.a:
-                close_point += 1
-
-        if close_point == 0:
-            return np.random.normal(0, 1, 1)
-
-        L = np.hstack([L, dist])
-        L = np.array(sorted(L, key=lambda x: x[2])[:N])
-
+        L = np.hstack([sample, dist_diff])
         meanvalue = 0
 
         Cov_dist = np.matrix(self.model.cov_compute(L[:, 2])).T
         Cov_data = squareform(pdist(L[:, :1])).flatten()
         Cov_data = np.array(self.model.cov_compute(Cov_data))
-        Cov_data = Cov_data.reshape(N, N)
+        Cov_data = Cov_data.reshape(n_sampled, n_sampled)
 
         weights = np.linalg.inv(Cov_data) * Cov_dist
         residuals = L[:, 1] - meanvalue
@@ -44,7 +29,32 @@ class SimpleKrige(Kriging):
             krige_var = 0
 
         krige_std = np.sqrt(krige_var)
-        random_fix = np.random.normal(0, krige_std, 1)
-        Simulated = float(estimation + random_fix)
 
-        return Simulated
+        return estimation, krige_std
+
+    def simulation(self, x, unsampled, randomseed, **kwargs):
+        neighbor = kwargs.get('neighbor')
+        if neighbor:
+            dist = abs(x[:, 0] - unsampled)
+            dist = dist.reshape(len(dist), 1)
+            has_neighbor = self.find_neighbor(dist, neighbor)
+            if has_neighbor:
+                return has_neighbor
+            x = np.hstack([x, dist])
+            x = np.array(sorted(x, key=lambda itr: itr[2])[:neighbor])
+
+        estimation, krige_std = self.prediction(x, unsampled)
+
+        random_fix = np.random.normal(0, krige_std, 1)
+        return estimation + random_fix
+
+    def find_neighbor(self, dist, neighbor):
+        if neighbor == 0:
+            return np.random.normal(0, 1, 1)
+        close_point = 0
+        for item in dist:
+            if item <= self.a:
+                close_point += 1
+
+        if close_point == 0:
+            return np.random.normal(0, 1, 1)
