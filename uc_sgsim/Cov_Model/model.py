@@ -1,8 +1,8 @@
 import numpy as np
-from uc_sgsim.Cov_Model.base import cov_model
+from uc_sgsim.cov_model.base import CovModel
 
 
-class Gaussian(cov_model):
+class Gaussian(CovModel):
     def __init__(self, bandwidth_step, bandwidth, a, C0):
         super().__init__(bandwidth_step, bandwidth, a, C0)
         self.model_name = 'Gaussian'
@@ -11,7 +11,7 @@ class Gaussian(cov_model):
         return self.C0 * (1 - np.exp(-3 * h**2 / self.a**2))
 
 
-class Spherical(cov_model):
+class Spherical(CovModel):
     def __init__(self, bandwidth_step, bandwidth, a, C0):
         super().__init__(bandwidth_step, bandwidth, a, C0)
         self.model_name = 'Spherical'
@@ -23,19 +23,19 @@ class Spherical(cov_model):
             return self.C0
 
 
-class Exponential(cov_model):
+class Exponential(CovModel):
     def __init__(self, model, bandwidth_step, bandwidth, a, C0):
         super().__init__(bandwidth_step, bandwidth, a, C0)
         self.model_name = 'Exponential'
 
 
-class Circular(cov_model):
+class Circular(CovModel):
     def __init__(self, model, bandwidth_step, bandwidth, a, C0):
         super().__init__(bandwidth_step, bandwidth, a, C0)
         self.model_name = 'Circular'
 
 
-class Linear(cov_model):
+class Linear(CovModel):
     def __init__(self, model, bandwidth_step, bandwidth, a, C0):
         super().__init__(bandwidth_step, bandwidth, a, C0)
         self.model_name = 'Circular'

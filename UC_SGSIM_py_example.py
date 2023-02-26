@@ -3,7 +3,7 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 import uc_sgsim as UC
-from uc_sgsim.Cov_Model import Gaussian
+from uc_sgsim.cov_model import Gaussian
 
 if __name__ == '__main__':
     start = time.time()
@@ -23,12 +23,12 @@ if __name__ == '__main__':
     Cov_model = Gaussian(hs, bw, a, C0)
 
     # Create simulation and input the Cov model
-    # sgsim = UC.Simulation(X, Cov_model, nR)
-    sgsim = UC.Simulation_byC(X, Cov_model, nR)
+    sgsim = UC.Simulation(X, Cov_model, nR)
+    # sgsim = UC.Simulation_byC(X, Cov_model, nR)
 
     # Start compute with n CPUs
-    # sgsim.compute_async(n_process=1, randomseed=454)
-    sgsim.compute_by_dll(n_process=1, randomseed=151)
+    sgsim.compute_async(n_process=1, randomseed=454)
+    # sgsim.compute_by_dll(n_process=1, randomseed=151)
 
     mid = time.time()
 
@@ -39,8 +39,8 @@ if __name__ == '__main__':
     sgsim.variance_plot()  # Plot variance
     sgsim.cdf_plot(x_location=10)  # CDF
     sgsim.hist_plot(x_location=10)  # Hist
-    sgsim.vario_compute_by_dll(n_process=1)
-    # sgsim.variogram_compute(n_process=1)  # Compute variogram before plotting
+    # sgsim.vario_compute_by_dll(n_process=1)
+    sgsim.variogram_compute(n_process=1)  # Compute variogram before plotting
     # Plot variogram and mean variogram for validation
     sgsim.vario_plot()
     # Save random_field and variogram

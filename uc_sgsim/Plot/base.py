@@ -1,4 +1,4 @@
-class Plot_Base:
+class PlotBase:
     def __init__(self, model, random_field, figsize=(10, 8)):
         self.model = model
         self.random_field = random_field

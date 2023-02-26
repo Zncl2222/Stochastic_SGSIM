@@ -2,7 +2,7 @@ import numpy as np
 from scipy.spatial.distance import pdist, squareform
 
 
-class cov_model:
+class CovModel:
     def __init__(self, bandwidth_step, bandwidth, a, C0=1):
         self.bandwidth_step = bandwidth_step
         self.bandwidth = bandwidth

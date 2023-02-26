@@ -7,7 +7,7 @@ from multiprocessing import Pool
 import numpy as np
 import uc_sgsim as UC
 from uc_sgsim.utils import save_as_multiple_file, save_as_one_file
-from uc_sgsim.Plot.Plot import Visualize
+from uc_sgsim.plot.plot import Visualize
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -73,7 +73,6 @@ class Simulation:
                 z[int(randompath[i])] = self.krige.simulation(
                     L,
                     randompath[i],
-                    self.randomseed,
                     neighbor=neigh,
                 )
                 temp = np.hstack([randompath[i], z[int(randompath[i])]])
@@ -82,19 +81,17 @@ class Simulation:
                 if neigh < 8:
                     neigh += 1
 
-                self.randomseed += 1
+            self.randomseed += 1
 
-            z_Gap = abs(z.max() - z.min())
+            z_gap = abs(z.max() - z.min())
 
-            if 2 < z_Gap <= 6.5:
+            if 2 < z_gap <= 6.5:
                 self.random_field[counts, :] = z
                 counts = counts + 1
                 print('Progress = %.2f' % (counts / self.realization_number * 100) + '%', end='\r')
 
         print('Progress = %.2f' % 100 + '%\n', end='\r')
-
         end_time = time.time()
-
         print('Time = %f' % (end_time - start_time), 's\n')
 
         return self.random_field
