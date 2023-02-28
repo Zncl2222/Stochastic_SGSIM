@@ -5,7 +5,8 @@ from ctypes import CDLL, POINTER, c_double, c_int
 from multiprocessing import Pool
 
 import numpy as np
-import uc_sgsim as UC
+from uc_sgsim.exception import VariogramDoesNotCompute
+from uc_sgsim.krige import SimpleKrige
 from uc_sgsim.random_field import RandomField
 from uc_sgsim.plot.plot import Visualize
 
@@ -23,7 +24,7 @@ class UCSgsim(RandomField):
             self.n_process = 1
 
         if self.krige_method == 'SimpleKrige':
-            self.krige = UC.SimpleKrige(self.model)
+            self.krige = SimpleKrige(self.model)
 
         counts = 0
 
@@ -137,6 +138,8 @@ class UCSgsim(RandomField):
         h_plot.hist_plot(x_location)
 
     def vario_plot(self):
+        if type(self.variogram) == int:
+            raise VariogramDoesNotCompute()
         v_plot = Visualize(self.model, self.random_field)
         v_plot.variogram_plot(self.variogram)
 
