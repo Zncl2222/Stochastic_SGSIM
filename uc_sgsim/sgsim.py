@@ -6,28 +6,16 @@ from multiprocessing import Pool
 
 import numpy as np
 import uc_sgsim as UC
-from uc_sgsim.utils import save_as_multiple_file, save_as_one_file
+from uc_sgsim.random_field import RandomField
 from uc_sgsim.plot.plot import Visualize
 
 BASE_DIR = Path(__file__).resolve().parent
 
 
-class Simulation:
+class UCSgsim(RandomField):
     def __init__(self, x, model, realization_number, krige_method='SimpleKrige'):
-        self.model = model
-        self.realization_number = realization_number
-        self.bandwidth_step = model.bandwidth_step
-        self.bandwidth = model.bandwidth
+        super().__init__(x, model, realization_number)
         self.krige_method = krige_method
-        self.parallel_times = 0
-        self.create_grid(x)
-
-    def create_grid(self, x, y=0):
-        self.x = range(x)
-        self.y = range(y)
-        self.x_size = len(self.x)
-        self.y_size = len(self.y)
-        self.random_field = np.empty([self.realization_number, self.x_size])
 
     def compute(self, randomseed=0, parallel=False):
         self.randomseed = randomseed
@@ -152,54 +140,11 @@ class Simulation:
         v_plot = Visualize(self.model, self.random_field)
         v_plot.variogram_plot(self.variogram)
 
-    def save_random_field(self, path, file_type='csv', save_single=False):
-        digit = int(np.log10(self.realization_number))
-        number_head = ''
-        for i in range(digit):
-            number_head += '0'
-        num_val = 1
-        if save_single is False:
-            for i in range(self.realization_number):
-                if i // num_val == 10:
-                    num_val *= 10
-                    number_head = number_head[:-1]
-                number = number_head + str(i)
-                save_as_multiple_file(
-                    number,
-                    self.x_size,
-                    self.random_field,
-                    file_type,
-                    'Realizations',
-                )
-        else:
-            save_as_one_file(path, self.random_field)
 
-    def save_variogram(self, path, file_type='csv', save_single=False):
-        digit = int(np.log10(self.realization_number))
-        number_head = ''
-        for i in range(digit):
-            number_head += '0'
-        num_val = 1
-        if save_single is False:
-            for i in range(self.realization_number):
-                if i // num_val == 10:
-                    num_val *= 10
-                    number_head = number_head[:-1]
-                number = number_head + str(i)
-                save_as_multiple_file(
-                    number,
-                    len(self.bandwidth_step),
-                    self.variogram,
-                    file_type,
-                    'Variogram',
-                )
-        else:
-            save_as_one_file(path, self.variogram)
-
-
-class Simulation_byC(Simulation):
+class UCSgsimDLL(UCSgsim):
     def __init__(self, Y, model, realization_number, krige_method='SimpleKrige'):
-        super().__init__(Y, model, realization_number, krige_method)
+        super().__init__(Y, model, realization_number)
+        self.krige_method = krige_method
 
     def lib_read(self):
         if sys.platform.startswith('linux'):
@@ -231,13 +176,12 @@ class Simulation_byC(Simulation):
             random_field[i, :] = list(array)[i * mlen : (i + 1) * mlen]
         return random_field
 
-    def compute_by_dll(self, n_process, randomseed):
+    def compute(self, n_process, randomseed):
         pool = Pool(processes=n_process)
         self.n_process = n_process
 
-        if self.parallel_times < 1:
+        if n_process > 1:
             self.realization_number = self.realization_number * n_process
-            self.parallel_times += 1
         else:
             self.realization_number = self.realization_number
 
@@ -257,7 +201,7 @@ class Simulation_byC(Simulation):
 
         return self.random_field
 
-    def vario_cpdll(self, cpu_number):
+    def variogram_cpdll(self, cpu_number):
         lib = self.lib_read()
         vario = lib.variogram
         vario.argtypes = (
@@ -286,13 +230,12 @@ class Simulation_byC(Simulation):
 
         return Variogram
 
-    def vario_compute_by_dll(self, n_process=1):
+    def variogram_compute(self, n_process=1):
         pool = Pool(processes=n_process)
         self.n_process = n_process
 
-        if self.parallel_times < 1:
+        if n_process < 1:
             self.realization_number = self.realization_number * n_process
-            self.parallel_times += 1
         else:
             self.realization_number = self.realization_number
 
@@ -301,7 +244,7 @@ class Simulation_byC(Simulation):
         for i in range(self.n_process):
             cpu_number.append(i)
 
-        z = pool.starmap(self.vario_cpdll, zip(cpu_number))
+        z = pool.starmap(self.variogram_cpdll, zip(cpu_number))
 
         for i in range(n_process):
             for j in range(int(self.realization_number / n_process)):
