@@ -1,7 +1,7 @@
 from uc_sgsim.cov_model import Gaussian, Spherical
 from uc_sgsim.krige import Kriging, SimpleKrige
 from uc_sgsim.plot import Visualize
-from uc_sgsim.uc_sgsim import Simulation, Simulation_byC
+from uc_sgsim.sgsim import UCSgsim, UCSgsimDLL
 
 __all__ = [
     'Gaussian',
@@ -9,6 +9,6 @@ __all__ = [
     'Kriging',
     'SimpleKrige',
     'Visualize',
-    'Simulation',
-    'Simulation_byC',
+    'UCSgsim',
+    'UCSgsimDLL',
 ]
