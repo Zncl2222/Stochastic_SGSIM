@@ -24,18 +24,18 @@ class Spherical(CovModel):
 
 
 class Exponential(CovModel):
-    def __init__(self, model, bandwidth_step, bandwidth, a, C0):
+    def __init__(self, bandwidth_step, bandwidth, a, C0):
         super().__init__(bandwidth_step, bandwidth, a, C0)
         self.model_name = 'Exponential'
 
 
 class Circular(CovModel):
-    def __init__(self, model, bandwidth_step, bandwidth, a, C0):
+    def __init__(self, bandwidth_step, bandwidth, a, C0):
         super().__init__(bandwidth_step, bandwidth, a, C0)
         self.model_name = 'Circular'
 
 
 class Linear(CovModel):
-    def __init__(self, model, bandwidth_step, bandwidth, a, C0):
+    def __init__(self, bandwidth_step, bandwidth, a, C0):
         super().__init__(bandwidth_step, bandwidth, a, C0)
         self.model_name = 'Circular'
