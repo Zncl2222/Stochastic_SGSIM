@@ -1,4 +1,5 @@
 import numpy as np
+from uc_sgsim.exception import VariogramDoesNotCompute
 from uc_sgsim.utils import save_as_multiple_file, save_as_one_file
 
 
@@ -16,6 +17,7 @@ class RandomField:
         self.__x_size = len(self.__x)
         self.__y_size = len(self.__y)
         self.random_field = np.empty([self.__realization_number, self.__x_size])
+        self.variogram = 0
 
     @property
     def x(self):
@@ -53,10 +55,6 @@ class RandomField:
     def bandwidth_step(self):
         return self.__bandwidth_step
 
-    @property
-    def parallel_times(self):
-        return self.__parallel_times
-
     def save_random_field(self, path, file_type='csv', save_single=False):
         digit = int(np.log10(self.realization_number))
         number_head = ''
@@ -80,6 +78,8 @@ class RandomField:
             save_as_one_file(path, self.random_field)
 
     def save_variogram(self, path, file_type='csv', save_single=False):
+        if type(self.variogram) == int:
+            raise VariogramDoesNotCompute()
         digit = int(np.log10(self.realization_number))
         number_head = ''
         for i in range(digit):
