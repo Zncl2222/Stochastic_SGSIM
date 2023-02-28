@@ -131,7 +131,6 @@ class Visualize(PlotBase):
 
     def variogram_plot(self, Variogram):
         start_time = time.time()
-        print(self.realization_number)
         for i in range(self.realization_number):
             plt.figure(123456, figsize=(10, 6))
             plt.plot(Variogram[i, :], alpha=0.1)
