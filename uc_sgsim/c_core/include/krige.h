@@ -10,6 +10,10 @@ void SimpleKrige(double* array, double* sampled, double* u_array,
                 int array_size, double unsampled_point, int idx,
                 int neighbor, mt19937_state* rng_state);
 
+int find_neighbor(double* array, double* sampled, double* u_array,
+                int array_size, double unsampled_point, int idx,
+                int neighbor, mt19937_state* rng_state);
+
 void Print_Log1(double* a, double** b, double* c,
                 int curr, int n_dim, double u);
 
