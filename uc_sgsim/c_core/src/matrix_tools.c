@@ -105,8 +105,8 @@ void matrixform(double* x, double**matrix, int n_dim) {
 
 void flatten(double** x, int n_dim) {
     double* flat;
-
-    flat = (double*)malloc(n_dim*n_dim*sizeof(double));
+    long n = (long)n_dim * n_dim;
+    flat = (double*)malloc(n * sizeof(double));
 
     for (int i = 0; i < n_dim; i++) {
         for (int j = 0; j < n_dim; j++) {
