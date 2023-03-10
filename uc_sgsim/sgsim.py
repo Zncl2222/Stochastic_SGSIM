@@ -99,6 +99,9 @@ class UCSgsim(RandomField):
             parallel.append(True)
 
         z = pool.starmap(self.compute, zip(rand_list, parallel))
+        pool.close()
+        # use pool.join() to measure the coverage of sub process
+        pool.join()
 
         for i in range(n_process):
             for j in range(int(self.realization_number / n_process)):
@@ -119,6 +122,9 @@ class UCSgsim(RandomField):
             )
 
         self.variogram = pool.starmap(self.model.variogram, zip(L))
+        pool.close()
+        # use pool.join() to measure the coverage of sub process
+        pool.join()
         self.variogram = np.array(self.variogram)
 
     def mean_plot(self, n, mean=0, std=1):
@@ -196,6 +202,9 @@ class UCSgsimDLL(UCSgsim):
             rand_list.append(int(s))
 
         z = pool.starmap(self.cpdll, zip(rand_list))
+        pool.close()
+        # use pool.join() to measure the coverage of sub process
+        pool.join()
 
         for i in range(n_process):
             for j in range(int(self.realization_number / n_process)):
@@ -248,6 +257,9 @@ class UCSgsimDLL(UCSgsim):
             cpu_number.append(i)
 
         z = pool.starmap(self.variogram_cpdll, zip(cpu_number))
+        pool.close()
+        # use pool.join() to measure the coverage of sub process
+        pool.join()
 
         for i in range(n_process):
             for j in range(int(self.realization_number / n_process)):
