@@ -24,7 +24,7 @@ class Visualize(PlotBase):
         else:
             for item in n:
                 plt.figure(77879, figsize=self.figsize)
-                plt.plot(self.random_field[item, i] * std + mean)
+                plt.plot(self.random_field[:, item] * std + mean)
                 plt.title('Realizations: ' + self.model_name, fontsize=20)
                 plt.xlabel('Distance(-)', fontsize=20)
                 plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
