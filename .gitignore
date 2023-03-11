@@ -7,3 +7,9 @@ dist
 uc_sgsim.egg-info
 setup.py
 cmake_build/
+Variogram/
+Realizations/
+cbuild/
+randomfield*
+variogram*
+.coverage
