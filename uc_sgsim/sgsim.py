@@ -9,16 +9,23 @@ from uc_sgsim.exception import VariogramDoesNotCompute
 from uc_sgsim.krige import SimpleKrige
 from uc_sgsim.random_field import RandomField
 from uc_sgsim.plot.plot import Visualize
+from uc_sgsim.cov_model.base import CovModel
 
 BASE_DIR = Path(__file__).resolve().parent
 
 
 class UCSgsim(RandomField):
-    def __init__(self, x, model, realization_number, krige_method='SimpleKrige'):
+    def __init__(
+        self,
+        x: int,
+        model: CovModel,
+        realization_number: int,
+        krige_method='SimpleKrige',
+    ):
         super().__init__(x, model, realization_number)
         self.krige_method = krige_method
 
-    def compute(self, randomseed=0, parallel=False):
+    def compute(self, randomseed=0, parallel=False) -> np.array:
         self.randomseed = randomseed
         if parallel is False:
             self.n_process = 1
@@ -85,7 +92,7 @@ class UCSgsim(RandomField):
 
         return self.random_field
 
-    def compute_async(self, n_process, randomseed):
+    def compute_async(self, n_process: int, randomseed: int) -> np.array:
         pool = Pool(processes=n_process)
         self.n_process = n_process
         self.realization_number = self.realization_number * n_process
@@ -110,7 +117,7 @@ class UCSgsim(RandomField):
 
         return self.random_field
 
-    def variogram_compute(self, n_process=1):
+    def variogram_compute(self, n_process=1) -> None:
         pool = Pool(processes=n_process)
         model_len = self.x_size
         x = np.linspace(0, self.x_size - 1, model_len).reshape(model_len, 1)
@@ -127,23 +134,23 @@ class UCSgsim(RandomField):
         pool.join()
         self.variogram = np.array(self.variogram)
 
-    def mean_plot(self, n, mean=0, std=1):
+    def mean_plot(self, n, mean=0, std=1) -> None:
         m_plot = Visualize(self.model, self.random_field)
         m_plot.mean_plot(n, mean, std)
 
-    def variance_plot(self, mean=0, std=1):
+    def variance_plot(self, mean=0, std=1) -> None:
         s_plot = Visualize(self.model, self.random_field)
         s_plot.variance_plot(mean, std)
 
-    def cdf_plot(self, x_location):
+    def cdf_plot(self, x_location: int) -> None:
         c_plot = Visualize(self.model, self.random_field)
         c_plot.cdf_plot(x_location)
 
-    def hist_plot(self, x_location):
+    def hist_plot(self, x_location: int) -> None:
         h_plot = Visualize(self.model, self.random_field)
         h_plot.hist_plot(x_location)
 
-    def vario_plot(self):
+    def vario_plot(self) -> None:
         if type(self.variogram) == int:
             raise VariogramDoesNotCompute()
         v_plot = Visualize(self.model, self.random_field)
@@ -151,18 +158,24 @@ class UCSgsim(RandomField):
 
 
 class UCSgsimDLL(UCSgsim):
-    def __init__(self, Y, model, realization_number, krige_method='SimpleKrige'):
-        super().__init__(Y, model, realization_number)
+    def __init__(
+        self,
+        x: int,
+        model: CovModel,
+        realization_number: int,
+        krige_method='SimpleKrige',
+    ):
+        super().__init__(x, model, realization_number)
         self.krige_method = krige_method
 
-    def lib_read(self):
+    def lib_read(self) -> CDLL:
         if sys.platform.startswith('linux'):
             lib = CDLL(str(BASE_DIR) + r'/c_core/uc_sgsim.so')
         elif sys.platform.startswith('win32'):
             lib = CDLL(str(BASE_DIR) + r'/c_core/uc_sgsim.dll')
         return lib
 
-    def cpdll(self, randomseed):
+    def cpdll(self, randomseed: int) -> list:
         lib = self.lib_read()
         sgsim = lib.sgsim_dll
         sgsim.argtypes = (
@@ -185,7 +198,7 @@ class UCSgsimDLL(UCSgsim):
             random_field[i, :] = list(array)[i * mlen : (i + 1) * mlen]
         return random_field
 
-    def compute(self, n_process, randomseed):
+    def compute(self, n_process: int, randomseed: int) -> np.array:
         pool = Pool(processes=n_process)
         self.n_process = n_process
 
@@ -213,7 +226,7 @@ class UCSgsimDLL(UCSgsim):
 
         return self.random_field
 
-    def variogram_cpdll(self, cpu_number):
+    def variogram_cpdll(self, cpu_number: int) -> np.array:
         lib = self.lib_read()
         vario = lib.variogram
         vario.argtypes = (
@@ -242,7 +255,7 @@ class UCSgsimDLL(UCSgsim):
 
         return Variogram
 
-    def variogram_compute(self, n_process=1):
+    def variogram_compute(self, n_process=1) -> np.array:
         pool = Pool(processes=n_process)
         self.n_process = n_process
 

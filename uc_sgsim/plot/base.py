@@ -1,5 +1,10 @@
+import numpy as np
+
+from uc_sgsim.cov_model.base import CovModel
+
+
 class PlotBase:
-    def __init__(self, model, random_field, figsize=(10, 8)):
+    def __init__(self, model: CovModel, random_field: np.array, figsize=(10, 8)):
         self.__model = model
         self.__random_field = random_field
         self.__figsize = figsize
@@ -12,41 +17,41 @@ class PlotBase:
         self.__realization_number = len(random_field[:, 0])
 
     @property
-    def model(self):
+    def model(self) -> CovModel:
         return self.__model
 
     @property
-    def random_field(self):
+    def random_field(self) -> np.array:
         return self.__random_field
 
     @property
-    def figsize(self):
+    def figsize(self) -> tuple:
         return self.__figsize
 
     @property
-    def model_name(self):
+    def model_name(self) -> str:
         return self.__model_name
 
     @property
-    def bandwidth_step(self):
+    def bandwidth_step(self) -> int:
         return self.__bandwidth_step
 
     @property
-    def bandwidth(self):
+    def bandwidth(self) -> np.array:
         return self.__bandwidth
 
     @property
-    def a(self):
+    def a(self) -> float:
         return self.__a
 
     @property
-    def C0(self):
+    def C0(self) -> float:
         return self.__C0
 
     @property
-    def size(self):
+    def size(self) -> int:
         return self.__size
 
     @property
-    def realization_number(self):
+    def realization_number(self) -> int:
         return self.__realization_number

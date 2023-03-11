@@ -3,43 +3,43 @@ from scipy.spatial.distance import pdist, squareform
 
 
 class CovModel:
-    def __init__(self, bandwidth_step, bandwidth, a, C0=1):
+    def __init__(self, bandwidth_step: int, bandwidth: np.array, a: float, C0=1):
         self.__bandwidth_step = bandwidth_step
         self.__bandwidth = bandwidth
         self.__a = a
         self.__C0 = C0
 
     @property
-    def bandwidth_step(self):
+    def bandwidth_step(self) -> int:
         return self.__bandwidth_step
 
     @property
-    def bandwidth(self):
+    def bandwidth(self) -> np.array:
         return self.__bandwidth
 
     @property
-    def a(self):
+    def a(self) -> float:
         return self.__a
 
     @property
-    def C0(self):
+    def C0(self) -> float:
         return self.__C0
 
-    def cov_compute(self, Y):
+    def cov_compute(self, Y: np.array) -> float:
         Z = np.empty(len(Y))
         for i in range(len(Y)):
             Z[i] = self.__C0 - self.model(Y[i])
 
         return Z
 
-    def var_compute(self, Y):
+    def var_compute(self, Y: np.array) -> float:
         Z = np.empty(len(Y))
         for i in range(len(Y)):
             Z[i] = self.model(Y[i])
 
         return Z
 
-    def variogram(self, Y):
+    def variogram(self, Y: np.array) -> np.array:
         dist = squareform(pdist(Y[:, :1]))
         variogram = []
 
