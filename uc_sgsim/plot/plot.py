@@ -3,13 +3,14 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 from uc_sgsim.plot.base import PlotBase
+from uc_sgsim.cov_model.base import CovModel
 
 
 class Visualize(PlotBase):
-    def __init__(self, model, random_field):
+    def __init__(self, model: CovModel, random_field: np.array):
         super().__init__(model, random_field)
 
-    def mean_plot(self, n, mean=0, std=1):
+    def mean_plot(self, n, mean=0, std=1) -> None:
         realization_number = len(self.random_field[:, 0])
 
         if n == 'ALL':
@@ -30,7 +31,7 @@ class Visualize(PlotBase):
                 plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
                 plt.ylabel('Y', fontsize=20)
 
-    def variance_plot(self, mean=0, std=1):
+    def variance_plot(self, mean=0, std=1) -> None:
         Zmean = np.zeros(len(self.random_field[0, :]))
 
         for i in range(len(self.random_field[0, :])):
@@ -67,7 +68,7 @@ class Visualize(PlotBase):
         plt.axhline(y=std**2, color='b', linestyle='--', zorder=1)
         plt.xticks(fontsize=17), plt.yticks(fontsize=17)
 
-    def cdf_plot(self, x_location):
+    def cdf_plot(self, x_location: int) -> None:
 
         X = self.random_field[:, x_location]
 
@@ -100,7 +101,7 @@ class Visualize(PlotBase):
         ax.set_xlabel('Random Variable (mm)')
         ax.set_ylabel('Occurrence')
 
-    def hist_plot(self, x_location):
+    def hist_plot(self, x_location: int) -> None:
 
         X = self.random_field[:, x_location]
 
@@ -129,7 +130,7 @@ class Visualize(PlotBase):
 
         plt.title('Histogram, x = ' + str(x_location))
 
-    def variogram_plot(self, Variogram):
+    def variogram_plot(self, Variogram: np.array) -> None:
         start_time = time.time()
         for i in range(self.realization_number):
             plt.figure(123456, figsize=(10, 6))

@@ -1,13 +1,14 @@
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
+from uc_sgsim.cov_model.base import CovModel
 from uc_sgsim.krige.base import Kriging
 
 
 class SimpleKrige(Kriging):
-    def __init__(self, model):
+    def __init__(self, model: CovModel):
         super().__init__(model)
 
-    def prediction(self, sample, unsampled):
+    def prediction(self, sample: np.array, unsampled: np.array) -> tuple[float, float]:
         n_sampled = len(sample)
         dist_diff = abs(sample[:, 0] - unsampled)
         dist_diff = dist_diff.reshape(len(dist_diff), 1)
@@ -32,7 +33,7 @@ class SimpleKrige(Kriging):
 
         return estimation, krige_std
 
-    def simulation(self, x, unsampled, **kwargs):
+    def simulation(self, x: int, unsampled: int, **kwargs) -> float:
         neighbor = kwargs.get('neighbor')
         if neighbor:
             dist = abs(x[:, 0] - unsampled)
@@ -48,7 +49,7 @@ class SimpleKrige(Kriging):
         random_fix = np.random.normal(0, krige_std, 1)
         return estimation + random_fix
 
-    def find_neighbor(self, dist, neighbor):
+    def find_neighbor(self, dist: list, neighbor: int) -> float:
         if neighbor == 0:
             return np.random.normal(0, 1, 1)
         close_point = 0

@@ -1,7 +1,13 @@
 import os
 
 
-def save_as_multiple_file(number, size, field, file_type, fieldtype):
+def save_as_multiple_file(
+    number: str,
+    size: int,
+    field: list,
+    file_type: str,
+    fieldtype: str,
+) -> None:
     idx = number.strip('0')
     os.makedirs(f'./{fieldtype}', exist_ok=True)
     idx = 0 if not idx else int(idx)
@@ -14,7 +20,7 @@ def save_as_multiple_file(number, size, field, file_type, fieldtype):
             )
 
 
-def save_as_one_file(path, field):
+def save_as_one_file(path: str, field: list) -> None:
     with open(f'{path}', 'w') as f:
         for i in range(len(field[:, 0])):
             for j in range(len(field[0, :])):
