@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
     # Start compute with n CPUs
     # sgsim.compute_async(n_process=8, randomseed=454)
-    sgsim.compute(n_process=8, randomseed=151)
+    sgsim.compute(n_process=2, randomseed=151)
 
     mid = time.time()
 
@@ -39,7 +39,7 @@ if __name__ == '__main__':
     sgsim.variance_plot()  # Plot variance
     sgsim.cdf_plot(x_location=10)  # CDF
     sgsim.hist_plot(x_location=10)  # Hist
-    sgsim.variogram_compute(n_process=8)  # Compute variogram before plotting
+    sgsim.variogram_compute(n_process=2)  # Compute variogram before plotting
     # Plot variogram and mean variogram for validation
     sgsim.vario_plot()
     # Save random_field and variogram
