@@ -20,7 +20,7 @@ class Visualize(PlotBase):
                 plt.title('Realizations: ' + self.model_name, fontsize=20)
                 plt.xlabel('Distance(-)', fontsize=20)
                 plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
-                plt.ylabel('Y', fontsize=20)
+                plt.ylabel('S', fontsize=20)
 
         else:
             for item in n:
@@ -32,14 +32,14 @@ class Visualize(PlotBase):
                 plt.ylabel('Y', fontsize=20)
 
     def variance_plot(self, mean=0, std=1) -> None:
-        Zmean = np.zeros(len(self.random_field[0, :]))
+        zmean = np.zeros(len(self.random_field[0, :]))
 
         for i in range(len(self.random_field[0, :])):
-            Zmean[i] = np.mean(self.random_field[:, i] * std + mean)
+            zmean[i] = np.mean(self.random_field[:, i] * std + mean)
 
         plt.figure(5212, figsize=self.figsize)
         plt.plot(
-            Zmean,
+            zmean,
             '-s',
             color='k',
             markeredgecolor='k',
@@ -50,14 +50,14 @@ class Visualize(PlotBase):
         plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
         plt.xticks(fontsize=17), plt.yticks(fontsize=17)
 
-        Zvar = np.zeros(len(self.random_field[0, :]))
+        zvar = np.zeros(len(self.random_field[0, :]))
 
         for i in range(len(self.random_field[0, :])):
-            Zvar[i] = np.var(self.random_field[:, i] * std)
+            zvar[i] = np.var(self.random_field[:, i] * std)
 
         plt.figure(52712, figsize=self.figsize)
         plt.plot(
-            Zvar,
+            zvar,
             '-o',
             color='k',
             markeredgecolor='k',
