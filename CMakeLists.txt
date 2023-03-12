@@ -2,9 +2,21 @@ cmake_minimum_required(VERSION 2.4.0)
 enable_testing()
 
 project(uc_sgsim_c_example)
+include(Dart)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage")
+set(CTEST_COVERAGE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/coverage")
 set(CMAKE_VERBOSE_MAKEFILE ON)
 # set true to compile the executable file (win -> .exe, linux -> .out)
 set(IS_EXECUTE true)
+
+set(CTEST_COVERAGE_EXCLUDE
+  '/usr/include/*' # Exclude system headers
+  '${CMAKE_CURRENT_SOURCE_DIR}/test/utest.h' # Exclude a specific file
+)
+add_custom_target(
+    coverage
+    COMMAND ctest -T Coverage
+)
 
 # set output directory
 if(IS_EXECUTE)
