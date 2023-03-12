@@ -3,11 +3,11 @@ from scipy.spatial.distance import pdist, squareform
 
 
 class CovModel:
-    def __init__(self, bandwidth_step: int, bandwidth: np.array, a: float, C0=1):
+    def __init__(self, bandwidth_step: int, bandwidth: np.array, a: float, sill=1):
         self.__bandwidth_step = bandwidth_step
         self.__bandwidth = bandwidth
         self.__a = a
-        self.__C0 = C0
+        self.__sill = sill
 
     @property
     def bandwidth_step(self) -> int:
@@ -22,36 +22,36 @@ class CovModel:
         return self.__a
 
     @property
-    def C0(self) -> float:
-        return self.__C0
+    def sill(self) -> float:
+        return self.__sill
 
-    def cov_compute(self, Y: np.array) -> float:
-        Z = np.empty(len(Y))
-        for i in range(len(Y)):
-            Z[i] = self.__C0 - self.model(Y[i])
+    def cov_compute(self, x: np.array) -> float:
+        z = np.empty(len(x))
+        for i in range(len(x)):
+            z[i] = self.__sill - self.model(x[i])
 
-        return Z
+        return z
 
-    def var_compute(self, Y: np.array) -> float:
-        Z = np.empty(len(Y))
-        for i in range(len(Y)):
-            Z[i] = self.model(Y[i])
+    def var_compute(self, x: np.array) -> float:
+        z = np.empty(len(x))
+        for i in range(len(x)):
+            z[i] = self.model(x[i])
 
-        return Z
+        return z
 
-    def variogram(self, Y: np.array) -> np.array:
-        dist = squareform(pdist(Y[:, :1]))
+    def variogram(self, x: np.array) -> np.array:
+        dist = squareform(pdist(x[:, :1]))
         variogram = []
 
         for h in self.__bandwidth_step:
-            Z = []
+            z = []
             for i in range(len(dist[:, 0])):
                 for j in range(i + 1, len(dist[:, 0])):
                     if (dist[i, j] >= h - self.__bandwidth) and (
                         dist[i, j] <= h + self.__bandwidth
                     ):
-                        Z.append(np.power(Y[i, 1] - Y[j, 1], 2))
-            if np.sum(Z) >= 1e-7:
-                variogram.append(np.sum(Z) / (2 * len(Z)))
+                        z.append(np.power(x[i, 1] - x[j, 1], 2))
+            if np.sum(z) >= 1e-7:
+                variogram.append(np.sum(z) / (2 * len(z)))
 
         return np.array(variogram)

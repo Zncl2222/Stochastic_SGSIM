@@ -12,7 +12,7 @@ class PlotBase:
         self.__bandwidth_step = model.bandwidth_step
         self.__bandwidth = model.bandwidth
         self.__a = model.a
-        self.__C0 = model.C0
+        self.__sill = model.sill
         self.__size = len(random_field)
         self.__realization_number = len(random_field[:, 0])
 
@@ -45,8 +45,8 @@ class PlotBase:
         return self.__a
 
     @property
-    def C0(self) -> float:
-        return self.__C0
+    def sill(self) -> float:
+        return self.__sill
 
     @property
     def size(self) -> int:

@@ -38,24 +38,14 @@ class UCSgsim(RandomField):
         start_time = time.time()
         np.random.seed(self.randomseed)
         while counts < self.realization_number // self.n_process:
-            boundary_constrained = 0
             unsampled = np.linspace(0, self.x_size - 1, self.x_size)
 
-            if boundary_constrained == 0:
-                y_value = np.random.normal(0, 1, 2).reshape(2, 1)
-                x_grid = np.array([0, self.x_size - 1]).reshape(2, 1)
-                z = np.zeros(self.x_size)
-                z[0], z[-1] = y_value[0], y_value[1]
-                unsampled = np.delete(unsampled, [0, -1])
-                neigh = 0
-            else:
-                y_value = np.random.normal(0, 1, 1).reshape(1, 1)
-                ridx = np.random.randint(0, self.x_size - 1, 1)
-                x_grid = np.array([ridx]).reshape(1, 1)
-                z = np.zeros(self.x_size)
-                z[ridx] = y_value[0]
-                unsampled = np.delete(unsampled, [ridx])
-                neigh = 1
+            y_value = np.random.normal(0, 1, 2).reshape(2, 1)
+            x_grid = np.array([0, self.x_size - 1]).reshape(2, 1)
+            z = np.zeros(self.x_size)
+            z[0], z[-1] = y_value[0], y_value[1]
+            unsampled = np.delete(unsampled, [0, -1])
+            neigh = 0
 
             L = np.hstack([x_grid, y_value])
 
@@ -204,8 +194,6 @@ class UCSgsimDLL(UCSgsim):
 
         if n_process > 1:
             self.realization_number = self.realization_number * n_process
-        else:
-            self.realization_number = self.realization_number
 
         self.random_field = np.empty([self.realization_number, self.x_size])
 
@@ -246,14 +234,14 @@ class UCSgsimDLL(UCSgsim):
         vario_array = (c_double * (vario_size))()
         random_field_array = (c_double * (mlen))()
 
-        Variogram = np.empty([realization_number, vario_size])
+        variogram = np.empty([realization_number, vario_size])
 
         for i in range(realization_number):
             random_field_array[:] = self.random_field[i + cpu_number * realization_number, :]
             vario(random_field_array, vario_array, mlen, vario_size, 1)
-            Variogram[i, :] = list(vario_array)
+            variogram[i, :] = list(vario_array)
 
-        return Variogram
+        return variogram
 
     def variogram_compute(self, n_process=1) -> np.array:
         pool = Pool(processes=n_process)
@@ -261,8 +249,6 @@ class UCSgsimDLL(UCSgsim):
 
         if n_process < 1:
             self.realization_number = self.realization_number * n_process
-        else:
-            self.realization_number = self.realization_number
 
         self.variogram = np.empty([self.realization_number, len(self.bandwidth_step)])
         cpu_number = []

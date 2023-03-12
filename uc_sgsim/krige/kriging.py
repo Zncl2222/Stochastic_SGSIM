@@ -16,15 +16,15 @@ class SimpleKrige(Kriging):
         L = np.hstack([sample, dist_diff])
         meanvalue = 0
 
-        Cov_dist = np.matrix(self.model.cov_compute(L[:, 2])).T
-        Cov_data = squareform(pdist(L[:, :1])).flatten()
-        Cov_data = np.array(self.model.cov_compute(Cov_data))
-        Cov_data = Cov_data.reshape(n_sampled, n_sampled)
+        cov_dist = np.matrix(self.model.cov_compute(L[:, 2])).T
+        cov_data = squareform(pdist(L[:, :1])).flatten()
+        cov_data = np.array(self.model.cov_compute(cov_data))
+        cov_data = cov_data.reshape(n_sampled, n_sampled)
 
-        weights = np.linalg.inv(Cov_data) * Cov_dist
+        weights = np.linalg.inv(cov_data) * cov_dist
         residuals = L[:, 1] - meanvalue
         estimation = np.dot(weights.T, residuals) + meanvalue
-        krige_var = float(1 - np.dot(weights.T, Cov_dist))
+        krige_var = float(1 - np.dot(weights.T, cov_dist))
 
         if krige_var < 0:
             krige_var = 0
