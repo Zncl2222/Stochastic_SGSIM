@@ -29,10 +29,17 @@ jobs:
         uses: SonarSource/sonarcloud-github-action@master
         with:
           args: >
+            -Dsonar.projectKey=zncl2222_Stochastic_UC_SGSIM_py
+            -Dsonar.organization=zncl2222
+            -Dsonar.projectName=Stochastic_UC_SGSIM_py
+            -Dsonar.projectVersion=1.0
+            -Dsonar.sonar.sources=uc_sgsim/
+            -Dsonar.tests=tests/
             -Dsonar.exclusions=uc_sgsim/c_core/**
+            -Dsonar.sonar.python.coverage.reportPaths=*coverage*.xml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Put the name of your token here
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_PY }} # Put the name of your token here
 
   c_scan:
     name: SonarCloud-c
@@ -68,8 +75,12 @@ jobs:
       - name: Run sonar-scanner
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Put the name of your token here
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_C }} # Put the name of your token here
         run: |
-          sonar-scanner --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}" \
+          sonar-scanner --define sonar.projectKey=zncl2222_Stochastic_UC_SGSIM_c \
+                        --define sonar.organization=zncl2222 \
+                        --define sonar.projectName=Stochastic_UC_SGSIM_c \
+                        --define sonar.projectVersion=1.0 \
+                        --define sonar.sources=uc_sgsim/c_core/ \
+                        --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}" \
                         --define sonar.coverageReportPaths=coverage.xml \
-                        --define sonar.sources=uc_sgsim/c_core/
