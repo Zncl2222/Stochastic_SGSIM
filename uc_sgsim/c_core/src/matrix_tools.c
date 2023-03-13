@@ -87,7 +87,7 @@ double* d_arange(int x) {
     return space;
 }
 
-void pdist(double* x, double** c, int n_dim) {
+void pdist(const double* x, double** c, int n_dim) {
     for (int i = 0; i < n_dim; i++) {
         for (int j = 0; j < n_dim; j++) {
             c[i][j] = fabs(x[j] - x[i]);
@@ -95,7 +95,7 @@ void pdist(double* x, double** c, int n_dim) {
     }
 }
 
-void matrixform(double* x, double**matrix, int n_dim) {
+void matrixform(const double* x, double**matrix, int n_dim) {
     for (int i = 0; i < n_dim; i++) {
         for (int j = 0; j < n_dim; j++) {
             matrix[i][j] = x[n_dim*i+j];
@@ -103,44 +103,13 @@ void matrixform(double* x, double**matrix, int n_dim) {
     }
 }
 
-void flatten(double** x, int n_dim) {
-    double* flat;
-    long n = (long)n_dim * n_dim;
-    flat = (double*)malloc(n * sizeof(double));
-
-    for (int i = 0; i < n_dim; i++) {
-        for (int j = 0; j < n_dim; j++) {
-            flat[n_dim * i + j] = x[i][j];
-        }
-    }
-}
-
-int** matrixReshape(int** mat, int matSize, int* matColSize, int r, int c) {
-    int matCol = matColSize[0];
-
-    if (matSize*matCol != r * c || (matSize == r && matCol == c)) {
-        printf("(matrixReshape)ERROR: ");
-        printf("Matrix can't reshape to the target shape.\n");
-        return mat;
-    }
-    int** res = (int**)malloc(r*sizeof(int*));
-
-    for (int i = 0; i < r; i++) {
-        res[i] = (int*)malloc(c*sizeof(int));
-    }
-
-    for (int i = 0; i < r * c; i++) {
-        res[i / c][i % c] = mat[i / matCol][i % matCol];
-    }
-
-    return res;
-}
-
 void save_1darray(double* array, int array_size,
                 char* fhead, char* path , int n_realizations) {
     FILE *output;
 
-    char n1[] = "000", n2[] = "00", n3[] = "0";
+    char n1[] = "000";
+    char n2[] = "00";
+    char n3[] = "0";
     char ftail[] =".txt";
     char number1[15];
     char fullname[200];
