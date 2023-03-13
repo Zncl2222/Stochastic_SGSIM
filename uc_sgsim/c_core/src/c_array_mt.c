@@ -6,7 +6,7 @@
  * All rights reserved.
  *
  * -----------------------------------------------------------------------
- * Version: V1.3.0
+ * Version: v1.3.2
  * file   : c_array_mt.c
  *
  * The latest version is avaliable at:
@@ -61,19 +61,16 @@ void mt19937_init(mt19937_state* state, unsigned int seed) {
 unsigned long mt19937_generate(mt19937_state* state) {
     if (state->index >= MT_N) {
         for (int i = 0; i < MT_N - MT_M; i++) {
-            unsigned long x =
-                (state->state[i] & MT_UPPER_MASK) | (state->state[i + 1] & MT_LOWER_MASK);
+            unsigned long x = (state->state[i] & MT_UPPER_MASK) | (state->state[i + 1] & MT_LOWER_MASK);
             state->state[i] = state->state[i + MT_M] ^ (x >> 1) ^ ((x & 1) * MT_MATRIX_A);
         }
 
         for (int i = MT_N - MT_M; i < MT_N-1; i++) {
-            unsigned long x =
-                (state->state[i] & MT_UPPER_MASK) | (state->state[i + 1] & MT_LOWER_MASK);
+            unsigned long x = (state->state[i] & MT_UPPER_MASK) | (state->state[i + 1] & MT_LOWER_MASK);
             state->state[i] = state->state[i + (MT_M-MT_N)] ^ (x >> 1) ^ ((x & 1) * MT_MATRIX_A);
         }
 
-        unsigned long x =
-            (state->state[MT_N - 1] & MT_UPPER_MASK) | (state->state[0] & MT_LOWER_MASK);
+        unsigned long x = (state->state[MT_N - 1] & MT_UPPER_MASK) | (state->state[0] & MT_LOWER_MASK);
         state->state[MT_N - 1] = state->state[MT_M - 1] ^ (x >> 1) ^ ((x & 1) * MT_MATRIX_A);
 
         state->index = 0;
@@ -90,22 +87,22 @@ unsigned long mt19937_generate(mt19937_state* state) {
 
 int mt19937_get_int32_range(mt19937_state* state, int m, int n) {
     return mt19937_generate(state) % (n - m + 1) + m;
-}
+};
 
 float mt19937_get_float(mt19937_state* state) {
-    return mt19937_generate(state) / 4294967296.0;
+    return (float)mt19937_generate(state) / (float)4294967296.0;
 }
 
 float mt19937_get_float_range(mt19937_state* state, float m, float n) {
-    return (mt19937_generate(state) / 4294967296.0) * (n - m) + m;
+    return ((float)mt19937_generate(state) / (float)4294967296.0) * (n - m) + m;
 }
 
 double mt19937_get_double(mt19937_state* state) {
-    return mt19937_generate(state) / 4294967296.0;
+    return (double)mt19937_generate(state) / 4294967296.0;
 }
 
 double mt19937_get_double_range(mt19937_state* state, double m, double n) {
-    return (mt19937_generate(state) / 4294967296.0) * (n - m) + m;
+    return ((double)mt19937_generate(state) / 4294967296.0) * (n - m) + m;
 }
 
 double mt19937_random_normal(mt19937_state* state) {

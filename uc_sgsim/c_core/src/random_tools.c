@@ -16,21 +16,10 @@ int* randompath(int* rpath, int length, mt19937_state* rng_state) {
 
     for (int i = length - 1; i; i--) {
         int rindex = mt19937_generate(rng_state) % i;
-
-        do {
-            rtemp = rpath[rindex];
-            rpath[rindex] = rpath[i];
-            rpath[i] = rtemp;
-        }while(0);
+        rtemp = rpath[rindex];
+        rpath[rindex] = rpath[i];
+        rpath[i] = rtemp;
     }
 
     return rpath;
-}
-
-float random_normal() {
-    float x = rand() / (float)RAND_MAX;
-    float y = rand() / (float)RAND_MAX;
-    float z = sqrt(-2 * log(x)) * cos(2 * M_PI * y);
-
-    return z;
 }

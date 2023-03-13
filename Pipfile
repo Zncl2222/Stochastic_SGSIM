@@ -7,6 +7,7 @@ name = "pypi"
 numpy = "*"
 scipy = "*"
 matplotlib = "*"
+cpplint = "*"
 
 [dev-packages]
 pytest = "*"

@@ -8,7 +8,7 @@
 # include "../include/matrix_tools.h"
 # include "../include/c_array.h"
 
-void variogram(double* array, double* v , int mlen, int hs, int steps) {
+void variogram(const double* array, double* v , int mlen, int hs, int steps) {
     double Z_temp;
     double count;
     c_array(double) temp;
@@ -40,7 +40,7 @@ void variogram(double* array, double* v , int mlen, int hs, int steps) {
     c_matrix_free(&pdist_temp);
 }
 
-double variance(double* array, int mlen) {
+double variance(const double* array, int mlen) {
     double mean = 0;
     double var = 0;
     for (int i = 0; i < mlen; i++) {

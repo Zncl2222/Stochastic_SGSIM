@@ -162,7 +162,7 @@ class UCSgsimDLL(UCSgsim):
         if sys.platform.startswith('linux'):
             lib = CDLL(str(BASE_DIR) + r'/c_core/uc_sgsim.so')
         elif sys.platform.startswith('win32'):
-            lib = CDLL(str(BASE_DIR) + r'/c_core/uc_sgsim.dll')
+            lib = CDLL(str(BASE_DIR) + r'/c_core/uc_sgsim.dll', winmode=0)
         return lib
 
     def cpdll(self, randomseed: int) -> list:
