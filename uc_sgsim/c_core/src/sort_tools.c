@@ -23,34 +23,6 @@ void swap(double** x, int i, int j) {
     x[i][2] = tempp3;
 }
 
-void swap1d(double* X, double* Y) {
-    double temp = *X;
-    *X = *Y;
-    *Y = temp;
-}
-
-double** sort2d(double** x, int n_dim) {
-    for (int i = 0; i < n_dim; i++) {
-        for (int j = i + 1; j < n_dim; j++) {
-            if ( x[j][2] < x[i][2] ) {
-               swap(x, i , j);
-            }
-        }
-    }
-    return x;
-}
-
-double** BubbleSort2d(double** x, int n_dim) {
-    for (int i = 0; i < n_dim; i ++) {
-        for (int j = n_dim - 1; j >= i; j--) {
-            if (x[j][2] > x[j + 1][2]) {
-                swap(x, j, j + 1);
-            }
-        }
-    }
-    return x;
-}
-
 int Partition2d(double** array, int front, int end) {
     int mid = front + (end-front) / 2;
 
@@ -87,33 +59,5 @@ void quicksort2d(double** array, int front, int end) {
         pivot = Partition2d(array, front, end);
         quicksort2d(array, front, pivot-1);
         quicksort2d(array, pivot+1, end);
-    }
-}
-
-int Partition1d(double* array, int front, int end) {
-    double pivotkey = array[front];
-
-    while (front < end) {
-        while (front < end && array[end] >= pivotkey) {
-            end--;
-        }
-        swap1d(&array[front], &array[end]);
-
-        while (front < end && array[front] <= pivotkey) {
-            front++;
-        }
-        swap1d(&array[front], &array[end]);
-    }
-    return front;
-}
-
-
-void quicksort1d(double* array, int front, int end) {
-    int pivot;
-
-    if (front < end) {
-        pivot = Partition1d(array, front, end);
-        quicksort1d(array, front, pivot-1);
-        quicksort1d(array, pivot+1, end);
     }
 }

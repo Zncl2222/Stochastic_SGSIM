@@ -64,7 +64,7 @@ void sgsim(int X, int nR, int hs, int bw,
 
             sampled.data[i] = x_grid.data[i];
             currentlen++;
-            if (isfinite(sgsim_array.data[(int)x_grid.data[i]]) == 0) {
+            if (isfinite(sgsim_array.data[x_grid.data[i]]) == 0) {
                 flag++;
             }
         }
@@ -119,14 +119,14 @@ void sgsim_dll(double* RandomFieldX, int X, int nR,
         for (int i = 0; i < X; i++) {
             SimpleKrige(sgsim_array.data, sampled.data, u_array.data, currentlen,
                         x_grid.data[i], i, neighbor, &rng_state);
-            RandomFieldX[(int)x_grid.data[i]+X*count] = sgsim_array.data[(int)x_grid.data[i]];
+            RandomFieldX[x_grid.data[i]+X*count] = sgsim_array.data[x_grid.data[i]];
 
             if (neighbor < 8)
                 neighbor++;
 
             sampled.data[i] = x_grid.data[i];
             currentlen++;
-            if (isfinite(sgsim_array.data[(int)x_grid.data[i]]) == 0)
+            if (isfinite(sgsim_array.data[x_grid.data[i]]) == 0)
                 flag++;
         }
         count++;

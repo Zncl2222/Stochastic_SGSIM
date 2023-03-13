@@ -6,6 +6,4 @@
 
 int* randompath(int* rpath, int length, mt19937_state* rng_state);
 
-float random_normal();
-
 #endif  // UC_SGSIM_C_CORE_INCLUDE_RANDOM_TOOLS_H_
