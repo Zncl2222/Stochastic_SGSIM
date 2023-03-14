@@ -39,5 +39,6 @@ repos:
             "--linelength=100",
             "--exclude=uc_sgsim/c_core/include/c_array.h",
             "--exclude=uc_sgsim/c_core/src/c_array_mt.c",
-            "--exclude=uc_sgsim/c_core/src/c_array.c"
+            "--exclude=uc_sgsim/c_core/src/c_array.c",
+            "--exclude=uc_sgsim/c_core/tests/utest.h"
         ]
