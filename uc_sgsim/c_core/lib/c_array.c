@@ -8,7 +8,7 @@
     https://github.com/Zncl2222/c_array_tools
 */
 
-# include "../include/c_array.h"
+# include "c_array.h"
 
 /*            This is an implementation of c_array extension            */
 // -----------------------------------------------------------------------

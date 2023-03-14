@@ -5,7 +5,7 @@
 # include <math.h>
 
 # include "../include/random_tools.h"
-# include "../include/c_array.h"
+# include "../lib/c_array.h"
 
 # ifndef M_PI
 # define M_PI 3.1415926

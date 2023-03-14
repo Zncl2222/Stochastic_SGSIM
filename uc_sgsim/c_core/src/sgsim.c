@@ -12,7 +12,7 @@
 # include "../include/matrix_tools.h"
 # include "../include/variogram.h"
 # include "../include/sort_tools.h"
-# include "../include/c_array.h"
+# include "../lib/c_array.h"
 
 static c_array(int) x_grid;
 static c_array(double) u_array;

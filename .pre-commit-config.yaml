@@ -37,8 +37,6 @@ repos:
         args: [
             "--filter=-readability/casting,-runtime/threadsafe_fn,-build/include_what_you_use,-runtime/int",
             "--linelength=100",
-            "--exclude=uc_sgsim/c_core/include/c_array.h",
-            "--exclude=uc_sgsim/c_core/src/c_array_mt.c",
-            "--exclude=uc_sgsim/c_core/src/c_array.c",
+            "--exclude=uc_sgsim/c_core/lib/*",
             "--exclude=uc_sgsim/c_core/tests/utest.h"
         ]

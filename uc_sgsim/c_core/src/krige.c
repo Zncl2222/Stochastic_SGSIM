@@ -8,7 +8,7 @@
 # include "../include/cov_model.h"
 # include "../include/matrix_tools.h"
 # include "../include/sort_tools.h"
-# include "../include/c_array.h"
+# include "../lib/c_array.h"
 
 static double range;
 static double sill;
