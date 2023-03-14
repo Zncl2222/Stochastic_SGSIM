@@ -45,7 +45,7 @@
 
 # include <stdlib.h>
 # include <math.h>
-# include "c_array.h"
+# include "../include/c_array.h"
 
 
 void mt19937_init(mt19937_state* state, unsigned int seed) {

@@ -14,7 +14,7 @@ static double range;
 static double sill;
 static double estimation;
 static double krige_var;
-static float fix;
+static double fix;
 
 static c_array(double) location;
 static c_array(double) loc_cov;
@@ -27,7 +27,7 @@ static c_matrix(double) pdist_temp;
 static c_matrix(double) datacov;
 
 
-void Krige_paramsetting(int mlen, double a, double C0) {
+void Krige_paramsetting(double a, double C0) {
     range = a;
     sill = C0;
     c_array_init(&location, 10);
@@ -88,8 +88,6 @@ void SimpleKrige(double* array, double* sampled, double* u_array, int currlen,
     fix = mt19937_random_normal(rng_state) * pow(krige_var, 0.5);
 
     array[(int)unsampled_point] = estimation + fix;
-    // Print_Log1(dist_temp,array2d_temp,distcov_temp2,currlen,neighbor,unsampled_point);
-    // Print_Log2(pdist_temp,datacov_temp,distcov_temp,weights,estimation,fix,neighbor);
 }
 
 int find_neighbor(double* array, double* sampled, double* u_array, int currlen,
@@ -117,7 +115,7 @@ int find_neighbor(double* array, double* sampled, double* u_array, int currlen,
     return 1;
 }
 
-void krige_memory_free(int mlen) {
+void krige_memory_free() {
     c_array_free(&location);
     c_array_free(&loc_cov);
     c_array_free(&data_temp);

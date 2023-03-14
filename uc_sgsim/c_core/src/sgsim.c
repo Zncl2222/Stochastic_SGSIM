@@ -36,7 +36,7 @@ void sgsim(int X, int nR, int hs, int bw,
     c_array_init(&variogram_array, hs);
     c_array_init(&sgsim_array, X);
 
-    Krige_paramsetting(X, range, sill);  // Initialize parameters
+    Krige_paramsetting(range, sill);  // Initialize parameters
 
     x_grid.data = arange(X);
     count = 0;
@@ -84,7 +84,7 @@ void sgsim(int X, int nR, int hs, int bw,
             }
         }
     }
-    krige_memory_free(X);
+    krige_memory_free();
     sgsim_memory_free();
 }
 
@@ -99,7 +99,7 @@ void sgsim_dll(double* RandomFieldX, int X, int nR,
     c_array_init(&sgsim_array, X);
 
     count = 0;
-    Krige_paramsetting(X, range, sill);  // Initialize parameters
+    Krige_paramsetting(range, sill);  // Initialize parameters
     x_grid.data = arange(X);
 
     while (count < nR) {
@@ -134,7 +134,7 @@ void sgsim_dll(double* RandomFieldX, int X, int nR,
         if (flag > 0)
             count--;
     }
-    krige_memory_free(X);
+    krige_memory_free();
     sgsim_memory_free();
 }
 
