@@ -2,21 +2,9 @@ cmake_minimum_required(VERSION 2.4.0)
 enable_testing()
 
 project(uc_sgsim_c_example)
-include(Dart)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage")
-set(CTEST_COVERAGE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/coverage")
 set(CMAKE_VERBOSE_MAKEFILE ON)
 # set true to compile the executable file (win -> .exe, linux -> .out)
 set(IS_EXECUTE true)
-
-set(CTEST_COVERAGE_EXCLUDE
-  '/usr/include/*' # Exclude system headers
-  '${CMAKE_CURRENT_SOURCE_DIR}/test/utest.h' # Exclude a specific file
-)
-add_custom_target(
-    coverage
-    COMMAND ctest -T Coverage
-)
 
 # set output directory
 if(IS_EXECUTE)
@@ -63,3 +51,39 @@ if(IS_EXECUTE)
         )
     endif()
 endif()
+
+
+# unittest
+project(unittest)
+include(Dart)
+set(IS_EXECUTE true)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage")
+set(CTEST_COVERAGE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/coverage")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/test)
+
+set(CTEST_COVERAGE_EXCLUDE
+  '/usr/include/*' # Exclude system headers
+  '${CMAKE_CURRENT_SOURCE_DIR}/test/utest.h' # Exclude a specific file
+  '${CMAKE_CURRENT_SOURCE_DIR}/src/c_array.c'
+  '${CMAKE_CURRENT_SOURCE_DIR}/src/c_array_mt.c'
+  '${CMAKE_CURRENT_SOURCE_DIR}/include/c_array.h'
+)
+add_custom_target(
+    coverage
+    COMMAND ctest -T Coverage
+)
+
+add_subdirectory(uc_sgsim)
+
+add_executable(
+    unittest
+    uc_sgsim/c_core/tests/sgsim_test.c
+)
+target_link_libraries(unittest uc_sgsim)
+
+add_test(
+    unittest
+    ${CMAKE_COMMAND}
+    --build ${CMAKE_BINARY_DIR}
+    --target unittest
+)

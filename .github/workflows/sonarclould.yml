@@ -81,6 +81,7 @@ jobs:
                         --define sonar.organization=zncl2222 \
                         --define sonar.projectName=Stochastic_UC_SGSIM_c \
                         --define sonar.projectVersion=1.0 \
-                        --define sonar.sources=uc_sgsim/c_core/ \
+                        --define sonar.sources=uc_sgsim/c_core/src/ \
+                        --define sonar.tests=uc_sgsim/c_core/tests/ \
                         --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}" \
                         --define sonar.coverageReportPaths=coverage.xml \
