@@ -4,7 +4,7 @@
 
 # include "c_array.h"
 
-void Krige_paramsetting(int X, double a, double C0);
+void Krige_paramsetting(double a, double C0);
 
 void SimpleKrige(double* array, double* sampled, double* u_array,
                 int array_size, double unsampled_point, int idx,
@@ -20,6 +20,6 @@ void Print_Log1(double* a, double** b, double* c,
 void Print_Log2(double** a, double** b, double* c, double* d,
                 double z_temp, double fix_temp, int n_dim);
 
-void krige_memory_free(int X);
+void krige_memory_free();
 
 #endif  // UC_SGSIM_C_CORE_INCLUDE_KRIGE_H_
