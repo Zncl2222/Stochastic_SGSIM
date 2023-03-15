@@ -26,7 +26,7 @@ void variogram(const double* array, double* v , int mlen, int hs, int steps) {
             for (int k = j + 1; k < mlen; k++) {
                 if (pdist_temp.data[j][k] >= i - steps &&
                     pdist_temp.data[j][k] <= i + steps) {
-                    Z_temp = Z_temp+pow((array[j] - array[k]), 2);
+                    Z_temp = Z_temp + pow((array[j] - array[k]), 2);
                     count += 1;
                 }
             }
@@ -50,7 +50,7 @@ double variance(const double* array, int mlen) {
     mean = mean / mlen;
 
     for (int i = 0; i < mlen; i++) {
-        var = var +(pow(array[i] - mean, 2));
+        var = var + (pow(array[i] - mean, 2));
     }
     var = var / mlen;
 
