@@ -68,6 +68,7 @@ jobs:
         run: |
           cd build
           ./uc_sgsim_c_example.out
+          ./test/unittest
           cd ..
       - name: Collect coverage into one XML report
         run: |
