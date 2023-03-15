@@ -77,10 +77,10 @@ void sgsim(int X, int nR, int hs, int bw,
             count--;
         } else {
             save_1darray(sgsim_array.data, X, "Realizations",
-                        "./Realizations/" , count);
+                        "./Realizations/", nR, count);
             if (vario_flag ==1) {
                 save_1darray(variogram_array.data, hs,
-                            "Variogram", "./Realizations/Variogram/", count);
+                            "Variogram", "./Realizations/Variogram/", nR, count);
             }
         }
     }
