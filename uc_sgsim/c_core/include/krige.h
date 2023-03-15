@@ -14,12 +14,6 @@ int find_neighbor(double* array, double* sampled, double* u_array,
                 int array_size, double unsampled_point, int idx,
                 int neighbor, mt19937_state* rng_state);
 
-void Print_Log1(double* a, double** b, double* c,
-                int curr, int n_dim, double u);
-
-void Print_Log2(double** a, double** b, double* c, double* d,
-                double z_temp, double fix_temp, int n_dim);
-
 void krige_memory_free();
 
 #endif  // UC_SGSIM_C_CORE_INCLUDE_KRIGE_H_
