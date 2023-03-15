@@ -16,8 +16,8 @@ include_directories(include/)
 # Link each file
 add_library(
     uc_sgsim ${LIB_TYPE}
-    src/c_array.c
-    src/c_array_mt.c
+    lib/c_array.c
+    lib/c_array_mt.c
     src/cov_model.c
     src/krige.c
     src/matrix_tools.c

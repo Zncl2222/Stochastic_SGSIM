@@ -2,7 +2,7 @@
 #ifndef UC_SGSIM_C_CORE_INCLUDE_KRIGE_H_
 #define UC_SGSIM_C_CORE_INCLUDE_KRIGE_H_
 
-# include "c_array.h"
+# include "../lib/c_array.h"
 
 void Krige_paramsetting(double a, double C0);
 
