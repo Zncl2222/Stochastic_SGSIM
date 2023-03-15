@@ -6,6 +6,8 @@ void LUdecomposition(double** a, double* b, double* x, int n);
 
 int* arange(int x);
 
+double* d_arange(int x);
+
 void pdist(const double* x, double** c, int n_dim);
 
 void matrixform(const double* x, double**matrix, int n_dim);

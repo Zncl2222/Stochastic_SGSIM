@@ -78,6 +78,16 @@ int* arange(int x) {
     return res;
 }
 
+double* d_arange(int x) {
+    double* space;
+    space = (double*)malloc(x*sizeof(double));
+
+    for (int i = 0; i < x; i++) {
+        space[i] = i;
+    }
+    return space;
+}
+
 void pdist(const double* x, double** c, int n_dim) {
     for (int i = 0; i < n_dim; i++) {
         for (int j = 0; j < n_dim; j++) {
