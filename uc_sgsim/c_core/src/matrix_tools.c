@@ -105,16 +105,13 @@ void matrixform(const double* x, double**matrix, int n_dim) {
 }
 
 void save_1darray(double* array, int array_size,
-                char* fhead, char* path , int n_realizations) {
+                char* fhead, char* path , int total_n, int curr_n) {
     FILE *output;
+    int num_digits = (int)ceil(log10(total_n)) + 1;
+    char format[200];
 
-    char n1[] = "000";
-    char n2[] = "00";
-    char n3[] = "0";
-    char ftail[] =".txt";
-    char number1[15];
-    char fullname[200];
-    int max_len =  strlen(path) + strlen(ftail) + strlen(fhead) + 12 + 4;
+    snprintf(format, sizeof(format), "%s%s%%0%dd.txt", path, fhead, num_digits);
+
     #ifdef __linux__
     if (mkdir(path, 0777 | O_EXCL) == -1) {
         if (errno != EEXIST) {
@@ -129,28 +126,10 @@ void save_1darray(double* array, int array_size,
     }
     #endif
 
-    snprintf(number1, sizeof(number1), "%d", n_realizations);
+    char filename[200];
+    snprintf(filename, sizeof(filename), format, curr_n);
 
-    memset(fullname, '\0', max_len);
-    snprintf(fullname, max_len - strlen(path), "%s", path);
-    snprintf(fullname + strlen(fullname),
-            max_len - strlen(fhead) + 1, "%s", fhead);
-
-    if (n_realizations < 10)
-        snprintf(fullname + strlen(fullname),
-                max_len - strlen(n1) + 1, "%s", n1);
-    else if (n_realizations < 100 && n_realizations >= 10)
-        snprintf(fullname + strlen(fullname),
-                max_len - strlen(n2) + 1, "%s", n2);
-    else if (n_realizations < 1000 && n_realizations >= 100)
-        snprintf(fullname + strlen(fullname),
-                max_len - strlen(n3) + 1, "%s", n3);
-
-    snprintf(fullname + strlen(fullname),
-            max_len - strlen(number1), "%s", number1);
-    snprintf(fullname + strlen(fullname), max_len - strlen(ftail), "%s", ftail);
-
-    output = fopen(fullname, "w");
+    output = fopen(filename, "w");
     if (output == NULL) {
         perror("Failed to open the file");
         exit(1);
