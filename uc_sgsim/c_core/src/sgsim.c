@@ -86,6 +86,7 @@ void sgsim(int X, int nR, int hs, int bw,
     }
     krige_memory_free();
     sgsim_memory_free();
+    c_array_free(&variogram_array);
 }
 
 void sgsim_dll(double* RandomFieldX, int X, int nR,
@@ -93,15 +94,14 @@ void sgsim_dll(double* RandomFieldX, int X, int nR,
     mt19937_state rng_state;
     mt19937_init(&rng_state, randomseed);
 
-    c_array_init(&x_grid, X);
     c_array_init(&u_array, X);
     c_array_init(&sampled, X);
     c_array_init(&sgsim_array, X);
 
-    count = 0;
     Krige_paramsetting(range, sill);  // Initialize parameters
-    x_grid.data = arange(X);
 
+    x_grid.data = arange(X);
+    count = 0;
     while (count < nR) {
         printf("Number = %d\n", count);
         currentlen = 0;
@@ -121,8 +121,9 @@ void sgsim_dll(double* RandomFieldX, int X, int nR,
                         x_grid.data[i], i, neighbor, &rng_state);
             RandomFieldX[x_grid.data[i]+X*count] = sgsim_array.data[x_grid.data[i]];
 
-            if (neighbor < 8)
+            if (neighbor < 8) {
                 neighbor++;
+            }
 
             sampled.data[i] = x_grid.data[i];
             currentlen++;
@@ -141,7 +142,6 @@ void sgsim_dll(double* RandomFieldX, int X, int nR,
 void sgsim_memory_free() {
     c_array_free(&sampled);
     c_array_free(&u_array);
-    c_array_free(&variogram_array);
     c_array_free(&sgsim_array);
     c_array_free(&x_grid);
 }
