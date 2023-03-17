@@ -2,7 +2,9 @@
 #ifndef UC_SGSIM_C_CORE_INCLUDE_MATRIX_TOOLS_H_
 #define UC_SGSIM_C_CORE_INCLUDE_MATRIX_TOOLS_H_
 
-void LUdecomposition(double** a, double* b, double* x, int n);
+void lu_decomposition(double** mat, double** l, double** u, int n);
+
+void lu_inverse_solver(double** mat, double* array, double* result, int n);
 
 int* arange(int x);
 
