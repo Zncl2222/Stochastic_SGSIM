@@ -124,7 +124,7 @@ void save_1darray(double* array, int array_size,
     snprintf(format, sizeof(format), "%s%s%%0%dd.txt", path, fhead, num_digits);
 
     #ifdef __linux__
-    if (mkdir(path, 0777 | O_EXCL) == -1) {
+    if (mkdir(path, 0770 | O_EXCL) == -1) {
         if (errno != EEXIST) {
             printf("Folder already exist!");
         }
