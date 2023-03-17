@@ -14,11 +14,11 @@
 # include "../include/sort_tools.h"
 # include "../lib/c_array.h"
 
-static c_array(int) x_grid;
-static c_array(double) u_array;
-static c_array(double) sampled;
-static c_array(double) variogram_array;
-static c_array(double) sgsim_array;
+static c_array_int x_grid;
+static c_array_double u_array;
+static c_array_double sampled;
+static c_array_double variogram_array;
+static c_array_double sgsim_array;
 
 static int currentlen;
 static int neighbor;

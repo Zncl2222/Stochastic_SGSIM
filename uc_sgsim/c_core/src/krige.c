@@ -16,15 +16,15 @@ static double estimation;
 static double krige_var;
 static double fix;
 
-static c_array(double) location;
-static c_array(double) loc_cov;
-static c_array(double) data_temp;
-static c_array(double) loc_cov2;
-static c_array(double) flatten_temp;
-static c_array(double) weights;
-static c_matrix(double) array2d_temp;
-static c_matrix(double) pdist_temp;
-static c_matrix(double) datacov;
+static c_array_double location;
+static c_array_double loc_cov;
+static c_array_double data_temp;
+static c_array_double loc_cov2;
+static c_array_double flatten_temp;
+static c_array_double weights;
+static c_matrix_double array2d_temp;
+static c_matrix_double pdist_temp;
+static c_matrix_double datacov;
 
 
 void Krige_paramsetting(double a, double C0) {
