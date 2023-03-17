@@ -1,0 +1,3 @@
+ignore:
+  - "uc_sgsim/c_core/lib/*"
+  - "uc_sgsim/c_core/tests/*.h"

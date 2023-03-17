@@ -40,6 +40,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_PY }} # Put the name of your token here
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
+          file: coverage.xml
 
   c_scan:
     name: SonarCloud-c
@@ -86,3 +91,18 @@ jobs:
                         --define sonar.tests=uc_sgsim/c_core/tests/ \
                         --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}" \
                         --define sonar.coverageReportPaths=coverage.xml \
+      - name: Install LCOV
+        shell: bash
+        run: |
+          sudo apt-get --assume-yes install lcov > /dev/null
+      - name: lcov collection
+        shell: bash
+        run: |
+          cd build
+          lcov -c -d . -o cover.info
+          cd ..
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
+          file: cover.info
