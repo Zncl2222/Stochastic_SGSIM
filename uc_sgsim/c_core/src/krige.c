@@ -71,7 +71,7 @@ void SimpleKrige(double* array, double* sampled, double* u_array, int currlen,
     Cov_model(loc_cov2.data, loc_cov.data, neighbor, range, sill);
 
     if (neighbor >= 1)
-        LUdecomposition(datacov.data, loc_cov.data, weights.data, neighbor);
+        lu_inverse_solver(datacov.data, loc_cov.data, weights.data, neighbor);
 
     estimation = 0;
     krige_var = 0;
