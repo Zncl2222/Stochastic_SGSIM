@@ -1,8 +1,25 @@
 ![licence](https://img.shields.io/github/license/Zncl2222/Stochastic_UC_SGSIM)
 ![python](https://img.shields.io/pypi/pyversions/uc-sgsim)
-[![ci](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/github-pre-commit.yml/badge.svg)](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/github-pre-commit.yml)
 ![language](https://img.shields.io/badge/Solutions-black.svg?style=flat&logo=c%2B%2B)
 ![language](https://img.shields.io/badge/Solutions-black.svg?style=flat&logo=python)
+[![ci](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/github-pre-commit.yml/badge.svg)](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/github-pre-commit.yml)
+[![build](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/cmake.yml/badge.svg)](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/cmake.yml)
+[![build](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/codeql.yml/badge.svg)](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/codeql.yml)
+[![codecov](https://codecov.io/github/Zncl2222/Stochastic_UC_SGSIM/branch/main/graph/badge.svg?token=3qZt0OqDNI)](https://codecov.io/github/Zncl2222/Stochastic_UC_SGSIM)
+
+#### Python Sonar Cloud state
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_py&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_py)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_py&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_py)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_py&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_py)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_py&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_py)
+
+
+#### C Sonar Cloud state
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_c&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_c)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_c&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_c)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_c&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_c)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_c&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_c)
+
 
 <h3 align="center">
 
