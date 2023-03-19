@@ -1,4 +1,3 @@
-import unittest
 import pytest
 
 import numpy as np
@@ -9,16 +8,17 @@ from uc_sgsim.exception import VariogramDoesNotCompute
 
 
 @pytest.mark.sgsim
-class UCSgsimTest(unittest.TestCase):
-    def setUp(self) -> None:
-        self.X = 151
-        self.nR = 10
+class TestUCSgsim:
+    @classmethod
+    def setup_class(cls) -> None:
+        cls.X = 151
+        cls.nR = 10
         bw = 1
         hs = np.arange(0.0, 35, bw)
         a = 17.32
         C0 = 1
-        self.gaussian = Gaussian(hs, bw, a, C0)
-        self.spherical = Spherical(hs, bw, a, C0)
+        cls.gaussian = Gaussian(hs, bw, a, C0)
+        cls.spherical = Spherical(hs, bw, a, C0)
 
     def sgsim_plot(self, sgsim: uc.UCSgsim) -> None:
         sgsim.mean_plot('ALL')
@@ -62,12 +62,12 @@ class UCSgsimTest(unittest.TestCase):
     def test_uc_sgsim_varigram_exception(self):
         sgsim = uc.UCSgsimDLL(self.X, self.gaussian, self.nR)
         sgsim.compute(n_process=1, randomseed=454)
-        self.assertRaises(VariogramDoesNotCompute, lambda: sgsim.vario_plot())
+        with pytest.raises(VariogramDoesNotCompute):
+            sgsim.vario_plot()
 
         sgsim = uc.UCSgsim(self.X, self.gaussian, self.nR)
         sgsim.compute_async(n_process=1, randomseed=454)
-        self.assertRaises(VariogramDoesNotCompute, lambda: sgsim.vario_plot())
-        self.assertRaises(
-            VariogramDoesNotCompute,
-            lambda: sgsim.save_variogram('variogram/', save_single=False),
-        )
+        with pytest.raises(VariogramDoesNotCompute):
+            sgsim.vario_plot()
+        with pytest.raises(VariogramDoesNotCompute):
+            sgsim.save_variogram('variogram/', save_single=False)
