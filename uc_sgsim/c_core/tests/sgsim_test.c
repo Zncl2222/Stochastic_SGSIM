@@ -7,26 +7,15 @@
 # include "utest.h"
 
 UTEST(test, sgsim) {
-    int mlen = 150;
-    int nR = 5;
-    int hs = 35;
-    int bw = 1;
-    int randomseed = 12345;
+    struct sgsim_t sgsim_example;
+    sgsim_init(&sgsim_example, 150, 5, 12345, 0);
 
-    sgsim(mlen, nR, hs, bw, 17.32, 1, randomseed, 0);
-    sgsim(mlen, nR, hs, bw, 17.32, 1, randomseed, 1);
-}
+    struct cov_model_t cov_example;
+    cov_model_init(&cov_example, 1, 35, 17.32, 1);
 
-UTEST(test, sgsim_dll) {
-    int mlen = 150;
-    int nR = 5;
-    int hs = 35;
-    int bw = 1;
-    int randomseed = 1455;
-    double* x;
-    x = malloc(nR * mlen * sizeof(double));
-    sgsim_dll(x, mlen, nR, 17.32, 1, randomseed);
-    free(x);
+    sgsim_run(&sgsim_example, &cov_example, 0);
+    sgsim_run(&sgsim_example, &cov_example, 1);
+    sgsim_t_free(&sgsim_example);
 }
 
 UTEST_MAIN();
