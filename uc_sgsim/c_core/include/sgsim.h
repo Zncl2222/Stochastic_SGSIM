@@ -2,11 +2,24 @@
 #ifndef UC_SGSIM_C_CORE_INCLUDE_SGSIM_H_
 #define UC_SGSIM_C_CORE_INCLUDE_SGSIM_H_
 
-void sgsim(int X, int nR, int hs, int bw,
-        double range, double sill, int randomseed, int vario_flag);
+# include "cov_model.h"
+# include "../lib/c_array.h"
 
-void sgsim_dll(double* RandomFieldX, int X, int nR, double a, double C0, int randomseed);
+struct sgsim_t {
+    int x_grid;
+    int realization_numbers;
+    int randomseed;
+    int if_alloc_memory;
+    double* array;
+};
 
-void sgsim_memory_free();
+void sgsim_init(struct sgsim_t* _sgsim, int x_grid,
+                int realization_numbers, int randomseed, int if_alloc_memory);
+
+void sgsim_run(struct sgsim_t* _sgsim, const struct cov_model_t* cov_model, int vario_flag);
+
+void sgsim_t_free(struct sgsim_t* _sgsim);
+
+static void sgsim_memory_free();
 
 #endif   // UC_SGSIM_C_CORE_INCLUDE_SGSIM_H_

@@ -10,6 +10,7 @@ from uc_sgsim.krige import SimpleKrige
 from uc_sgsim.random_field import RandomField
 from uc_sgsim.plot.plot import Visualize
 from uc_sgsim.cov_model.base import CovModel
+from uc_sgsim.utils import CovModelStructure, SgsimStructure
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -165,27 +166,42 @@ class UCSgsimDLL(UCSgsim):
             lib = CDLL(str(BASE_DIR) + r'/c_core/uc_sgsim.dll', winmode=0)
         return lib
 
-    def cpdll(self, randomseed: int) -> list:
+    def cpdll(self, randomseed: int) -> np.array:
         lib = self.lib_read()
-        sgsim = lib.sgsim_dll
-        sgsim.argtypes = (
-            POINTER(c_double),
-            c_int,
-            c_int,
-            c_double,
-            c_double,
-            c_int,
-        )
-        sgsim.restype = None
         mlen = int(self.x_size)
         realization_number = int(self.realization_number // self.n_process)
         random_field = np.empty([realization_number, self.x_size])
-        array = (c_double * (mlen * realization_number))()
 
-        sgsim(array, mlen, realization_number, 17.32, 1, randomseed)
+        sgsim_init = lib.sgsim_init
+        sgsim_init.argtypes = (
+            POINTER(SgsimStructure),
+            c_int,
+            c_int,
+            c_int,
+            c_int,
+        )
+        sgsim_s = SgsimStructure()
+        sgsim_init(sgsim_s, mlen, realization_number, randomseed, 0)
+        sgsim_s.array = (c_double * (mlen * realization_number))()
 
+        cov_init = lib.cov_model_init
+        cov_s = CovModelStructure()
+        cov_init.argtypes = (
+            POINTER(CovModelStructure),
+            c_int,
+            c_int,
+            c_double,
+            c_double,
+        )
+        cov_init(cov_s, 1, 35, 17.32, 1)
+
+        sgsim = lib.sgsim_run
+        sgsim.argtypes = (POINTER(SgsimStructure), POINTER(CovModelStructure), c_int)
+        sgsim(sgsim_s, cov_s, 0)
+
+        # array = as_array(sgsim_s.array, shape=(realization_number * mlen, 1))
         for i in range(realization_number):
-            random_field[i, :] = list(array)[i * mlen : (i + 1) * mlen]
+            random_field[i, :] = sgsim_s.array[i * mlen : (i + 1) * mlen]
         return random_field
 
     def compute(self, n_process: int, randomseed: int) -> np.array:
@@ -203,6 +219,7 @@ class UCSgsimDLL(UCSgsim):
             rand_list.append(int(s))
 
         z = pool.starmap(self.cpdll, zip(rand_list))
+        print(len(z))
         pool.close()
         # use pool.join() to measure the coverage of sub process
         pool.join()
