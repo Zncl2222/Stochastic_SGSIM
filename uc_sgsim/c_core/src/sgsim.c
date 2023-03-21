@@ -38,7 +38,8 @@ void sgsim_init(
     _sgsim->realization_numbers = realization_numbers;
     _sgsim->randomseed = randomseed;
     if (if_alloc_memory == 1) {
-        _sgsim->array = malloc(x_grid * realization_numbers * sizeof(double));
+        unsigned long size = (long)x_grid * (long)realization_numbers;
+        _sgsim->array = malloc(size * sizeof(double));
     }
 }
 

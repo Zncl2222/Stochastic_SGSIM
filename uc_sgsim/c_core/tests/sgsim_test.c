@@ -8,7 +8,7 @@
 
 UTEST(test, sgsim) {
     struct sgsim_t sgsim_example;
-    sgsim_init(&sgsim_example, 150, 5, 12345, 0);
+    sgsim_init(&sgsim_example, 150, 5, 12345, 1);
 
     struct cov_model_t cov_example;
     cov_model_init(&cov_example, 1, 35, 17.32, 1);
