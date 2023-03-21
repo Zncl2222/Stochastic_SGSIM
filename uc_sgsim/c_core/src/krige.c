@@ -66,9 +66,9 @@ void SimpleKrige(double* array, double* sampled, double* u_array, int currlen,
     }
 
     pdist(location.data, pdist_temp.data, neighbor);
-    Cov_model2d(pdist_temp.data, flatten_temp.data, neighbor, range, sill);
+    cov_model2d(pdist_temp.data, flatten_temp.data, neighbor, range, sill);
     matrixform(flatten_temp.data, datacov.data, neighbor);
-    Cov_model(loc_cov2.data, loc_cov.data, neighbor, range, sill);
+    cov_model(loc_cov2.data, loc_cov.data, neighbor, range, sill);
 
     if (neighbor >= 1)
         lu_inverse_solver(datacov.data, loc_cov.data, weights.data, neighbor);
