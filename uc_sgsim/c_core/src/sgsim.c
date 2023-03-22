@@ -20,6 +20,7 @@ static c_array_double u_array;
 static c_array_double sampled;
 static c_array_double variogram_array;
 static c_array_double sgsim_array;
+static struct sampling_state _sampling;
 
 static int currentlen;
 static int neighbor;
@@ -47,39 +48,38 @@ void sgsim_run(struct sgsim_t* _sgsim, const struct cov_model_t* _cov_model, int
     mt19937_state rng_state;
     mt19937_init(&rng_state, _sgsim->randomseed);
 
-    c_array_init(&u_array, _sgsim->x_grid);
-    c_array_init(&sampled, _sgsim->x_grid);
+    sampling_state_init(&_sampling, _sgsim->x_grid);
     c_array_init(&variogram_array, _cov_model->hs);
     c_array_init(&sgsim_array, _sgsim->x_grid);
 
-    Krige_paramsetting(_cov_model->range, _cov_model->sill);  // Initialize parameters
+    krige_param_setting(_cov_model->range, _cov_model->sill);  // Initialize parameters
 
     x_grid.data = arange(_sgsim->x_grid);
     count = 0;
     while (count < _sgsim->realization_numbers) {
         printf("Number = %d\n", count);
-        currentlen = 0;
-        neighbor = 0;
+        _sampling.currlen = 0;
+        _sampling.neighbor = 0;
         flag = 0;
 
         x_grid.data = randompath(x_grid.data, _sgsim->x_grid, &rng_state);
 
         for (int i = 0; i < _sgsim->x_grid; i ++) {
             sgsim_array.data[i] = 0;
-            sampled.data[i] = 0;
-            u_array.data[i] = -1;
+            _sampling.sampled.data[i] = 0;
+            _sampling.u_array.data[i] = -1;
         }
 
         for (int i = 0; i < _sgsim->x_grid; i++) {
-            SimpleKrige(sgsim_array.data, sampled.data, u_array.data,
-                        currentlen, x_grid.data[i], i, neighbor, &rng_state);
+            sampling_state_update(&_sampling, x_grid.data[i], i);
+            simple_kriging(sgsim_array.data, &_sampling, &rng_state);
             _sgsim->array[x_grid.data[i]+_sgsim->x_grid*count] = sgsim_array.data[x_grid.data[i]];
 
-            if (neighbor < 8) {
-                neighbor++;
+            if (_sampling.neighbor < 8) {
+                _sampling.neighbor++;
             }
 
-            sampled.data[i] = x_grid.data[i];
+            _sampling.sampled.data[i] = x_grid.data[i];
             currentlen++;
             if (isfinite(sgsim_array.data[x_grid.data[i]]) == 0) {
                 flag++;
@@ -114,8 +114,8 @@ void sgsim_t_free(struct sgsim_t* _sgsim) {
 }
 
 static void sgsim_memory_free() {
-    c_array_free(&sampled);
-    c_array_free(&u_array);
+    c_array_free(&_sampling.sampled);
+    c_array_free(&_sampling.u_array);
     c_array_free(&sgsim_array);
     c_array_free(&x_grid);
     c_array_free(&variogram_array);
