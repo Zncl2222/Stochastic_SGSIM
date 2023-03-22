@@ -26,8 +26,22 @@ static c_matrix_double array2d_temp;
 static c_matrix_double pdist_temp;
 static c_matrix_double datacov;
 
+void sampling_state_init(struct sampling_state* _sampling, int x_grid_len) {
+    _sampling->neighbor = 0;
+    _sampling->currlen = 0;
+    _sampling->idx = 0;
+    _sampling->unsampled_point = 0;
 
-void Krige_paramsetting(double a, double C0) {
+    c_array_init(&_sampling->sampled, x_grid_len);
+    c_array_init(&_sampling->u_array, x_grid_len);
+}
+
+void sampling_state_update(struct sampling_state* _sampling, double unsampled_point, int idx) {
+    _sampling->unsampled_point = unsampled_point;
+    _sampling->idx = idx;
+}
+
+void krige_param_setting(double a, double C0) {
     range = a;
     sill = C0;
     c_array_init(&location, 10);
@@ -41,43 +55,41 @@ void Krige_paramsetting(double a, double C0) {
     c_matrix_init(&array2d_temp, 150, 3);
 }
 
-void SimpleKrige(double* array, double* sampled, double* u_array, int currlen,
-                double unsampled_point, int idx, int neighbor, mt19937_state* rng_state) {
-    int has_neighbor = find_neighbor(array, sampled, u_array, currlen,
-                                    unsampled_point, idx, neighbor, rng_state);
+void simple_kriging(double* array, struct sampling_state* _sampling, mt19937_state* rng_state) {
+    int has_neighbor = find_neighbor(array, _sampling, rng_state);
 
     if (has_neighbor == 0) {
         return;
     }
 
-    for (int j = 0; j < currlen; j++) {
-        array2d_temp.data[j][0] = sampled[j];
-        array2d_temp.data[j][1] = array[(int)sampled[j]];
-        array2d_temp.data[j][2] = u_array[j];
+    for (int j = 0; j < _sampling->currlen; j++) {
+        array2d_temp.data[j][0] = _sampling->sampled.data[j];
+        array2d_temp.data[j][1] = array[(int)_sampling->sampled.data[j]];
+        array2d_temp.data[j][2] = _sampling->u_array.data[j];
     }
 
-    if (neighbor >= 2) {
-        quicksort2d(array2d_temp.data, 0, currlen - 1);
+    if (_sampling->neighbor >= 2) {
+        quicksort2d(array2d_temp.data, 0, _sampling->currlen - 1);
     }
 
-    for (int j = 0; j < neighbor; j++) {
+    for (int j = 0; j < _sampling->neighbor; j++) {
         location.data[j] = array2d_temp.data[j][0];
         loc_cov2.data[j] = array2d_temp.data[j][2];
     }
 
-    pdist(location.data, pdist_temp.data, neighbor);
-    cov_model2d(pdist_temp.data, flatten_temp.data, neighbor, range, sill);
-    matrixform(flatten_temp.data, datacov.data, neighbor);
-    cov_model(loc_cov2.data, loc_cov.data, neighbor, range, sill);
+    pdist(location.data, pdist_temp.data, _sampling->neighbor);
+    cov_model2d(pdist_temp.data, flatten_temp.data, _sampling->neighbor, range, sill);
+    matrixform(flatten_temp.data, datacov.data, _sampling->neighbor);
+    cov_model(loc_cov2.data, loc_cov.data, _sampling->neighbor, range, sill);
 
-    if (neighbor >= 1)
-        lu_inverse_solver(datacov.data, loc_cov.data, weights.data, neighbor);
+    if (_sampling->neighbor >= 1)
+        lu_inverse_solver(datacov.data, loc_cov.data, weights.data, _sampling->neighbor);
 
     estimation = 0;
     krige_var = 0;
     fix = 0;
 
-    for (int j = 0; j < neighbor; j++) {
+    for (int j = 0; j < _sampling->neighbor; j++) {
         estimation = estimation + array2d_temp.data[j][1] * weights.data[j];
         krige_var = krige_var + loc_cov.data[j] * weights.data[j];
     }
@@ -87,28 +99,28 @@ void SimpleKrige(double* array, double* sampled, double* u_array, int currlen,
         krige_var = 0;
     fix = mt19937_random_normal(rng_state) * pow(krige_var, 0.5);
 
-    array[(int)unsampled_point] = estimation + fix;
+    array[(int)_sampling->unsampled_point] = estimation + fix;
 }
 
-int find_neighbor(double* array, double* sampled, double* u_array, int currlen,
-                double unsampled_point, int idx, int neighbor, mt19937_state* rng_state) {
-    if (neighbor == 0) {
-        array[(int)unsampled_point] = mt19937_random_normal(rng_state);
-        sampled[idx] = unsampled_point;
+int find_neighbor(double* array, struct sampling_state* _sampling,
+                  mt19937_state* rng_state) {
+    if (_sampling->neighbor == 0) {
+        array[(int)_sampling->unsampled_point] = mt19937_random_normal(rng_state);
+        _sampling->sampled.data[_sampling->idx] = _sampling->unsampled_point;
         return 0;
     }
     int close = 0;
 
-    for (int j = 0; j < currlen; j++) {
-        u_array[j] = fabs(sampled[j] - unsampled_point);
-        if (u_array[j] < range * 1.732) {
+    for (int j = 0; j < _sampling->currlen; j++) {
+        _sampling->u_array.data[j] = fabs(_sampling->sampled.data[j] - _sampling->unsampled_point);
+        if (_sampling->u_array.data[j] < range * 1.732) {
             close++;
         }
     }
 
     if (close == 0) {
-        array[(int)unsampled_point] = mt19937_random_normal(rng_state);
-        sampled[idx] = unsampled_point;
+        array[(int)_sampling->unsampled_point] = mt19937_random_normal(rng_state);
+        _sampling->sampled.data[_sampling->idx] = _sampling->unsampled_point;
         return 0;
     }
 
