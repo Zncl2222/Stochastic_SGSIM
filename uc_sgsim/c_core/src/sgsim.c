@@ -22,11 +22,8 @@ static c_array_double variogram_array;
 static c_array_double sgsim_array;
 static struct sampling_state _sampling;
 
-static int currentlen;
-static int neighbor;
 static int flag;
 static int count;
-
 
 void sgsim_init(
     struct sgsim_t* _sgsim,
@@ -80,7 +77,7 @@ void sgsim_run(struct sgsim_t* _sgsim, const struct cov_model_t* _cov_model, int
             }
 
             _sampling.sampled.data[i] = x_grid.data[i];
-            currentlen++;
+            _sampling.currlen++;
             if (isfinite(sgsim_array.data[x_grid.data[i]]) == 0) {
                 flag++;
             }
