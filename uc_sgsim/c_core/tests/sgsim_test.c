@@ -8,10 +8,10 @@
 # include "utest.h"
 
 UTEST(test, sgsim) {
-    struct sgsim_t sgsim_example;
+    sgsim_t sgsim_example;
     sgsim_init(&sgsim_example, 150, 5, 12345, 1);
 
-    struct cov_model_t cov_example;
+    cov_model_t cov_example;
     cov_model_init(&cov_example, 1, 35, 17.32, 1);
 
     sgsim_run(&sgsim_example, &cov_example, 0);

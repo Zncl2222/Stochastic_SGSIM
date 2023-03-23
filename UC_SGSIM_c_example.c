@@ -23,7 +23,7 @@ int main() {
         (int) vario_flag => 0 won't calulate the variogram.
     */
 
-    struct sgsim_t sgsim_example;
+    sgsim_t sgsim_example;
     // Initialize with function
     sgsim_init(&sgsim_example, 150, 5, 12345, 1);
     // Initialize with assignment
@@ -33,7 +33,7 @@ int main() {
     // sgsim_example.if_alloc_memory = 0;
     // sgsim_example.array = malloc(150 * 5 * sizeof(double));
 
-    struct cov_model_t cov_example;
+    cov_model_t cov_example;
     // Initialize with function
     cov_model_init(&cov_example, 1, 35, 17.32, 1);
     // Initialize with assignment
