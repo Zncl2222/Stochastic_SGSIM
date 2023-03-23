@@ -1,11 +1,10 @@
 __pycache__/
-.env
+*env*
 .vscode/
 validation
 build
 dist
 uc_sgsim.egg-info
-setup.py
 cmake_build/
 Variogram/
 Realizations/
