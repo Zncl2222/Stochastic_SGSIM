@@ -6,7 +6,7 @@
 
 
 void cov_model_init(
-    struct cov_model_t* _cov_model, int bw,
+    cov_model_t* _cov_model, int bw,
     int hs, double range, double sill) {
     _cov_model->bw = bw;
     _cov_model->hs = hs;

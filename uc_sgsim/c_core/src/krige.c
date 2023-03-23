@@ -26,7 +26,7 @@ static c_matrix_double array2d_temp;
 static c_matrix_double pdist_temp;
 static c_matrix_double datacov;
 
-void sampling_state_init(struct sampling_state* _sampling, int x_grid_len) {
+void sampling_state_init(sampling_state* _sampling, int x_grid_len) {
     _sampling->neighbor = 0;
     _sampling->currlen = 0;
     _sampling->idx = 0;
@@ -36,7 +36,7 @@ void sampling_state_init(struct sampling_state* _sampling, int x_grid_len) {
     c_array_init(&_sampling->u_array, x_grid_len);
 }
 
-void sampling_state_update(struct sampling_state* _sampling, double unsampled_point, int idx) {
+void sampling_state_update(sampling_state* _sampling, double unsampled_point, int idx) {
     _sampling->unsampled_point = unsampled_point;
     _sampling->idx = idx;
 }
@@ -55,7 +55,7 @@ void krige_param_setting(double a, double C0) {
     c_matrix_init(&array2d_temp, 150, 3);
 }
 
-void simple_kriging(double* array, struct sampling_state* _sampling, mt19937_state* rng_state) {
+void simple_kriging(double* array, sampling_state* _sampling, mt19937_state* rng_state) {
     int has_neighbor = find_neighbor(array, _sampling, rng_state);
 
     if (has_neighbor == 0) {
@@ -102,7 +102,7 @@ void simple_kriging(double* array, struct sampling_state* _sampling, mt19937_sta
     array[(int)_sampling->unsampled_point] = estimation + fix;
 }
 
-int find_neighbor(double* array, struct sampling_state* _sampling,
+int find_neighbor(double* array, sampling_state* _sampling,
                   mt19937_state* rng_state) {
     if (_sampling->neighbor == 0) {
         array[(int)_sampling->unsampled_point] = mt19937_random_normal(rng_state);

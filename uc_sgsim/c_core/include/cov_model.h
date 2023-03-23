@@ -2,15 +2,15 @@
 #ifndef UC_SGSIM_C_CORE_INCLUDE_COV_MODEL_H_
 #define UC_SGSIM_C_CORE_INCLUDE_COV_MODEL_H_
 
-struct cov_model_t {
+typedef struct {
     int bw;
     int hs;
     double range;
     double sill;
-};
+} cov_model_t;
 
 void cov_model_init(
-    struct cov_model_t* _cov_model, int bw,
+    cov_model_t* _cov_model, int bw,
     int hs, double range, double sill);
 
 void cov_model(const double *x, double* cov, int n_dim, double a, double C0);

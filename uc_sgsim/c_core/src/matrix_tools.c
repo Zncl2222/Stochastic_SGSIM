@@ -17,7 +17,7 @@ struct stat st = {0};
 # endif
 
 
-void lu_inverse_solver(double** mat, double* array, double* result, int n) {
+void lu_inverse_solver(double** mat, const double* array, double* result, int n) {
     c_matrix_double lower;
     c_matrix_double upper;
 
@@ -115,7 +115,7 @@ void matrixform(const double* x, double**matrix, int n_dim) {
     }
 }
 
-void save_1darray(double* array, int array_size,
+void save_1darray(const double* array, int array_size,
                 char* fhead, char* path , int total_n, int curr_n) {
     FILE *output;
     int num_digits = (int)ceil(log10(total_n)) + 1;
