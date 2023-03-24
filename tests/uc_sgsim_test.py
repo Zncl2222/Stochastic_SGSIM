@@ -1,7 +1,5 @@
 import pytest
 
-import numpy as np
-
 import uc_sgsim as uc
 from uc_sgsim.cov_model import Gaussian, Spherical
 from uc_sgsim.exception import VariogramDoesNotCompute
@@ -14,7 +12,7 @@ class TestUCSgsim:
         cls.X = 151
         cls.nR = 10
         bw = 1
-        hs = np.arange(0.0, 35, bw)
+        hs = 35
         a = 17.32
         C0 = 1
         cls.gaussian = Gaussian(hs, bw, a, C0)

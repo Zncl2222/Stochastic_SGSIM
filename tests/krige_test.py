@@ -10,7 +10,7 @@ class TestSimpleKrige:
     @classmethod
     def setup_class(cls) -> None:
         cls.bw = 1
-        cls.hs = np.arange(0.0, 35, cls.bw)
+        cls.hs = 35
         cls.a = 17.32
         cls.C0 = 1
         cls.gaussian = Gaussian(cls.hs, cls.bw, cls.a, cls.C0)
