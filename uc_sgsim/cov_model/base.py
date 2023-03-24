@@ -3,10 +3,16 @@ from scipy.spatial.distance import pdist, squareform
 
 
 class CovModel:
-    def __init__(self, bandwidth_step: int, bandwidth: np.array, a: float, sill=1):
+    def __init__(
+        self,
+        bandwidth_step: int,
+        bandwidth: np.array,
+        k_range: float,
+        sill=1,
+    ):
         self.__bandwidth_step = bandwidth_step
         self.__bandwidth = bandwidth
-        self.__a = a
+        self.__k_range = k_range
         self.__sill = sill
 
     @property
@@ -18,26 +24,26 @@ class CovModel:
         return self.__bandwidth
 
     @property
-    def a(self) -> float:
-        return self.__a
+    def k_range(self) -> float:
+        return self.__k_range
 
     @property
     def sill(self) -> float:
         return self.__sill
 
-    def cov_compute(self, x: np.array) -> float:
-        z = np.empty(len(x))
+    def cov_compute(self, x: np.array) -> np.array:
+        cov = np.empty(len(x))
         for i in range(len(x)):
-            z[i] = self.__sill - self.model(x[i])
+            cov[i] = self.__sill - self.model(x[i])
 
-        return z
+        return cov
 
-    def var_compute(self, x: np.array) -> float:
-        z = np.empty(len(x))
+    def var_compute(self, x: np.array) -> np.array:
+        var = np.empty(len(x))
         for i in range(len(x)):
-            z[i] = self.model(x[i])
+            var[i] = self.model(x[i])
 
-        return z
+        return var
 
     def variogram(self, x: np.array) -> np.array:
         dist = squareform(pdist(x[:, :1]))

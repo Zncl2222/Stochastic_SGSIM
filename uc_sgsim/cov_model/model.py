@@ -7,14 +7,14 @@ class Gaussian(CovModel):
         self,
         bandwidth_step: int,
         bandwidth: np.array,
-        a: float,
+        k_range: float,
         sill: float,
     ):
-        super().__init__(bandwidth_step, bandwidth, a, sill)
+        super().__init__(bandwidth_step, bandwidth, k_range, sill)
         self.model_name = 'Gaussian'
 
     def model(self, h: float) -> float:
-        return self.sill * (1 - np.exp(-3 * h**2 / self.a**2))
+        return self.sill * (1 - np.exp(-3 * h**2 / self.k_range**2))
 
 
 class Spherical(CovModel):
@@ -22,15 +22,15 @@ class Spherical(CovModel):
         self,
         bandwidth_step: int,
         bandwidth: np.array,
-        a: float,
+        k_range: float,
         sill: float,
     ):
-        super().__init__(bandwidth_step, bandwidth, a, sill)
+        super().__init__(bandwidth_step, bandwidth, k_range, sill)
         self.model_name = 'Spherical'
 
     def model(self, h: float) -> float:
-        if h <= self.a:
-            return self.sill * (1.5 * h / self.a - 0.5 * (h / self.a) ** 3.0)
+        if h <= self.k_range:
+            return self.sill * (1.5 * h / self.k_range - 0.5 * (h / self.k_range) ** 3.0)
         else:
             return self.sill
 

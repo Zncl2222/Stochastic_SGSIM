@@ -7,7 +7,7 @@ class Kriging:
         self.__model = model
         self.__bandwidth_step = model.bandwidth_step
         self.__bandwidth = model.bandwidth
-        self.__a = model.a
+        self.__k_range = model.k_range
         self.__sill = model.sill
 
     @property
@@ -23,8 +23,8 @@ class Kriging:
         return self.__bandwidth
 
     @property
-    def a(self) -> float:
-        return self.__a
+    def k_range(self) -> float:
+        return self.__k_range
 
     @property
     def sill(self) -> float:
