@@ -19,7 +19,7 @@ class TestCovModel:
     def test_properties(self):
         assert len(self.gaussian.bandwidth_step), len(self.hs)
         assert self.gaussian.bandwidth, self.bw
-        assert self.gaussian.a, self.a
+        assert self.gaussian.k_range, self.a
         assert self.gaussian.sill, self.C0
 
     def test_cov_compute(self):

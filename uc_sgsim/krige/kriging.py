@@ -53,8 +53,11 @@ class SimpleKrige(Kriging):
         if neighbor == 0:
             return np.random.normal(0, 1, 1)
         close_point = 0
+
+        criteria = self.k_range * 1.732 if self.model.model_name == 'Gaussian' else self.k_range
+
         for item in dist:
-            if item <= self.a:
+            if item <= criteria:
                 close_point += 1
 
         if close_point == 0:
