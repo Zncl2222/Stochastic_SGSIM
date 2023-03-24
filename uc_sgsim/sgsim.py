@@ -246,7 +246,7 @@ class UCSgsimDLL(UCSgsim):
         mlen = int(self.x_size)
         realization_number = int(self.realization_number // self.n_process)
 
-        vario_size = len(self.bandwidth_step)
+        vario_size = len(self.bandwidth)
 
         vario_array = (c_double * (vario_size))()
         random_field_array = (c_double * (mlen))()
@@ -267,7 +267,7 @@ class UCSgsimDLL(UCSgsim):
         if n_process < 1:
             self.realization_number = self.realization_number * n_process
 
-        self.variogram = np.empty([self.realization_number, len(self.bandwidth_step)])
+        self.variogram = np.empty([self.realization_number, len(self.bandwidth)])
         cpu_number = []
         for i in range(self.n_process):
             cpu_number.append(i)

@@ -5,18 +5,23 @@ from scipy.spatial.distance import pdist, squareform
 class CovModel:
     def __init__(
         self,
-        bandwidth_step: int,
-        bandwidth: np.array,
+        bandwidth_len: float,
+        bandwidth_step: float,
         k_range: float,
         sill=1,
     ):
+        self.__bandwidth_len = bandwidth_len
         self.__bandwidth_step = bandwidth_step
-        self.__bandwidth = bandwidth
+        self.__bandwidth = np.arange(0, bandwidth_len, bandwidth_step)
         self.__k_range = k_range
         self.__sill = sill
 
     @property
-    def bandwidth_step(self) -> int:
+    def bandwidth_len(self) -> float:
+        return self.__bandwidth_len
+
+    @property
+    def bandwidth_step(self) -> float:
         return self.__bandwidth_step
 
     @property
@@ -49,12 +54,12 @@ class CovModel:
         dist = squareform(pdist(x[:, :1]))
         variogram = []
 
-        for h in self.__bandwidth_step:
+        for h in self.__bandwidth:
             z = []
             for i in range(len(dist[:, 0])):
                 for j in range(i + 1, len(dist[:, 0])):
-                    if (dist[i, j] >= h - self.__bandwidth) and (
-                        dist[i, j] <= h + self.__bandwidth
+                    if (dist[i, j] >= h - self.__bandwidth_step) and (
+                        dist[i, j] <= h + self.__bandwidth_step
                     ):
                         z.append(np.power(x[i, 1] - x[j, 1], 2))
             if np.sum(z) >= 1e-7:
