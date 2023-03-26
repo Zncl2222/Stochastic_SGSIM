@@ -1,3 +1,10 @@
 ignore:
   - "uc_sgsim/c_core/lib/*"
   - "uc_sgsim/c_core/tests/*.h"
+
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        removed_code_behavior: fully_covered_patch # off, removals_only, adjust_base
