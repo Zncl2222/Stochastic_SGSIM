@@ -94,7 +94,7 @@ class RandomField:
                 number = number_head + str(i)
                 save_as_multiple_file(
                     number,
-                    len(self.bandwidth_step),
+                    len(self.bandwidth),
                     self.variogram,
                     file_type,
                     'Variogram',

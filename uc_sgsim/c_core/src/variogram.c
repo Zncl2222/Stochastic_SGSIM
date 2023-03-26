@@ -8,7 +8,7 @@
 # include "../include/matrix_tools.h"
 # include "../lib/c_array.h"
 
-void variogram(const double* array, double* v , int mlen, int hs, int steps) {
+void variogram(const double* array, double* v , int mlen, int bw, int bw_s) {
     double Z_temp;
     double count;
     c_array(double) temp;
@@ -19,13 +19,13 @@ void variogram(const double* array, double* v , int mlen, int hs, int steps) {
 
     pdist(temp.data, pdist_temp.data, mlen);
 
-    for (int i = 0; i < hs; i += steps) {
+    for (int i = 0; i < bw; i += bw_s) {
         Z_temp = 0;
         count = 0;
         for (int j = 0; j < mlen; j++) {
             for (int k = j + 1; k < mlen; k++) {
-                if (pdist_temp.data[j][k] >= i - steps &&
-                    pdist_temp.data[j][k] <= i + steps) {
+                if (pdist_temp.data[j][k] >= i - bw_s &&
+                    pdist_temp.data[j][k] <= i + bw_s) {
                     Z_temp = Z_temp + pow((array[j] - array[k]), 2);
                     count += 1;
                 }

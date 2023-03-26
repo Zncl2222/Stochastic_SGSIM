@@ -142,14 +142,14 @@ class Visualize(PlotBase):
             print('Progress = %.2f' % (i / self.realization_number * 100) + '%', end='\r')
 
         plt.plot(
-            self.model.var_compute(self.bandwidth_step),
+            self.model.var_compute(self.bandwidth),
             'o',
             markeredgecolor='k',
             markerfacecolor='w',
         )
 
-        Vario_mean = np.zeros(len(self.bandwidth_step))
-        for i in range(len(self.bandwidth_step)):
+        Vario_mean = np.zeros(len(self.bandwidth))
+        for i in range(len(self.bandwidth)):
             Vario_mean[i] = np.mean(Variogram[:, i])
 
         plt.plot(Vario_mean, '--', color='blue')

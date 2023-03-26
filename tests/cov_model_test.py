@@ -9,7 +9,7 @@ class TestCovModel:
     @classmethod
     def setup_class(cls) -> None:
         cls.bw = 1
-        cls.hs = np.arange(0.0, 35, cls.bw)
+        cls.hs = 35
         cls.a = 17.32
         cls.C0 = 1
         cls.gaussian = Gaussian(cls.hs, cls.bw, cls.a, cls.C0)
@@ -17,9 +17,10 @@ class TestCovModel:
         cls.test_array = np.array([1, 2, 3, 4])
 
     def test_properties(self):
-        assert len(self.gaussian.bandwidth_step), len(self.hs)
-        assert self.gaussian.bandwidth, self.bw
-        assert self.gaussian.a, self.a
+        assert len(self.gaussian.bandwidth), self.hs / self.bw
+        assert self.gaussian.bandwidth_step, self.bw
+        assert self.gaussian.bandwidth_len, self.hs
+        assert self.gaussian.k_range, self.a
         assert self.gaussian.sill, self.C0
 
     def test_cov_compute(self):
