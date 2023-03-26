@@ -10,7 +10,7 @@
 # include "../include/sort_tools.h"
 # include "../lib/c_array.h"
 
-static double range;
+static double k_range;
 static double sill;
 static double estimation;
 static double krige_var;
@@ -41,9 +41,9 @@ void sampling_state_update(sampling_state* _sampling, double unsampled_point, in
     _sampling->idx = idx;
 }
 
-void krige_param_setting(double a, double C0) {
-    range = a;
-    sill = C0;
+void krige_param_setting(int x_len, double _k_range, double _sill) {
+    k_range = _k_range;
+    sill = _sill;
     c_array_init(&location, 10);
     c_array_init(&loc_cov, 10);
     c_array_init(&loc_cov2, 10);
@@ -52,7 +52,7 @@ void krige_param_setting(double a, double C0) {
     c_array_init(&data_temp, 10);
     c_matrix_init(&pdist_temp, 10, 10);
     c_matrix_init(&datacov, 10, 10);
-    c_matrix_init(&array2d_temp, 150, 3);
+    c_matrix_init(&array2d_temp, x_len, 3);
 }
 
 void simple_kriging(double* array, sampling_state* _sampling, mt19937_state* rng_state) {
@@ -78,9 +78,9 @@ void simple_kriging(double* array, sampling_state* _sampling, mt19937_state* rng
     }
 
     pdist(location.data, pdist_temp.data, _sampling->neighbor);
-    cov_model2d(pdist_temp.data, flatten_temp.data, _sampling->neighbor, range, sill);
+    cov_model2d(pdist_temp.data, flatten_temp.data, _sampling->neighbor, k_range, sill);
     matrixform(flatten_temp.data, datacov.data, _sampling->neighbor);
-    cov_model(loc_cov2.data, loc_cov.data, _sampling->neighbor, range, sill);
+    cov_model(loc_cov2.data, loc_cov.data, _sampling->neighbor, k_range, sill);
 
     if (_sampling->neighbor >= 1)
         lu_inverse_solver(datacov.data, loc_cov.data, weights.data, _sampling->neighbor);
@@ -113,7 +113,7 @@ int find_neighbor(double* array, sampling_state* _sampling,
 
     for (int j = 0; j < _sampling->currlen; j++) {
         _sampling->u_array.data[j] = fabs(_sampling->sampled.data[j] - _sampling->unsampled_point);
-        if (_sampling->u_array.data[j] < range * 1.732) {
+        if (_sampling->u_array.data[j] < k_range * 1.732) {
             close++;
         }
     }

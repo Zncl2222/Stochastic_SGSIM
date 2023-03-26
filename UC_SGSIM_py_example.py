@@ -9,8 +9,8 @@ if __name__ == '__main__':
     start = time.time()
     X = 151  # Model grid, only 1D case is support now
 
-    bw = 1  # lag step
-    hs = np.arange(0.0, 35, bw)  # lag range
+    bw_s = 1  # lag step
+    bw_l = 35  # lag range
     randomseed = 12321  # randomseed for simulation
     a = 17.32  # effective range of covariance model
     C0 = 1  # sill of covariance model
@@ -20,7 +20,7 @@ if __name__ == '__main__':
     # than you will compute total 8 realizations
 
     # Create Covariance model first
-    Cov_model = Gaussian(hs, bw, a, C0)
+    Cov_model = Gaussian(bw_l, bw_s, a, C0)
 
     # Create simulation and input the Cov model
     # sgsim = uc.UCSgsim(X, Cov_model, nR)

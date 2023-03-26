@@ -18,7 +18,7 @@ void sampling_state_init(sampling_state* _sampling, int x_grid_len);
 
 void sampling_state_update(sampling_state* _sampling, double unsampled_point, int idx);
 
-void krige_param_setting(double a, double C0);
+void krige_param_setting(int x_len, double k_range, double sill);
 
 void simple_kriging(double* array, sampling_state* _sampling, mt19937_state* rng_state);
 

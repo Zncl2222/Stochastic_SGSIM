@@ -46,10 +46,11 @@ void sgsim_run(sgsim_t* _sgsim, const cov_model_t* _cov_model, int vario_flag) {
     mt19937_init(&rng_state, _sgsim->randomseed);
 
     sampling_state_init(&_sampling, _sgsim->x_len);
-    c_array_init(&variogram_array, _cov_model->hs);
+    c_array_init(&variogram_array, _cov_model->bw);
     c_array_init(&sgsim_array, _sgsim->x_len);
 
-    krige_param_setting(_cov_model->range, _cov_model->sill);  // Initialize parameters
+    krige_param_setting(
+        _sgsim->x_len, _cov_model->k_range, _cov_model->sill);  // Initialize parameters
 
     x_grid.data = arange(_sgsim->x_len);
     count = 0;
@@ -87,7 +88,7 @@ void sgsim_run(sgsim_t* _sgsim, const cov_model_t* _cov_model, int vario_flag) {
         if (vario_flag == 1)
             variogram(
                 sgsim_array.data, variogram_array.data,
-                _sgsim->x_len, _cov_model->hs, _cov_model->bw);
+                _sgsim->x_len, _cov_model->bw, _cov_model->bw_s);
 
         if (flag > 0) {
             count--;
@@ -95,7 +96,7 @@ void sgsim_run(sgsim_t* _sgsim, const cov_model_t* _cov_model, int vario_flag) {
             save_1darray(sgsim_array.data, _sgsim->x_len, "Realizations",
                         "./Realizations/", _sgsim->realization_numbers, count);
             if (vario_flag ==1) {
-                save_1darray(variogram_array.data, _cov_model->hs,
+                save_1darray(variogram_array.data, _cov_model->bw,
                             "Variogram",
                             "./Realizations/Variogram/",
                             _sgsim->realization_numbers, count);

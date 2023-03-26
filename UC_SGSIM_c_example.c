@@ -13,16 +13,6 @@
 # endif
 
 int main() {
-    /*
-        Parameters:
-        (int) mlen = x grid of model
-        (int) random seed = random seed
-        (int) nR = number of realizations
-        (int) hs = lag tolal distance (for variogram calculation)
-        (int) bw = steps of lag distance
-        (int) vario_flag => 0 won't calulate the variogram.
-    */
-
     sgsim_t sgsim_example;
     // Initialize with function
     sgsim_init(&sgsim_example, 150, 5, 12345, 1);
