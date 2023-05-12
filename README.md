@@ -78,57 +78,66 @@ $$ Z(X_{simulation}) = Z(X_{estimate}) + RandomNormal(m = 0, \sigma^2 = \sigma_{
 
 10. Repeat 1 ~ 9 with different **randomseed number** to produceed mutiple realizations.
 
-
-
+## Installation
+```bash
+pip install uc-sgsim
+```
 
 ## Features
-* Python version (UC_SGSIM_py)
-  * One dimensional unconditional randomfield generation with sequential gaussian simulation alogarithm
-  * Enable to use muti-cores to run the simulation (mutiprocessing)
-  * User can choose to use the computation kernel in python or C (DLL), C has a better computation efficiency.
-  * User can combine the profits of python and c by using this package. Calculate in C(DLL) file, and plot the images by matplotlib package immediately.
+* One dimensional unconditional randomfield generation with sequential gaussian simulation algorithm
+* Enable to use muti-cores to run the simulation (mutiprocessing)
+* Run C to generate randomfield in python via ctype interface, or just generate randomfield in python with numpy and scipy library.
 
-* C version (UC_SGSIM_c)
-  * One dimensional unconditional randomfield generation
-  * Simple UI just text the input parameters and prees Enter.
-  * Much better computation efficiency then python version.
+
 
 ## Example
-
-**Python**
-
 ```py
-import UC_SGSIM as UC
-import numpy as np
+import matplotlib.pyplot as plt
+import uc_sgsim as uc
+from uc_sgsim.cov_model import Gaussian
 
 if __name__ == '__main__':
+    x = 151  # Model grid, only 1D case is support now
+    bw_s = 1  # lag step
+    bw_l = 35  # lag range
+    randomseed = 12321  # randomseed for simulation
+    a = 17.32  # effective range of covariance model
+    C0 = 1  # sill of covariance model
 
-    X_grid = range(150)      # Model X grid
-    bw = 1                   # Lag steps (bandwidth) of Lag distance
-    hs = np.arange(0, 35, 1) # Total lag distance (for variogram calculation)
-    krige_range = 17.32      # effective range of covariance model
-    krige_sill = 1           # Sill of covariance model
-    n_realizations = 20      # number of realizations to calculate (numbers of random field to generate)
+    nR = 10  # numbers of realizations in each CPU cores,
+    # if nR = 1 n_process = 8
+    # than you will compute total 8 realizations
 
-    Cov_model = UC.Guassian(hs, bw, krige_range, krige_sill)
+    # Create Covariance model first
+    Cov_model = Gaussian(bw_l, bw_s, a, C0)
 
-    sgsim = UC.Simulation()     # Use python kernel to calculate
-    sgsim_c = UC.Simulation_byC() # Use C kernel (dll) to calculate
+    # Create simulation and input the Cov model
+    sgsim = uc.UCSgsim(X, Cov_model, nR)  # Create class instance that generate field in python
+    sgsim_c = uc.UCSgsimDLL(x, Cov_model, nR) # Create class instance that generate field in c
 
-    sgsim.compute_async(n_process = 4, randomseed = 12345)  # Use four process to do the parallel computing
-    sgsim_c.compute_by_dll(n_process = 4, randomseed = 77875) # Use four process to do the parallel computing
+    # Start compute with n CPUs
+    sgsim.compute_async(n_process=8, randomseed=454) # Generate field (python)
+    sgsim_c.compute(n_process=2, randomseed=151) # Generate field (c)
 
-    sgsim.MeanPlot("ALL")                 # Plot mean
-    sgsim.VarPlot()                       # Plot variance
-    sgsim.Cdf_Plot(x_location=11)         # CDF at certain location
-    sgsim.Hist_Plot(x_location=11)        # Hist at certain location
-    sgsim.variogram_compute(n_process=8)  # Compute variogram before plotting
-    sgsim.VarioPlot()                     # Plot Variogram of each realizations and it's mean value
+    sgsim.mean_plot('ALL')  # Plot mean
+    sgsim.variance_plot()  # Plot variance
+    sgsim.cdf_plot(x_location=10)  # CDF
+    sgsim.hist_plot(x_location=10)  # Hist
+    sgsim.variogram_compute(n_process=2)  # Compute variogram before plotting
+    # Plot variogram and mean variogram for validation
+    sgsim.vario_plot()
+    # Save random_field and variogram
+    sgsim.save_random_field('randomfield.csv', save_single=True) # save in single file
+    sgsim.save_variogram('') # save each field individually
+
+    # plt.show() to show the matplotlib plot
+    plt.show()
 
     # Please note that the parameter "n_realizations" means the number of realizations calculate in each process,
     # so this case will generate total 20 * 4(process) = 80 realizations
 
 ```
+
 
 <p align="center">
    <img src="https://github.com/Zncl2222/Stochastic_SGSIM/blob/main/figure/Realizations.png"  width="40%"/>
@@ -144,7 +153,7 @@ if __name__ == '__main__':
 * GUI mode in pyhton package
 * More covariance models
 * More kriging methods (etc. Oridinary Kriging)
-* Performance enhanced
+* Performance enhancement
 * More completely documents and easy to use designs.
 
 ## Performance
