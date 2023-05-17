@@ -5,7 +5,7 @@
 [![ci](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/github-pre-commit.yml/badge.svg)](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/github-pre-commit.yml)
 [![build](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/cmake.yml/badge.svg)](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/cmake.yml)
 [![build](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/codeql.yml/badge.svg)](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/codeql.yml)
-[![codecov](https://codecov.io/github/Zncl2222/Stochastic_UC_SGSIM/branch/main/graph/badge.svg?token=3qZt0OqDNI)](https://app.codecov.io/github/Zncl2222/Stochastic_UC_SGSIM)
+[![codecov](https://codecov.io/gh/Zncl2222/uc_sgsim/branch/main/graph/badge.svg?token=3qZt0OqDNI)](https://codecov.io/gh/Zncl2222/uc_sgsim)
 
 #### Python Sonar Cloud state
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_py&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_py)
@@ -150,7 +150,7 @@ if __name__ == '__main__':
 
 ## Future plans
 * 2D unconditional randomfield generation
-* GUI mode in pyhton package
+* GUI mode in pyhton
 * More covariance models
 * More kriging methods (etc. Oridinary Kriging)
 * Performance enhancement
@@ -162,7 +162,7 @@ if __name__ == '__main__':
 </p>
 
 ```
-Parameters for testing:
+Parameters:
 
 model len = 150
 
