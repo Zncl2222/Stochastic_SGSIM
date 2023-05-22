@@ -40,8 +40,7 @@ class UCSgsim(RandomField):
         np.random.seed(self.randomseed)
         while counts < self.realization_number // self.n_process:
             unsampled = np.linspace(0, self.x_size - 1, self.x_size)
-
-            y_value = np.random.normal(0, 1, 2).reshape(2, 1)
+            y_value = np.random.normal(0, self.model.sill**0.5, 2).reshape(2, 1)
             x_grid = np.array([0, self.x_size - 1]).reshape(2, 1)
             z = np.zeros(self.x_size)
             z[0], z[-1] = y_value[0], y_value[1]
@@ -125,13 +124,13 @@ class UCSgsim(RandomField):
         pool.join()
         self.variogram = np.array(self.variogram)
 
-    def mean_plot(self, n, mean=0, std=1) -> None:
+    def mean_plot(self, n, mean=0) -> None:
         m_plot = Visualize(self.model, self.random_field)
-        m_plot.mean_plot(n, mean, std)
+        m_plot.mean_plot(n, mean)
 
-    def variance_plot(self, mean=0, std=1) -> None:
+    def variance_plot(self, mean=0) -> None:
         s_plot = Visualize(self.model, self.random_field)
-        s_plot.variance_plot(mean, std)
+        s_plot.variance_plot(mean)
 
     def cdf_plot(self, x_location: int) -> None:
         c_plot = Visualize(self.model, self.random_field)
