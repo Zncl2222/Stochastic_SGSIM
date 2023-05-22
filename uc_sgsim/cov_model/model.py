@@ -17,3 +17,10 @@ class Spherical(CovModel):
             return self.sill * (1.5 * h / self.k_range - 0.5 * (h / self.k_range) ** 3.0)
         else:
             return self.sill
+
+
+class Exponential(CovModel):
+    model_name = 'Exponential'
+
+    def model(self, h: float) -> float:
+        return self.sill * (1 - np.exp(-3 * h / self.k_range))
