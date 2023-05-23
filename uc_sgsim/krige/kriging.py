@@ -24,7 +24,7 @@ class SimpleKrige(Kriging):
         weights = np.linalg.inv(cov_data) * cov_dist
         residuals = L[:, 1] - meanvalue
         estimation = np.dot(weights.T, residuals) + meanvalue
-        krige_var = float(1 - np.dot(weights.T, cov_dist))
+        krige_var = float(self.model.sill - np.dot(weights.T, cov_dist))
 
         if krige_var < 0:
             krige_var = 0
@@ -35,7 +35,7 @@ class SimpleKrige(Kriging):
 
     def simulation(self, x: int, unsampled: int, **kwargs) -> float:
         neighbor = kwargs.get('neighbor')
-        if neighbor:
+        if neighbor is not None:
             dist = abs(x[:, 0] - unsampled)
             dist = dist.reshape(len(dist), 1)
             has_neighbor = self.find_neighbor(dist, neighbor)
@@ -51,7 +51,7 @@ class SimpleKrige(Kriging):
 
     def find_neighbor(self, dist: list, neighbor: int) -> float:
         if neighbor == 0:
-            return np.random.normal(0, 1, 1)
+            return np.random.normal(0, self.model.sill**0.5, 1)
         close_point = 0
 
         criteria = self.k_range * 1.732 if self.model.model_name == 'Gaussian' else self.k_range
@@ -61,4 +61,4 @@ class SimpleKrige(Kriging):
                 close_point += 1
 
         if close_point == 0:
-            return np.random.normal(0, 1, 1)
+            return np.random.normal(0, self.model.sill**0.5, 1)

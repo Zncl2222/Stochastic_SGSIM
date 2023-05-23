@@ -30,3 +30,15 @@ class TestSimpleKrige:
             if i not in self.sampled[0]:
                 res[i], krige_std = self.krige.prediction(self.sampled, i)
                 assert krige_std >= 0
+
+    def test_simple_krige_simulation(self):
+        np.random.seed(123456)
+        x = np.array([0, 150]).reshape(2, 1)
+        y_value = np.zeros(2).reshape(2, 1)
+        mesh = np.hstack([x, y_value])
+        unsampled = np.linspace(0, 150, 151)
+        unsampled = np.delete(unsampled, [0, -1])
+
+        neighbor = 0
+        estimation = self.krige.simulation(mesh, 75, neighbor=neighbor)
+        assert pytest.approx(estimation.item(0), 1e-7) == 0.4691123

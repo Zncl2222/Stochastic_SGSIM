@@ -12,13 +12,12 @@ class Visualize(PlotBase):
     def __init__(self, model: CovModel, random_field: np.array):
         super().__init__(model, random_field)
 
-    def mean_plot(self, n, mean=0, std=1) -> None:
+    def mean_plot(self, n, mean=0) -> None:
         realization_number = len(self.random_field[:, 0])
-
         if n == 'ALL':
             for i in range(realization_number):
                 plt.figure(77879, figsize=self.figsize)
-                plt.plot(self.random_field[i, :] * std + mean)
+                plt.plot(self.random_field[i, :] + mean)
                 plt.title('Realizations: ' + self.model_name, fontsize=20)
                 plt.xlabel(self.xlabel, fontsize=20)
                 plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
@@ -27,17 +26,16 @@ class Visualize(PlotBase):
         else:
             for item in n:
                 plt.figure(77879, figsize=self.figsize)
-                plt.plot(self.random_field[:, item] * std + mean)
+                plt.plot(self.random_field[:, item] + mean)
                 plt.title('Realizations: ' + self.model_name, fontsize=20)
                 plt.xlabel(self.xlabel, fontsize=20)
                 plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
                 plt.ylabel('Y', fontsize=20)
 
-    def variance_plot(self, mean=0, std=1) -> None:
+    def variance_plot(self, mean=0) -> None:
         zmean = np.zeros(len(self.random_field[0, :]))
-
         for i in range(len(self.random_field[0, :])):
-            zmean[i] = np.mean(self.random_field[:, i] * std + mean)
+            zmean[i] = np.mean(self.random_field[:, i] + mean)
 
         plt.figure(5212, figsize=self.figsize)
         plt.plot(
@@ -55,7 +53,7 @@ class Visualize(PlotBase):
         zvar = np.zeros(len(self.random_field[0, :]))
 
         for i in range(len(self.random_field[0, :])):
-            zvar[i] = np.var(self.random_field[:, i] * std)
+            zvar[i] = np.var(self.random_field[:, i])
 
         plt.figure(52712, figsize=self.figsize)
         plt.plot(
@@ -67,7 +65,7 @@ class Visualize(PlotBase):
         )
         plt.xlabel(self.xlabel, fontsize=20)
         plt.ylabel('Variance', fontsize=20)
-        plt.axhline(y=std**2, color='b', linestyle='--', zorder=1)
+        plt.axhline(y=self.model.sill, color='b', linestyle='--', zorder=1)
         plt.xticks(fontsize=17), plt.yticks(fontsize=17)
 
     def cdf_plot(self, x_location: int) -> None:
