@@ -27,7 +27,6 @@ if __name__ == '__main__':
     sgsim = uc.UCSgsimDLL(X, Cov_model, nR)
 
     # Start compute with n CPUs
-    # sgsim.compute_async(n_process=8, randomseed=454)
     sgsim.compute(n_process=2, randomseed=151)
 
     mid = time.time()

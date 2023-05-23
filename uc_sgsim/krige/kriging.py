@@ -13,16 +13,16 @@ class SimpleKrige(Kriging):
         dist_diff = abs(sample[:, 0] - unsampled)
         dist_diff = dist_diff.reshape(len(dist_diff), 1)
 
-        L = np.hstack([sample, dist_diff])
+        grid = np.hstack([sample, dist_diff])
         meanvalue = 0
 
-        cov_dist = np.matrix(self.model.cov_compute(L[:, 2])).T
-        cov_data = squareform(pdist(L[:, :1])).flatten()
+        cov_dist = np.matrix(self.model.cov_compute(grid[:, 2])).T
+        cov_data = squareform(pdist(grid[:, :1])).flatten()
         cov_data = np.array(self.model.cov_compute(cov_data))
         cov_data = cov_data.reshape(n_sampled, n_sampled)
 
         weights = np.linalg.inv(cov_data) * cov_dist
-        residuals = L[:, 1] - meanvalue
+        residuals = grid[:, 1] - meanvalue
         estimation = np.dot(weights.T, residuals) + meanvalue
         krige_var = float(self.model.sill - np.dot(weights.T, cov_dist))
 
@@ -33,7 +33,7 @@ class SimpleKrige(Kriging):
 
         return estimation, krige_std
 
-    def simulation(self, x: int, unsampled: int, **kwargs) -> float:
+    def simulation(self, x: np.array, unsampled: np.array, **kwargs) -> float:
         neighbor = kwargs.get('neighbor')
         if neighbor is not None:
             dist = abs(x[:, 0] - unsampled)
@@ -49,7 +49,7 @@ class SimpleKrige(Kriging):
         random_fix = np.random.normal(0, krige_std, 1)
         return estimation + random_fix
 
-    def find_neighbor(self, dist: list, neighbor: int) -> float:
+    def find_neighbor(self, dist: list[float], neighbor: int) -> float:
         if neighbor == 0:
             return np.random.normal(0, self.model.sill**0.5, 1)
         close_point = 0
