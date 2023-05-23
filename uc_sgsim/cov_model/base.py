@@ -8,7 +8,7 @@ class CovModel:
         bandwidth_len: float,
         bandwidth_step: float,
         k_range: float,
-        sill=1,
+        sill: float = 1,
     ):
         self.__bandwidth_len = bandwidth_len
         self.__bandwidth_step = bandwidth_step

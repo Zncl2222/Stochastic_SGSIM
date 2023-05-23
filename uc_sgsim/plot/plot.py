@@ -21,7 +21,7 @@ class Visualize(PlotBase):
                 plt.title('Realizations: ' + self.model_name, fontsize=20)
                 plt.xlabel(self.xlabel, fontsize=20)
                 plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
-                plt.ylabel('S', fontsize=20)
+                plt.ylabel('Y', fontsize=20)
 
         else:
             for item in n:

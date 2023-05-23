@@ -56,7 +56,12 @@ class RandomField:
     def bandwidth_step(self) -> int:
         return self.__bandwidth_step
 
-    def save_random_field(self, path: str, file_type='csv', save_single=False) -> None:
+    def save_random_field(
+        self,
+        path: str,
+        file_type: str = 'csv',
+        save_single: bool = False,
+    ) -> None:
         digit = int(np.log10(self.realization_number))
         number_head = ''
         for i in range(digit):
@@ -78,7 +83,7 @@ class RandomField:
         else:
             save_as_one_file(path, self.random_field)
 
-    def save_variogram(self, path: str, file_type='csv', save_single=False) -> None:
+    def save_variogram(self, path: str, file_type: str = 'csv', save_single: bool = False) -> None:
         if type(self.variogram) == int:
             raise VariogramDoesNotCompute()
         digit = int(np.log10(self.realization_number))
