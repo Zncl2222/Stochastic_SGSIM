@@ -94,7 +94,7 @@ void simple_kriging(double* array, sampling_state* _sampling, mt19937_state* rng
         krige_var = krige_var + loc_cov.data[j] * weights.data[j];
     }
 
-    krige_var = 1 - krige_var;
+    krige_var = model->sill - krige_var;
     if (krige_var < 0)
         krige_var = 0;
     fix = mt19937_random_normal(rng_state) * pow(krige_var, 0.5);
@@ -105,7 +105,7 @@ void simple_kriging(double* array, sampling_state* _sampling, mt19937_state* rng
 int find_neighbor(double* array, sampling_state* _sampling,
                   mt19937_state* rng_state) {
     if (_sampling->neighbor == 0) {
-        array[(int)_sampling->unsampled_point] = mt19937_random_normal(rng_state);
+        array[(int)_sampling->unsampled_point] = mt19937_random_normal(rng_state) * model->sill;
         _sampling->sampled.data[_sampling->idx] = _sampling->unsampled_point;
         return 0;
     }
@@ -119,7 +119,7 @@ int find_neighbor(double* array, sampling_state* _sampling,
     }
 
     if (close == 0) {
-        array[(int)_sampling->unsampled_point] = mt19937_random_normal(rng_state);
+        array[(int)_sampling->unsampled_point] = mt19937_random_normal(rng_state) * model->sill;
         _sampling->sampled.data[_sampling->idx] = _sampling->unsampled_point;
         return 0;
     }

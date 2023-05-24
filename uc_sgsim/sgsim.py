@@ -69,12 +69,9 @@ class UCSgsim(RandomField):
 
             self.randomseed += 1
 
-            z_gap = abs(z.max() - z.min())
-
-            if 2 < z_gap <= 6.5:
-                self.random_field[counts, :] = z
-                counts = counts + 1
-                print('Progress = %.2f' % (counts / self.realization_number * 100) + '%', end='\r')
+            self.random_field[counts, :] = z
+            counts = counts + 1
+            print('Progress = %.2f' % (counts / self.realization_number * 100) + '%', end='\r')
 
         print('Progress = %.2f' % 100 + '%\n', end='\r')
         end_time = time.time()
