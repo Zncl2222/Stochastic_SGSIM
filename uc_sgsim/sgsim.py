@@ -198,6 +198,7 @@ class UCSgsimDLL(UCSgsim):
             self.model.bandwidth_step,
             self.model.k_range,
             self.model.sill,
+            self.model.nugget,
         )
 
         sgsim = lib.sgsim_run

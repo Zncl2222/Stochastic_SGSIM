@@ -49,4 +49,5 @@ class CovModelStructure(Structure):
         ('hs', c_int),
         ('range', c_double),
         ('sill', c_double),
+        ('nugget', c_double),
     ]
