@@ -42,8 +42,8 @@ if __name__ == '__main__':
     # Plot variogram and mean variogram for validation
     sgsim.vario_plot()
     # Save random_field and variogram
-    sgsim.save_random_field('randomfiel.csv', save_single=True)
-    sgsim.save_variogram('')
+    sgsim.save_random_field('randomfields.csv', save_single=True)
+    sgsim.save_variogram('variograms.csv', save_single=True)
     end = time.time()
     print('SGSIM time =', mid - start)
     print('Plot and variogram time =', end - mid)
