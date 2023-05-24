@@ -50,7 +50,7 @@ void sgsim_run(sgsim_t* _sgsim, const cov_model_t* _cov_model, int vario_flag) {
     c_array_init(&sgsim_array, _sgsim->x_len);
 
     krige_param_setting(
-        _sgsim->x_len, _cov_model->k_range, _cov_model->sill);  // Initialize parameters
+        _sgsim->x_len, _cov_model);  // Initialize parameters
 
     x_grid.data = arange(_sgsim->x_len);
     count = 0;

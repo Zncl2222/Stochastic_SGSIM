@@ -10,8 +10,8 @@
 # include "../include/sort_tools.h"
 # include "../lib/c_array.h"
 
+static cov_model_t* model;
 static double k_range;
-static double sill;
 static double estimation;
 static double krige_var;
 static double fix;
@@ -41,9 +41,9 @@ void sampling_state_update(sampling_state* _sampling, double unsampled_point, in
     _sampling->idx = idx;
 }
 
-void krige_param_setting(int x_len, double _k_range, double _sill) {
-    k_range = _k_range;
-    sill = _sill;
+void krige_param_setting(int x_len, const cov_model_t* _cov_model) {
+    model = _cov_model;
+    k_range = _cov_model->k_range;
     c_array_init(&location, 10);
     c_array_init(&loc_cov, 10);
     c_array_init(&loc_cov2, 10);
@@ -78,9 +78,9 @@ void simple_kriging(double* array, sampling_state* _sampling, mt19937_state* rng
     }
 
     pdist(location.data, pdist_temp.data, _sampling->neighbor);
-    cov_model2d(pdist_temp.data, flatten_temp.data, _sampling->neighbor, k_range, sill);
+    cov_model2d(pdist_temp.data, flatten_temp.data, _sampling->neighbor, model);
     matrixform(flatten_temp.data, datacov.data, _sampling->neighbor);
-    cov_model(loc_cov2.data, loc_cov.data, _sampling->neighbor, k_range, sill);
+    cov_model(loc_cov2.data, loc_cov.data, _sampling->neighbor, model);
 
     if (_sampling->neighbor >= 1)
         lu_inverse_solver(datacov.data, loc_cov.data, weights.data, _sampling->neighbor);

@@ -25,7 +25,7 @@ int main() {
 
     cov_model_t cov_example;
     // Initialize with function
-    cov_model_init(&cov_example, 1, 35, 17.32, 1);
+    cov_model_init(&cov_example, 1, 35, 17.32, 1, 0);
     // Initialize with assignment
     // cov_example.bw = 1;
     // cov_example.hs = 35;
