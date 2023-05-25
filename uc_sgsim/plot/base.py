@@ -4,7 +4,7 @@ from uc_sgsim.cov_model.base import CovModel
 
 
 class PlotBase:
-    def __init__(self, model: CovModel, random_field: np.array, figsize=(10, 8)):
+    def __init__(self, model: CovModel, random_field: np.array, figsize: tuple = (10, 8)):
         self.__model = model
         self.__random_field = random_field
         self.__figsize = figsize

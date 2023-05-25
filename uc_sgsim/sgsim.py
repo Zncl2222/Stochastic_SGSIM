@@ -1,4 +1,5 @@
 import time
+from typing import Union
 import sys
 from pathlib import Path
 from ctypes import CDLL, POINTER, c_double, c_int
@@ -21,12 +22,12 @@ class UCSgsim(RandomField):
         x: int,
         model: CovModel,
         realization_number: int,
-        krige_method='SimpleKrige',
+        krige_method: str = 'SimpleKrige',
     ):
         super().__init__(x, model, realization_number)
         self.krige_method = krige_method
 
-    def compute(self, randomseed=0, parallel=False) -> np.array:
+    def _process(self, randomseed: int = 0, parallel: bool = False) -> np.array:
         self.randomseed = randomseed
         if parallel is False:
             self.n_process = 1
@@ -39,16 +40,14 @@ class UCSgsim(RandomField):
         start_time = time.time()
         np.random.seed(self.randomseed)
         while counts < self.realization_number // self.n_process:
-            unsampled = np.linspace(0, self.x_size - 1, self.x_size)
-
-            y_value = np.random.normal(0, 1, 2).reshape(2, 1)
+            unsampled = np.linspace(1, self.x_size - 2, self.x_size - 2)
+            y_value = np.random.normal(0, self.model.sill**0.5, 2).reshape(2, 1)
             x_grid = np.array([0, self.x_size - 1]).reshape(2, 1)
             z = np.zeros(self.x_size)
             z[0], z[-1] = y_value[0], y_value[1]
-            unsampled = np.delete(unsampled, [0, -1])
             neigh = 0
 
-            L = np.hstack([x_grid, y_value])
+            grid = np.hstack([x_grid, y_value])
 
             randompath = np.random.choice(
                 unsampled,
@@ -58,24 +57,21 @@ class UCSgsim(RandomField):
 
             for i in range(len(unsampled)):
                 z[int(randompath[i])] = self.krige.simulation(
-                    L,
+                    grid,
                     randompath[i],
                     neighbor=neigh,
                 )
                 temp = np.hstack([randompath[i], z[int(randompath[i])]])
-                L = np.vstack([L, temp])
+                grid = np.vstack([grid, temp])
 
                 if neigh < 8:
                     neigh += 1
 
             self.randomseed += 1
 
-            z_gap = abs(z.max() - z.min())
-
-            if 2 < z_gap <= 6.5:
-                self.random_field[counts, :] = z
-                counts = counts + 1
-                print('Progress = %.2f' % (counts / self.realization_number * 100) + '%', end='\r')
+            self.random_field[counts, :] = z
+            counts = counts + 1
+            print('Progress = %.2f' % (counts / self.realization_number * 100) + '%', end='\r')
 
         print('Progress = %.2f' % 100 + '%\n', end='\r')
         end_time = time.time()
@@ -83,7 +79,7 @@ class UCSgsim(RandomField):
 
         return self.random_field
 
-    def compute_async(self, n_process: int, randomseed: int) -> np.array:
+    def compute(self, n_process: int, randomseed: int) -> np.array:
         pool = Pool(processes=n_process)
         self.n_process = n_process
         self.realization_number = self.realization_number * n_process
@@ -96,7 +92,7 @@ class UCSgsim(RandomField):
             rand_list.append(int(s))
             parallel.append(True)
 
-        z = pool.starmap(self.compute, zip(rand_list, parallel))
+        z = pool.starmap(self._process, zip(rand_list, parallel))
         pool.close()
         # use pool.join() to measure the coverage of sub process
         pool.join()
@@ -108,30 +104,30 @@ class UCSgsim(RandomField):
 
         return self.random_field
 
-    def variogram_compute(self, n_process=1) -> None:
+    def variogram_compute(self, n_process: int = 1) -> None:
         pool = Pool(processes=n_process)
         model_len = self.x_size
         x = np.linspace(0, self.x_size - 1, model_len).reshape(model_len, 1)
 
-        L = []
+        grid = []
         for i in range(self.realization_number):
-            L.append(
+            grid.append(
                 np.hstack([x, self.random_field[i, :].reshape(model_len, 1)]),
             )
 
-        self.variogram = pool.starmap(self.model.variogram, zip(L))
+        self.variogram = pool.starmap(self.model.variogram, zip(grid))
         pool.close()
         # use pool.join() to measure the coverage of sub process
         pool.join()
         self.variogram = np.array(self.variogram)
 
-    def mean_plot(self, n, mean=0, std=1) -> None:
+    def mean_plot(self, n: Union[str, list[int]], mean: float = 0) -> None:
         m_plot = Visualize(self.model, self.random_field)
-        m_plot.mean_plot(n, mean, std)
+        m_plot.mean_plot(n, mean)
 
-    def variance_plot(self, mean=0, std=1) -> None:
+    def variance_plot(self, mean: float = 0) -> None:
         s_plot = Visualize(self.model, self.random_field)
-        s_plot.variance_plot(mean, std)
+        s_plot.variance_plot(mean)
 
     def cdf_plot(self, x_location: int) -> None:
         c_plot = Visualize(self.model, self.random_field)
@@ -154,20 +150,20 @@ class UCSgsimDLL(UCSgsim):
         x: int,
         model: CovModel,
         realization_number: int,
-        krige_method='SimpleKrige',
+        krige_method: str = 'SimpleKrige',
     ):
         super().__init__(x, model, realization_number)
         self.krige_method = krige_method
 
-    def lib_read(self) -> CDLL:
+    def _lib_read(self) -> CDLL:
         if sys.platform.startswith('linux'):
             lib = CDLL(str(BASE_DIR) + r'/c_core/uc_sgsim.so')
         elif sys.platform.startswith('win32'):
             lib = CDLL(str(BASE_DIR) + r'/c_core/uc_sgsim.dll', winmode=0)
         return lib
 
-    def cpdll(self, randomseed: int) -> np.array:
-        lib = self.lib_read()
+    def _cpdll(self, randomseed: int) -> np.array:
+        lib = self._lib_read()
         mlen = int(self.x_size)
         realization_number = int(self.realization_number // self.n_process)
         random_field = np.empty([realization_number, self.x_size])
@@ -193,7 +189,14 @@ class UCSgsimDLL(UCSgsim):
             c_double,
             c_double,
         )
-        cov_init(cov_s, 1, 35, 17.32, 1)
+        cov_init(
+            cov_s,
+            self.model.bandwidth_len,
+            self.model.bandwidth_step,
+            self.model.k_range,
+            self.model.sill,
+            self.model.nugget,
+        )
 
         sgsim = lib.sgsim_run
         sgsim.argtypes = (POINTER(SgsimStructure), POINTER(CovModelStructure), c_int)
@@ -218,8 +221,8 @@ class UCSgsimDLL(UCSgsim):
             s = randomseed + int(i)
             rand_list.append(int(s))
 
-        z = pool.starmap(self.cpdll, zip(rand_list))
-        print(len(z))
+        z = pool.starmap(self._cpdll, zip(rand_list))
+
         pool.close()
         # use pool.join() to measure the coverage of sub process
         pool.join()
@@ -231,8 +234,8 @@ class UCSgsimDLL(UCSgsim):
 
         return self.random_field
 
-    def variogram_cpdll(self, cpu_number: int) -> np.array:
-        lib = self.lib_read()
+    def _variogram_cpdll(self, n_process: int) -> np.array:
+        lib = self._lib_read()
         vario = lib.variogram
         vario.argtypes = (
             POINTER(c_double),
@@ -254,17 +257,17 @@ class UCSgsimDLL(UCSgsim):
         variogram = np.empty([realization_number, vario_size])
 
         for i in range(realization_number):
-            random_field_array[:] = self.random_field[i + cpu_number * realization_number, :]
+            random_field_array[:] = self.random_field[i + n_process * realization_number, :]
             vario(random_field_array, vario_array, mlen, vario_size, 1)
             variogram[i, :] = list(vario_array)
 
         return variogram
 
-    def variogram_compute(self, n_process=1) -> np.array:
+    def variogram_compute(self, n_process: int = 1) -> np.array:
         pool = Pool(processes=n_process)
         self.n_process = n_process
 
-        if n_process < 1:
+        if n_process > 1:
             self.realization_number = self.realization_number * n_process
 
         self.variogram = np.empty([self.realization_number, len(self.bandwidth)])
@@ -272,7 +275,7 @@ class UCSgsimDLL(UCSgsim):
         for i in range(self.n_process):
             cpu_number.append(i)
 
-        z = pool.starmap(self.variogram_cpdll, zip(cpu_number))
+        z = pool.starmap(self._variogram_cpdll, zip(cpu_number))
         pool.close()
         # use pool.join() to measure the coverage of sub process
         pool.join()

@@ -6,5 +6,8 @@ coverage:
   status:
     project:
       default:
-        target: auto
+        target: 80%
         removed_code_behavior: fully_covered_patch # off, removals_only, adjust_base
+    patch:
+      default:
+        target: 80%

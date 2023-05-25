@@ -8,13 +8,15 @@ class CovModel:
         bandwidth_len: float,
         bandwidth_step: float,
         k_range: float,
-        sill=1,
+        sill: float = 1,
+        nugget: float = 0,
     ):
         self.__bandwidth_len = bandwidth_len
         self.__bandwidth_step = bandwidth_step
         self.__bandwidth = np.arange(0, bandwidth_len, bandwidth_step)
         self.__k_range = k_range
         self.__sill = sill
+        self.__nugget = nugget
 
     @property
     def bandwidth_len(self) -> float:
@@ -35,6 +37,10 @@ class CovModel:
     @property
     def sill(self) -> float:
         return self.__sill
+
+    @property
+    def nugget(self) -> float:
+        return self.__nugget
 
     def cov_compute(self, x: np.array) -> np.array:
         cov = np.empty(len(x))

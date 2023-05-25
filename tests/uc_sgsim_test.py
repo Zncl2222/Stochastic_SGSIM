@@ -1,7 +1,7 @@
 import pytest
 
 import uc_sgsim as uc
-from uc_sgsim.cov_model import Gaussian, Spherical
+from uc_sgsim.cov_model import Gaussian, Spherical, Exponential
 from uc_sgsim.exception import VariogramDoesNotCompute
 
 
@@ -17,6 +17,7 @@ class TestUCSgsim:
         C0 = 1
         cls.gaussian = Gaussian(hs, bw, a, C0)
         cls.spherical = Spherical(hs, bw, a, C0)
+        cls.exponential = Exponential(hs, bw, a, C0)
 
     def sgsim_plot(self, sgsim: uc.UCSgsim) -> None:
         sgsim.mean_plot('ALL')
@@ -35,19 +36,46 @@ class TestUCSgsim:
 
     def test_uc_sgsim_gaussian_py_single_process(self):
         sgsim = uc.UCSgsim(self.X, self.gaussian, self.nR)
-        sgsim.compute(randomseed=454)
+        sgsim.compute(n_process=1, randomseed=454)
         self.sgsim_plot(sgsim)
         self.sgsim_save(sgsim)
 
     def test_uc_sgsim_gaussian_py_multi_process(self):
         sgsim = uc.UCSgsim(self.X, self.gaussian, self.nR)
-        sgsim.compute_async(n_process=2, randomseed=454)
+        sgsim.compute(n_process=2, randomseed=454)
+        self.sgsim_plot(sgsim)
+        self.sgsim_save(sgsim)
+
+    def test_uc_sgsim_gaussian_nugget_py(self):
+        model = Gaussian(35, 1, 17.32, 1, 0.01)
+        sgsim = uc.UCSgsim(self.X, model, self.nR)
+        sgsim.compute(n_process=2, randomseed=454)
         self.sgsim_plot(sgsim)
         self.sgsim_save(sgsim)
 
     def test_uc_sgsim_spherical_py(self):
         sgsim = uc.UCSgsim(self.X, self.spherical, self.nR)
-        sgsim.compute_async(n_process=2, randomseed=454)
+        sgsim.compute(n_process=2, randomseed=454)
+        self.sgsim_plot(sgsim)
+        self.sgsim_save(sgsim)
+
+    def test_uc_sgsim_spherical_nugget_py(self):
+        model = Spherical(35, 1, 17.32, 1, 0.01)
+        sgsim = uc.UCSgsim(self.X, model, self.nR)
+        sgsim.compute(n_process=2, randomseed=454)
+        self.sgsim_plot(sgsim)
+        self.sgsim_save(sgsim)
+
+    def test_uc_sgsim_exponential_py(self):
+        sgsim = uc.UCSgsim(self.X, self.exponential, self.nR)
+        sgsim.compute(n_process=2, randomseed=454)
+        self.sgsim_plot(sgsim)
+        self.sgsim_save(sgsim)
+
+    def test_uc_sgsim_exponential_nugget_py(self):
+        model = Exponential(35, 1, 17.32, 1, 0.01)
+        sgsim = uc.UCSgsim(self.X, model, self.nR)
+        sgsim.compute(n_process=2, randomseed=454)
         self.sgsim_plot(sgsim)
         self.sgsim_save(sgsim)
 
@@ -64,7 +92,7 @@ class TestUCSgsim:
             sgsim.vario_plot()
 
         sgsim = uc.UCSgsim(self.X, self.gaussian, self.nR)
-        sgsim.compute_async(n_process=1, randomseed=454)
+        sgsim.compute(n_process=1, randomseed=454)
         with pytest.raises(VariogramDoesNotCompute):
             sgsim.vario_plot()
         with pytest.raises(VariogramDoesNotCompute):

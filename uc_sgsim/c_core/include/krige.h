@@ -4,6 +4,7 @@
 #define UC_SGSIM_C_CORE_INCLUDE_KRIGE_H_
 
 # include "../lib/c_array.h"
+# include "../include/cov_model.h"
 
 typedef struct {
     int neighbor;
@@ -18,7 +19,7 @@ void sampling_state_init(sampling_state* _sampling, int x_grid_len);
 
 void sampling_state_update(sampling_state* _sampling, double unsampled_point, int idx);
 
-void krige_param_setting(int x_len, double k_range, double sill);
+void krige_param_setting(int x_len, const cov_model_t* _cov_model);
 
 void simple_kriging(double* array, sampling_state* _sampling, mt19937_state* rng_state);
 
