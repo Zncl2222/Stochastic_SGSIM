@@ -37,12 +37,14 @@ class TestUCSgsim:
     def test_uc_sgsim_gaussian_py_single_process(self):
         sgsim = uc.UCSgsim(self.X, self.gaussian, self.nR)
         sgsim.compute(n_process=1, randomseed=454)
+        sgsim.variogram_compute(n_process=1)
         self.sgsim_plot(sgsim)
         self.sgsim_save(sgsim)
 
     def test_uc_sgsim_gaussian_py_multi_process(self):
         sgsim = uc.UCSgsim(self.X, self.gaussian, self.nR)
         sgsim.compute(n_process=2, randomseed=454)
+        sgsim.variogram_compute(n_process=2)
         self.sgsim_plot(sgsim)
         self.sgsim_save(sgsim)
 
@@ -50,12 +52,14 @@ class TestUCSgsim:
         model = Gaussian(35, 1, 17.32, 1, 0.01)
         sgsim = uc.UCSgsim(self.X, model, self.nR)
         sgsim.compute(n_process=2, randomseed=454)
+        sgsim.variogram_compute(n_process=2)
         self.sgsim_plot(sgsim)
         self.sgsim_save(sgsim)
 
     def test_uc_sgsim_spherical_py(self):
         sgsim = uc.UCSgsim(self.X, self.spherical, self.nR)
         sgsim.compute(n_process=2, randomseed=454)
+        sgsim.variogram_compute(n_process=2)
         self.sgsim_plot(sgsim)
         self.sgsim_save(sgsim)
 
@@ -63,12 +67,14 @@ class TestUCSgsim:
         model = Spherical(35, 1, 17.32, 1, 0.01)
         sgsim = uc.UCSgsim(self.X, model, self.nR)
         sgsim.compute(n_process=2, randomseed=454)
+        sgsim.variogram_compute(n_process=2)
         self.sgsim_plot(sgsim)
         self.sgsim_save(sgsim)
 
     def test_uc_sgsim_exponential_py(self):
         sgsim = uc.UCSgsim(self.X, self.exponential, self.nR)
         sgsim.compute(n_process=2, randomseed=454)
+        sgsim.variogram_compute(n_process=2)
         self.sgsim_plot(sgsim)
         self.sgsim_save(sgsim)
 
@@ -76,12 +82,14 @@ class TestUCSgsim:
         model = Exponential(35, 1, 17.32, 1, 0.01)
         sgsim = uc.UCSgsim(self.X, model, self.nR)
         sgsim.compute(n_process=2, randomseed=454)
+        sgsim.variogram_compute(n_process=2)
         self.sgsim_plot(sgsim)
         self.sgsim_save(sgsim)
 
     def test_uc_sgsim_gaussian_c(self):
         sgsim = uc.UCSgsimDLL(self.X, self.gaussian, self.nR)
         sgsim.compute(n_process=2, randomseed=454)
+        sgsim.variogram_compute(n_process=2)
         self.sgsim_plot(sgsim)
         self.sgsim_save(sgsim)
 

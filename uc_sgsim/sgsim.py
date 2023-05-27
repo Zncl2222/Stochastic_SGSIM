@@ -267,9 +267,6 @@ class UCSgsimDLL(UCSgsim):
         pool = Pool(processes=n_process)
         self.n_process = n_process
 
-        if n_process > 1:
-            self.realization_number = self.realization_number * n_process
-
         self.variogram = np.empty([self.realization_number, len(self.bandwidth)])
         cpu_number = []
         for i in range(self.n_process):
