@@ -46,11 +46,11 @@ class TestCovModel:
         array_col2 = np.array([10, 20, 30, 40]).reshape(len(self.test_array), 1)
         array_col2_2 = np.array([7, 6, 23, 99]).reshape(len(self.test_array), 1)
         array2d = np.hstack([array_col1, array_col2])
-        ans_gaussian = [50.0, 110.0, 166.66666667, 283.33333333, 450.0]
+        ans_gaussian = [30.0, 78.57142857, 166.66666667, 283.33333333, 450.0]
         vario_gaussian = self.gaussian.variogram(array2d)
         assert list(vario_gaussian) == pytest.approx(ans_gaussian)
 
         array2d = np.hstack([array_col1, array_col2_2])
-        ans_spherical = [1011.0, 1497.1, 1952.91666667, 2894.83333333, 4232.0]
+        ans_spherical = [606.6, 1069.35714286, 1952.91666667, 2894.83333333, 4232.0]
         vario_spherical = self.spherical.variogram(array2d)
         assert list(vario_spherical) == pytest.approx(ans_spherical)

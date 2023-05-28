@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.spatial.distance import pdist, squareform
+from scipy.spatial.distance import cdist
 
 
 class CovModel:
@@ -57,18 +57,17 @@ class CovModel:
         return var
 
     def variogram(self, x: np.array) -> np.array:
-        dist = squareform(pdist(x[:, :1]))
+        dist = cdist(x[:, :1], x[:, :1])
         variogram = []
+        # variogram = np.zeros(len(self.__bandwidth))
 
-        for h in self.__bandwidth:
-            z = []
-            for i in range(len(dist[:, 0])):
-                for j in range(i + 1, len(dist[:, 0])):
-                    if (dist[i, j] >= h - self.__bandwidth_step) and (
-                        dist[i, j] <= h + self.__bandwidth_step
-                    ):
-                        z.append(np.power(x[i, 1] - x[j, 1], 2))
-            if np.sum(z) >= 1e-7:
-                variogram.append(np.sum(z) / (2 * len(z)))
+        for idx, h in enumerate(self.__bandwidth):
+            indices = np.where(
+                (dist >= h - self.__bandwidth_step) & (dist <= h + self.__bandwidth_step),
+            )
+            z = np.power(x[indices[0], 1] - x[indices[1], 1], 2)
+            z_sum = np.sum(z)
+            if z_sum >= 1e-7:
+                variogram.append(z_sum / (2 * len(z)))
 
         return np.array(variogram)
