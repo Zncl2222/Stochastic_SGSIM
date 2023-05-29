@@ -5,59 +5,38 @@
 # include "../include/sort_tools.h"
 
 
-void swap(double** x, int i, int j) {
-    double tempp;
-    double tempp2;
-    double tempp3;
-
-    tempp = x[j][0];
-    tempp2 = x[j][1];
-    tempp3 = x[j][2];
-
-    x[j][0] = x[i][0];
-    x[j][1] = x[i][1];
-    x[j][2] = x[i][2];
-
-    x[i][0] = tempp;
-    x[i][1] = tempp2;
-    x[i][2] = tempp3;
+void swaprows(double** x, int i, int j) {
+    double* temp = x[j];
+    x[j] = x[i];
+    x[i] = temp;
 }
 
-int Partition2d(double** array, int front, int end) {
-    int mid = front + (end-front) / 2;
-
-    if (array[front][2] > array[end][2]) {
-        swap(array, front, end);
-    }
-    if (array[mid][2] > array[end][2]) {
-        swap(array, mid, end);
-    }
-    if (array[mid][2] > array[front][2]) {
-        swap(array, mid, front);
-    }
-
+int partition2d(double** array, int front, int end) {
     double pivotkey = array[front][2];
+    int i = front - 1;
+    int j = end + 1;
 
-    while (front < end) {
-        while (front < end && array[end][2] >= pivotkey) {
-            end--;
-        }
-        swap(array, front, end);
+    while (1) {
+        do {
+            i++;
+        } while (array[i][2] < pivotkey);
 
-        while (front < end && array[front][2] <= pivotkey) {
-            front++;
+        do {
+            j--;
+        } while (array[j][2] > pivotkey);
+
+        if (i >= j) {
+            return j;
         }
-        swap(array, front, end);
+
+        swaprows(array, i, j);
     }
-    return front;
 }
 
 void quicksort2d(double** array, int front, int end) {
-    int pivot;
-
     if (front < end) {
-        pivot = Partition2d(array, front, end);
-        quicksort2d(array, front, pivot-1);
-        quicksort2d(array, pivot+1, end);
+        int pivot = partition2d(array, front, end);
+        quicksort2d(array, front, pivot);
+        quicksort2d(array, pivot + 1, end);
     }
 }
