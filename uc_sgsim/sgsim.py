@@ -39,7 +39,7 @@ class UCSgsim(RandomField):
 
         start_time = time.time()
         np.random.seed(self.randomseed)
-        while counts < self.realization_number // self.n_process:
+        for _ in range(self.realization_number // self.n_process):
             unsampled = np.linspace(1, self.x_size - 2, self.x_size - 2)
             y_value = np.random.normal(0, self.model.sill**0.5, 2).reshape(2, 1)
             x_grid = np.array([0, self.x_size - 1]).reshape(2, 1)
@@ -85,12 +85,8 @@ class UCSgsim(RandomField):
         self.realization_number = self.realization_number * n_process
         self.random_field = np.empty([self.realization_number, self.x_size])
 
-        rand_list = []
-        parallel = []
-        for i in range(n_process):
-            s = randomseed + int(i)
-            rand_list.append(int(s))
-            parallel.append(True)
+        rand_list = [randomseed + i for i in range(n_process)]
+        parallel = [True] * n_process
 
         z = pool.starmap(self._process, zip(rand_list, parallel))
         pool.close()
@@ -98,9 +94,9 @@ class UCSgsim(RandomField):
         pool.join()
 
         for i in range(n_process):
-            for j in range(int(self.realization_number / n_process)):
-                start = int(i * self.realization_number / n_process)
-                self.random_field[j + start, :] = z[i][j, :]
+            start = int(i * self.realization_number / n_process)
+            end = int((i + 1) * self.realization_number / n_process)
+            self.random_field[start:end, :] = z[i][: end - start, :]
 
         return self.random_field
 
@@ -109,12 +105,10 @@ class UCSgsim(RandomField):
         model_len = self.x_size
         x = np.linspace(0, self.x_size - 1, model_len).reshape(model_len, 1)
 
-        grid = []
-        for i in range(self.realization_number):
-            grid.append(
-                np.hstack([x, self.random_field[i, :].reshape(model_len, 1)]),
-            )
-
+        grid = [
+            np.hstack([x, self.random_field[i, :].reshape(model_len, 1)])
+            for i in range(self.realization_number)
+        ]
         self.variogram = pool.starmap(self.model.variogram, zip(grid))
         pool.close()
         # use pool.join() to measure the coverage of sub process
@@ -216,10 +210,7 @@ class UCSgsimDLL(UCSgsim):
 
         self.random_field = np.empty([self.realization_number, self.x_size])
 
-        rand_list = []
-        for i in range(n_process):
-            s = randomseed + int(i)
-            rand_list.append(int(s))
+        rand_list = [randomseed + i for i in range(n_process)]
 
         z = pool.starmap(self._cpdll, zip(rand_list))
 
@@ -228,9 +219,9 @@ class UCSgsimDLL(UCSgsim):
         pool.join()
 
         for i in range(n_process):
-            for j in range(int(self.realization_number / n_process)):
-                start = int(i * self.realization_number / n_process)
-                self.random_field[j + start, :] = z[i][j, :]
+            start = int(i * self.realization_number / n_process)
+            end = int((i + 1) * self.realization_number / n_process)
+            self.random_field[start:end, :] = z[i][: end - start, :]
 
         return self.random_field
 
@@ -268,9 +259,7 @@ class UCSgsimDLL(UCSgsim):
         self.n_process = n_process
 
         self.variogram = np.empty([self.realization_number, len(self.bandwidth)])
-        cpu_number = []
-        for i in range(self.n_process):
-            cpu_number.append(i)
+        cpu_number = [i for i in range(self.n_process)]
 
         z = pool.starmap(self._variogram_cpdll, zip(cpu_number))
         pool.close()
