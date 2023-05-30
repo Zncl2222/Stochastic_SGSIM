@@ -37,7 +37,7 @@ void sgsim_init(
     _sgsim->randomseed = randomseed;
     if (if_alloc_memory == 1) {
         unsigned long size = (long)x_len * (long)realization_numbers;
-        _sgsim->array = malloc(size * sizeof(double));
+        _sgsim->array = calloc(size, sizeof(double));
     }
 }
 
@@ -62,12 +62,6 @@ void sgsim_run(sgsim_t* _sgsim, const cov_model_t* _cov_model, int vario_flag) {
 
         x_grid.data = randompath(x_grid.data, _sgsim->x_len, &rng_state);
 
-        for (int i = 0; i < _sgsim->x_len; i ++) {
-            sgsim_array.data[i] = 0;
-            _sampling.sampled.data[i] = 0;
-            _sampling.u_array.data[i] = -1;
-        }
-
         for (int i = 0; i < _sgsim->x_len; i++) {
             sampling_state_update(&_sampling, x_grid.data[i], i);
             simple_kriging(sgsim_array.data, &_sampling, &rng_state);
@@ -83,16 +77,13 @@ void sgsim_run(sgsim_t* _sgsim, const cov_model_t* _cov_model, int vario_flag) {
                 flag++;
             }
         }
-        count++;
 
         if (vario_flag == 1)
             variogram(
                 sgsim_array.data, variogram_array.data,
                 _sgsim->x_len, _cov_model->bw, _cov_model->bw_s);
 
-        if (flag > 0) {
-            count--;
-        } else {
+        if (flag == 0) {
             save_1darray(sgsim_array.data, _sgsim->x_len, "Realizations",
                         "./Realizations/", _sgsim->realization_numbers, count);
             if (vario_flag ==1) {
@@ -101,6 +92,7 @@ void sgsim_run(sgsim_t* _sgsim, const cov_model_t* _cov_model, int vario_flag) {
                             "./Realizations/Variogram/",
                             _sgsim->realization_numbers, count);
             }
+            count++;
         }
     }
     krige_memory_free();

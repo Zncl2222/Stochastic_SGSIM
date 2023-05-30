@@ -107,10 +107,12 @@ void pdist(const double* x, double** c, int n_dim) {
     }
 }
 
-void matrixform(const double* x, double**matrix, int n_dim) {
+void matrixform(const double* x, double** matrix, int n_dim) {
+    int index = 0;
     for (int i = 0; i < n_dim; i++) {
         for (int j = 0; j < n_dim; j++) {
-            matrix[i][j] = x[n_dim*i+j];
+            matrix[i][j] = x[index];
+            index++;
         }
     }
 }
