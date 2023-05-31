@@ -85,10 +85,8 @@ pip install uc-sgsim
 
 ## Features
 * One dimensional unconditional randomfield generation with sequential gaussian simulation algorithm
-* Enable to use muti-cores to run the simulation (mutiprocessing)
+* Muti-cores simulation (mutiprocessing)
 * Run C to generate randomfield in python via ctype interface, or just generate randomfield in python with numpy and scipy library.
-
-
 
 ## Example
 ```py
@@ -98,46 +96,42 @@ from uc_sgsim.cov_model import Gaussian
 
 if __name__ == '__main__':
     x = 151  # Model grid, only 1D case is support now
+
     bw_s = 1  # lag step
     bw_l = 35  # lag range
-    randomseed = 12321  # randomseed for simulation
-    a = 17.32  # effective range of covariance model
-    C0 = 1  # sill of covariance model
+    randomseed = 151  # randomseed for simulation
+    k_range = 17.32  # effective range of covariance model
+    sill = 1  # sill of covariance model
 
     nR = 10  # numbers of realizations in each CPU cores,
     # if nR = 1 n_process = 8
     # than you will compute total 8 realizations
 
     # Create Covariance model first
-    Cov_model = Gaussian(bw_l, bw_s, a, C0)
+    cov_model = Gaussian(bw_l, bw_s, k_range, sill)
 
     # Create simulation and input the Cov model
-    sgsim = uc.UCSgsim(X, Cov_model, nR)  # Create class instance that generate field in python
-    sgsim_c = uc.UCSgsimDLL(x, Cov_model, nR) # Create class instance that generate field in c
+    sgsim_py = uc.UCSgsim(x, cov_model, nR) # run sgsim with python
+    sgsim_c = uc.UCSgsimDLL(x, cov_model, nR) # run sgsim with c
 
     # Start compute with n CPUs
-    sgsim.compute_async(n_process=8, randomseed=454) # Generate field (python)
-    sgsim_c.compute(n_process=2, randomseed=151) # Generate field (c)
+    sgsim_c.compute(n_process=2, randomseed=randomseed)
+    sgsim_py.compute(n_process=2, randomseed=987654)
 
-    sgsim.mean_plot('ALL')  # Plot mean
-    sgsim.variance_plot()  # Plot variance
-    sgsim.cdf_plot(x_location=10)  # CDF
-    sgsim.hist_plot(x_location=10)  # Hist
-    sgsim.variogram_compute(n_process=2)  # Compute variogram before plotting
+    sgsim_c.mean_plot('ALL')  # Plot mean
+    sgsim_c.variance_plot()  # Plot variance
+    sgsim_c.cdf_plot(x_location=10)  # CDF
+    sgsim_c.hist_plot(x_location=10)  # Hist
+    sgsim_c.variogram_compute(n_process=2)  # Compute variogram before plotting
     # Plot variogram and mean variogram for validation
-    sgsim.vario_plot()
+    sgsim_c.vario_plot()
     # Save random_field and variogram
-    sgsim.save_random_field('randomfield.csv', save_single=True) # save in single file
-    sgsim.save_variogram('') # save each field individually
+    sgsim_c.save_random_field('randomfields.csv', save_single=True)
+    sgsim_c.save_variogram('variograms.csv', save_single=True)
 
-    # plt.show() to show the matplotlib plot
+    # show figure
     plt.show()
-
-    # Please note that the parameter "n_realizations" means the number of realizations calculate in each process,
-    # so this case will generate total 20 * 4(process) = 80 realizations
-
 ```
-
 
 <p align="center">
    <img src="https://github.com/Zncl2222/Stochastic_SGSIM/blob/main/figure/Realizations.png"  width="40%"/>
@@ -150,7 +144,7 @@ if __name__ == '__main__':
 
 ## Future plans
 * 2D unconditional randomfield generation
-* GUI mode in pyhton
+* GUI (pyhton)
 * More covariance models
 * More kriging methods (etc. Oridinary Kriging)
 * Performance enhancement
