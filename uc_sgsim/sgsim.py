@@ -1,5 +1,4 @@
 import time
-from typing import Union
 import sys
 from pathlib import Path
 from ctypes import CDLL, POINTER, c_double, c_int
@@ -115,13 +114,17 @@ class UCSgsim(RandomField):
         pool.join()
         self.variogram = np.array(self.variogram)
 
-    def mean_plot(self, n: Union[str, list[int]], mean: float = 0) -> None:
-        m_plot = Visualize(self.model, self.random_field)
-        m_plot.mean_plot(n, mean)
+    def plot(self, realizations: list[int] = None, mean: float = 0):
+        plot = Visualize(self.model, self.random_field)
+        plot.plot(realizations, mean)
 
-    def variance_plot(self, mean: float = 0) -> None:
+    def mean_plot(self, mean: float = 0) -> None:
+        m_plot = Visualize(self.model, self.random_field)
+        m_plot.mean_plot(mean)
+
+    def variance_plot(self) -> None:
         s_plot = Visualize(self.model, self.random_field)
-        s_plot.variance_plot(mean)
+        s_plot.variance_plot()
 
     def cdf_plot(self, x_location: int) -> None:
         c_plot = Visualize(self.model, self.random_field)
@@ -131,7 +134,7 @@ class UCSgsim(RandomField):
         h_plot = Visualize(self.model, self.random_field)
         h_plot.hist_plot(x_location)
 
-    def vario_plot(self) -> None:
+    def variogram_plot(self) -> None:
         if type(self.variogram) == int:
             raise VariogramDoesNotCompute()
         v_plot = Visualize(self.model, self.random_field)
