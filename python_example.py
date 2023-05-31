@@ -30,7 +30,8 @@ if __name__ == '__main__':
 
     mid = time.time()
 
-    sgsim.mean_plot('ALL')  # Plot mean
+    sgsim.plot()  # Plot realizations
+    sgsim.mean_plot()  # Plot mean
     sgsim.variance_plot()  # Plot variance
     sgsim.cdf_plot(x_location=10)  # CDF
     sgsim.hist_plot(x_location=10)  # Hist

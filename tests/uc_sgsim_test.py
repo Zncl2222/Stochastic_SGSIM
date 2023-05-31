@@ -20,12 +20,13 @@ class TestUCSgsim:
         cls.exponential = Exponential(hs, bw, a, C0)
 
     def sgsim_plot(self, sgsim: uc.UCSgsim) -> None:
-        sgsim.mean_plot('ALL')
-        sgsim.mean_plot([0, 1, 2])
+        sgsim.plot()
+        sgsim.plot([0, 1, 2])
         sgsim.cdf_plot(x_location=10)
         sgsim.hist_plot(x_location=10)
         sgsim.variogram_compute(n_process=1)
-        sgsim.vario_plot()
+        sgsim.variogram_plot()
+        sgsim.mean_plot()
         sgsim.variance_plot()
 
     def sgsim_save(self, sgsim: uc.UCSgsim) -> None:
@@ -97,11 +98,11 @@ class TestUCSgsim:
         sgsim = uc.UCSgsimDLL(self.X, self.gaussian, self.nR)
         sgsim.compute(n_process=1, randomseed=454)
         with pytest.raises(VariogramDoesNotCompute):
-            sgsim.vario_plot()
+            sgsim.variogram_plot()
 
         sgsim = uc.UCSgsim(self.X, self.gaussian, self.nR)
         sgsim.compute(n_process=1, randomseed=454)
         with pytest.raises(VariogramDoesNotCompute):
-            sgsim.vario_plot()
+            sgsim.variogram_plot()
         with pytest.raises(VariogramDoesNotCompute):
             sgsim.save_variogram('variogram/', save_single=False)
