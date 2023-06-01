@@ -48,7 +48,7 @@ void krige_param_setting(int x_len, const cov_model_t* _cov_model) {
     c_array_init(&loc_cov, 10);
     c_array_init(&loc_cov2, 10);
     c_array_init(&weights, 10);
-    c_array_init(&flatten_temp, 10 * 10);
+    c_array_init(&flatten_temp, 100);
     c_array_init(&data_temp, 10);
     c_matrix_init(&pdist_temp, 10, 10);
     c_matrix_init(&datacov, 10, 10);

@@ -65,7 +65,7 @@ jobs:
       - name: Run tests to generate coverage statistics
         run: |
           cd build
-          ./uc_sgsim_c_example.out
+          ./c_example.out
           ./test/unittest
           cd ..
       - name: Install LCOV

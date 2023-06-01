@@ -1,20 +1,14 @@
-import time
-
 import matplotlib.pyplot as plt
 import numpy as np
 from uc_sgsim.plot.base import PlotBase
-from uc_sgsim.cov_model.base import CovModel
 
 
 class Visualize(PlotBase):
     xlabel = 'Distance(-)'
 
-    def __init__(self, model: CovModel, random_field: np.array):
-        super().__init__(model, random_field)
-
-    def mean_plot(self, n, mean=0) -> None:
+    def plot(self, realizations: list[int] = None, mean=0) -> None:
         realization_number = len(self.random_field[:, 0])
-        if n == 'ALL':
+        if realizations is None:
             for i in range(realization_number):
                 plt.figure(77879, figsize=self.figsize)
                 plt.plot(self.random_field[i, :] + mean)
@@ -22,9 +16,8 @@ class Visualize(PlotBase):
                 plt.xlabel(self.xlabel, fontsize=20)
                 plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
                 plt.ylabel('Y', fontsize=20)
-
         else:
-            for item in n:
+            for item in realizations:
                 plt.figure(77879, figsize=self.figsize)
                 plt.plot(self.random_field[:, item] + mean)
                 plt.title('Realizations: ' + self.model_name, fontsize=20)
@@ -32,7 +25,7 @@ class Visualize(PlotBase):
                 plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
                 plt.ylabel('Y', fontsize=20)
 
-    def variance_plot(self, mean=0) -> None:
+    def mean_plot(self, mean=0) -> None:
         zmean = np.zeros(len(self.random_field[0, :]))
         for i in range(len(self.random_field[0, :])):
             zmean[i] = np.mean(self.random_field[:, i] + mean)
@@ -50,8 +43,8 @@ class Visualize(PlotBase):
         plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
         plt.xticks(fontsize=17), plt.yticks(fontsize=17)
 
+    def variance_plot(self) -> None:
         zvar = np.zeros(len(self.random_field[0, :]))
-
         for i in range(len(self.random_field[0, :])):
             zvar[i] = np.var(self.random_field[:, i])
 
@@ -69,17 +62,15 @@ class Visualize(PlotBase):
         plt.xticks(fontsize=17), plt.yticks(fontsize=17)
 
     def cdf_plot(self, x_location: int) -> None:
-
-        X = self.random_field[:, x_location]
-
-        mu = np.mean(X)
-        sigma = np.std(X)
+        x = self.random_field[:, x_location]
+        mu = np.mean(x)
+        sigma = np.std(x)
         n_bins = 50
 
         _, ax = plt.subplots(figsize=(8, 4))
 
         _, bins, _ = ax.hist(
-            X,
+            x,
             n_bins,
             density=True,
             histtype='step',
@@ -102,16 +93,13 @@ class Visualize(PlotBase):
         ax.set_ylabel('Occurrence')
 
     def hist_plot(self, x_location: int) -> None:
-
-        X = self.random_field[:, x_location]
-
-        mu = np.mean(X)
-        sigma = np.std(X)
-
+        x = self.random_field[:, x_location]
+        mu = np.mean(x)
+        sigma = np.std(x)
         num_bins = 50
         plt.figure(num=1151)
         _, bins, _ = plt.hist(
-            X,
+            x,
             num_bins,
             density=1,
             color='blue',
@@ -124,14 +112,11 @@ class Visualize(PlotBase):
         )
 
         plt.plot(bins, y, '--', color='black')
-
         plt.xlabel('X-Axis')
         plt.ylabel('Y-Axis')
-
         plt.title('Histogram, x = ' + str(x_location))
 
     def variogram_plot(self, variogram: np.array) -> None:
-        start_time = time.time()
         for i in range(self.realization_number):
             plt.figure(123456, figsize=(10, 6))
             plt.plot(variogram[i, :], alpha=0.1)
@@ -139,7 +124,6 @@ class Visualize(PlotBase):
             plt.xlabel('Lag(m)', fontsize=20)
             plt.ylabel('Variogram', fontsize=20)
             plt.xticks(fontsize=17), plt.yticks(fontsize=17)
-            print('Progress = %.2f' % (i / self.realization_number * 100) + '%', end='\r')
 
         plt.plot(
             self.model.var_compute(self.bandwidth),
@@ -153,9 +137,3 @@ class Visualize(PlotBase):
             Vario_mean[i] = np.mean(variogram[:, i])
 
         plt.plot(Vario_mean, '--', color='blue')
-
-        print('Progress = %.2f' % 100 + '%\n', end='\r')
-
-        end_time = time.time()
-
-        print('Time = ', end_time - start_time, 's')

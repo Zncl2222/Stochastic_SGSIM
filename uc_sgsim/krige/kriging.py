@@ -43,7 +43,8 @@ class SimpleKrige(Kriging):
             if has_neighbor:
                 return has_neighbor
             x = np.hstack([x, dist])
-            x = np.array(sorted(x, key=lambda itr: itr[2])[:neighbor])
+            sorted_indices = np.argsort(x[:, 2])
+            x = x[sorted_indices][:neighbor]
 
         estimation, krige_std = self.prediction(x, unsampled)
 

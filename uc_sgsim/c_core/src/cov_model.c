@@ -1,7 +1,5 @@
 // Copyright 2022 Zncl2222
 
-# include <math.h>
-
 # include "../include/cov_model.h"
 
 
@@ -28,12 +26,13 @@ void cov_model(const double* x, double* cov, int n_dim, cov_model_t* _cov_model)
 
 void cov_model2d(const double** x , double* cov, int n_dim, cov_model_t* _cov_model) {
     double partial_sill = _cov_model->sill - _cov_model->nugget;
-
+    int index = 0;
     for (int i = 0; i < n_dim; i++) {
         for (int j = 0; j < n_dim; j++) {
             double factor =
                 (1 - exp(-3 * (x[i][j] * x[i][j]) / (_cov_model->k_range * _cov_model->k_range)));
-            cov[n_dim * i + j] = _cov_model->sill - (partial_sill * factor) + _cov_model->nugget;
+            cov[index] = _cov_model->sill - (partial_sill * factor) + _cov_model->nugget;
+            index++;
         }
     }
 }

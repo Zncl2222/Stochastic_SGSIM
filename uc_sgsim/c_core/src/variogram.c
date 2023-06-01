@@ -8,11 +8,11 @@
 # include "../include/matrix_tools.h"
 # include "../lib/c_array.h"
 
-void variogram(const double* array, double* v , int mlen, int bw, int bw_s) {
-    double Z_temp;
+void variogram(const double* array, double* v, int mlen, int bw, int bw_s) {
+    double z_temp;
     double count;
-    c_array(double) temp;
-    c_matrix(double) pdist_temp;
+    c_array_double temp;
+    c_matrix_double pdist_temp;
     c_matrix_init(&pdist_temp, mlen, mlen);
 
     temp.data = d_arange(mlen);
@@ -20,22 +20,30 @@ void variogram(const double* array, double* v , int mlen, int bw, int bw_s) {
     pdist(temp.data, pdist_temp.data, mlen);
 
     for (int i = 0; i < bw; i += bw_s) {
-        Z_temp = 0;
+        z_temp = 0;
         count = 0;
+        double bw_lower = i - bw_s;
+        double bw_upper = i + bw_s;
+
         for (int j = 0; j < mlen; j++) {
-            for (int k = j + 1; k < mlen; k++) {
-                if (pdist_temp.data[j][k] >= i - bw_s &&
-                    pdist_temp.data[j][k] <= i + bw_s) {
-                    Z_temp = Z_temp + pow((array[j] - array[k]), 2);
+            double array_j = array[j];
+
+            for (int k = 0; k < j; k++) {
+                double pdist_jk = pdist_temp.data[j][k];
+
+                if (pdist_jk >= bw_lower && pdist_jk <= bw_upper) {
+                    double diff = array_j - array[k];
+                    z_temp += diff * diff;
                     count += 1;
                 }
             }
         }
 
-        if (Z_temp >= 1e-6) {
-            v[i] = Z_temp / (2 * count);
+        if (z_temp >= 1e-6) {
+            v[i] = z_temp / (2 * count);
         }
     }
+
     c_array_free(&temp);
     c_matrix_free(&pdist_temp);
 }
