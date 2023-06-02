@@ -124,7 +124,7 @@ if __name__ == '__main__':
     sgsim_c.hist_plot(x_location=10)  # Hist
     sgsim_c.variogram_compute(n_process=2)  # Compute variogram before plotting
     # Plot variogram and mean variogram for validation
-    sgsim_c.vario_plot()
+    sgsim.variogram_plot()
     # Save random_field and variogram
     sgsim_c.save_random_field('randomfields.csv', save_single=True)
     sgsim_c.save_variogram('variograms.csv', save_single=True)
