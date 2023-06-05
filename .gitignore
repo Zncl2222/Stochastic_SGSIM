@@ -12,3 +12,5 @@ cbuild/
 randomfield*
 variogram*
 .coverage
+*.o
+*.exe
