@@ -13,6 +13,9 @@ endif()
 # Include header files
 include_directories(include/)
 
+# Set compiler optimization flags
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
+
 # Link each file
 add_library(
     uc_sgsim ${LIB_TYPE}
