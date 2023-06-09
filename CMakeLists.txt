@@ -3,8 +3,9 @@ enable_testing()
 
 project(c_example)
 set(CMAKE_VERBOSE_MAKEFILE ON)
-# set true to compile the executable file (win -> .exe, linux -> .out)
-set(IS_EXECUTE true)
+
+# Set the option to compile the executable file
+option(IS_EXECUTE "Compile the executable file" ON)
 
 # set output directory
 if(IS_EXECUTE)
@@ -52,7 +53,6 @@ if(IS_EXECUTE)
     endif()
 endif()
 
-
 # unittest
 if(IS_EXECUTE)
     project(unittest)
@@ -62,11 +62,11 @@ if(IS_EXECUTE)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/test)
 
     set(CTEST_COVERAGE_EXCLUDE
-    '/usr/include/*' # Exclude system headers
-    '${CMAKE_CURRENT_SOURCE_DIR}/test/utest.h' # Exclude a specific file
-    '${CMAKE_CURRENT_SOURCE_DIR}/src/c_array.c'
-    '${CMAKE_CURRENT_SOURCE_DIR}/src/c_array_mt.c'
-    '${CMAKE_CURRENT_SOURCE_DIR}/include/c_array.h'
+        '/usr/include/*' # Exclude system headers
+        '${CMAKE_CURRENT_SOURCE_DIR}/test/utest.h' # Exclude a specific file
+        '${CMAKE_CURRENT_SOURCE_DIR}/src/c_array.c'
+        '${CMAKE_CURRENT_SOURCE_DIR}/src/c_array_mt.c'
+        '${CMAKE_CURRENT_SOURCE_DIR}/include/c_array.h'
     )
     add_custom_target(
         coverage
