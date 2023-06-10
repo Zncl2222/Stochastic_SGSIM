@@ -5,14 +5,11 @@ from uc_sgsim.cov_model.base import CovModel
 
 
 class RandomField:
-    def __init__(self, x: int, model: CovModel, realization_number: int):
-        self.__model = model
+    def __init__(self, x: int, realization_number: int):
         self.__realization_number = realization_number
-        self.__bandwidth_step = model.bandwidth_step
-        self.__bandwidth = model.bandwidth
-        self.__create_grid(x)
+        self._create_grid(x)
 
-    def __create_grid(self, x: int, y: int = 0) -> None:
+    def _create_grid(self, x: int, y: int = 0) -> None:
         self.__x = range(x)
         self.__y = range(y)
         self.__x_size = len(self.__x)
@@ -37,24 +34,12 @@ class RandomField:
         return self.__y_size
 
     @property
-    def model(self) -> CovModel:
-        return self.__model
-
-    @property
     def realization_number(self) -> int:
         return self.__realization_number
 
     @realization_number.setter
     def realization_number(self, val: int):
         self.__realization_number = val
-
-    @property
-    def bandwidth(self) -> np.array:
-        return self.__bandwidth
-
-    @property
-    def bandwidth_step(self) -> int:
-        return self.__bandwidth_step
 
     def save_random_field(
         self,
@@ -106,3 +91,28 @@ class RandomField:
                 )
         else:
             save_as_one_file(path, self.variogram)
+
+
+class SgsimField(RandomField):
+    def __init__(
+        self,
+        x: int,
+        realization_number: int,
+        model: CovModel,
+    ):
+        super().__init__(x, realization_number)
+        self.__model = model
+        self.__bandwidth_step = model.bandwidth_step
+        self.__bandwidth = model.bandwidth
+
+    @property
+    def model(self) -> CovModel:
+        return self.__model
+
+    @property
+    def bandwidth(self) -> np.array:
+        return self.__bandwidth
+
+    @property
+    def bandwidth_step(self) -> int:
+        return self.__bandwidth_step
