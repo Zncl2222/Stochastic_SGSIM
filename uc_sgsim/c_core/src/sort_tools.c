@@ -40,3 +40,17 @@ void quicksort2d(double** array, int front, int end) {
         quicksort2d(array, pivot + 1, end);
     }
 }
+
+void quickselect2d(double** array, int front, int end, int k) {
+    if (front < end) {
+        int pivot = partition2d(array, front, end);
+
+        if (pivot == k - 1) {
+            return;
+        } else if (pivot > k - 1) {
+            quickselect2d(array, front, pivot, k);
+        } else {
+            quickselect2d(array, pivot + 1, end, k);
+        }
+    }
+}

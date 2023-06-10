@@ -69,7 +69,7 @@ void simple_kriging(double* array, sampling_state* _sampling, mt19937_state* rng
     }
 
     if (_sampling->neighbor >= 2) {
-        quicksort2d(array2d_temp.data, 0, _sampling->currlen - 1);
+        quickselect2d(array2d_temp.data, 0, _sampling->currlen - 1, _sampling->neighbor);
     }
 
     for (int j = 0; j < _sampling->neighbor; j++) {

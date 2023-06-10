@@ -111,8 +111,8 @@ if __name__ == '__main__':
     cov_model = Gaussian(bw_l, bw_s, k_range, sill)
 
     # Create simulation and input the Cov model
-    sgsim_py = uc.UCSgsim(x, cov_model, nR) # run sgsim with python
-    sgsim_c = uc.UCSgsimDLL(x, cov_model, nR) # run sgsim with c
+    sgsim_py = uc.UCSgsim(x, nR, cov_model) # run sgsim with python
+    sgsim_c = uc.UCSgsimDLL(x, nR, cov_model) # run sgsim with c
 
     # Start compute with n CPUs
     sgsim_c.compute(n_process=2, randomseed=randomseed)
@@ -124,7 +124,7 @@ if __name__ == '__main__':
     sgsim_c.hist_plot(x_location=10)  # Hist
     sgsim_c.variogram_compute(n_process=2)  # Compute variogram before plotting
     # Plot variogram and mean variogram for validation
-    sgsim_c.vario_plot()
+    sgsim.variogram_plot()
     # Save random_field and variogram
     sgsim_c.save_random_field('randomfields.csv', save_single=True)
     sgsim_c.save_variogram('variograms.csv', save_single=True)

@@ -7,7 +7,7 @@ from multiprocessing import Pool
 import numpy as np
 from uc_sgsim.exception import VariogramDoesNotCompute
 from uc_sgsim.krige import SimpleKrige
-from uc_sgsim.random_field import RandomField
+from uc_sgsim.random_field import SgsimField
 from uc_sgsim.plot.plot import Visualize
 from uc_sgsim.cov_model.base import CovModel
 from uc_sgsim.utils import CovModelStructure, SgsimStructure
@@ -15,7 +15,7 @@ from uc_sgsim.utils import CovModelStructure, SgsimStructure
 BASE_DIR = Path(__file__).resolve().parent
 
 
-class UCSgsim(RandomField):
+class UCSgsim(SgsimField):
     def __init__(
         self,
         x: int,
