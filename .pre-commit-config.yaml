@@ -14,6 +14,7 @@ repos:
     rev: v2.2.0
     hooks:
     -   id: setup-cfg-fmt
+        args: [--include-version-classifiers]
 -   repo: https://github.com/asottile/add-trailing-comma
     rev: v2.3.0
     hooks:

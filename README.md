@@ -111,8 +111,8 @@ if __name__ == '__main__':
     cov_model = Gaussian(bw_l, bw_s, k_range, sill)
 
     # Create simulation and input the Cov model
-    sgsim_py = uc.UCSgsim(x, cov_model, nR) # run sgsim with python
-    sgsim_c = uc.UCSgsimDLL(x, cov_model, nR) # run sgsim with c
+    sgsim_py = uc.UCSgsim(x, nR, cov_model) # run sgsim with python
+    sgsim_c = uc.UCSgsimDLL(x, nR, cov_model) # run sgsim with c
 
     # Start compute with n CPUs
     sgsim_c.compute(n_process=2, randomseed=randomseed)
