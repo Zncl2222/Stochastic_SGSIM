@@ -6,7 +6,7 @@ from multiprocessing import Pool
 
 import numpy as np
 from uc_sgsim.exception import VariogramDoesNotCompute
-from uc_sgsim.krige import SimpleKrige
+from uc_sgsim.krige import SimpleKrige, OrdinaryKrige
 from uc_sgsim.random_field import SgsimField
 from uc_sgsim.plot.plot import Visualize
 from uc_sgsim.cov_model.base import CovModel
@@ -33,6 +33,8 @@ class UCSgsim(SgsimField):
 
         if self.krige_method == 'SimpleKrige':
             self.krige = SimpleKrige(self.model)
+        elif self.krige_method == 'OrdinaryKrige':
+            self.krige = OrdinaryKrige(self.model)
 
         counts = 0
 
