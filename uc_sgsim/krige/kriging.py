@@ -64,3 +64,34 @@ class SimpleKrige(Kriging):
 
         if close_point == 0:
             return np.random.normal(0, self.model.sill**0.5, 1)
+
+
+class OrdinaryKrige(SimpleKrige):
+    def prediction(self, sample: np.array, unsampled: np.array) -> tuple[float, float]:
+        n_sampled = len(sample)
+        dist_diff = abs(sample[:, 0] - unsampled)
+        dist_diff = dist_diff.reshape(len(dist_diff), 1)
+
+        grid = np.hstack([sample, dist_diff])
+        meanvalue = np.mean(grid[:, 1])  # Calculate the mean of the sampled values
+
+        cov_dist = np.array(self.model.cov_compute(grid[:, 2])).reshape(-1, 1)
+        cov_data = squareform(pdist(grid[:, :1])).flatten()
+        cov_data = np.array(self.model.cov_compute(cov_data))
+        cov_data = cov_data.reshape(n_sampled, n_sampled)
+
+        # Add a small nugget to the diagonal of the covariance matrix for numerical stability
+        cov_data[np.diag_indices_from(cov_data)] += self.model.nugget
+
+        weights = np.linalg.solve(cov_data, cov_dist)
+
+        residuals = grid[:, 1] - meanvalue
+        estimation = np.dot(weights.T, residuals) + meanvalue
+        krige_var = float(self.model.sill - np.dot(weights.T, cov_dist))
+
+        if krige_var < 0:
+            krige_var = 0
+
+        krige_std = np.sqrt(krige_var)
+
+        return estimation, krige_std
