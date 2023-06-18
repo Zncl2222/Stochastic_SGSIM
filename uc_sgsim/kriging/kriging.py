@@ -1,10 +1,10 @@
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
 from uc_sgsim.cov_model.base import CovModel
-from uc_sgsim.krige.base import Kriging
+from uc_sgsim.kriging.base import Kriging
 
 
-class SimpleKrige(Kriging):
+class SimpleKriging(Kriging):
     def __init__(self, model: CovModel):
         super().__init__(model)
 
@@ -25,14 +25,14 @@ class SimpleKrige(Kriging):
 
         residuals = grid[:, 1] - meanvalue
         estimation = np.dot(weights.T, residuals) + meanvalue
-        krige_var = float(self.model.sill - np.dot(weights.T, cov_dist))
+        kriging_var = float(self.model.sill - np.dot(weights.T, cov_dist))
 
-        if krige_var < 0:
-            krige_var = 0
+        if kriging_var < 0:
+            kriging_var = 0
 
-        krige_std = np.sqrt(krige_var)
+        kriging_std = np.sqrt(kriging_var)
 
-        return estimation, krige_std
+        return estimation, kriging_std
 
     def simulation(self, x: np.array, unsampled: np.array, **kwargs) -> float:
         neighbor = kwargs.get('neighbor')
@@ -46,9 +46,9 @@ class SimpleKrige(Kriging):
             sorted_indices = np.argpartition(x[:, 2], neighbor)[:neighbor]
             x = x[sorted_indices]
 
-        estimation, krige_std = self.prediction(x, unsampled)
+        estimation, kriging_std = self.prediction(x, unsampled)
 
-        random_fix = np.random.normal(0, krige_std, 1)
+        random_fix = np.random.normal(0, kriging_std, 1)
         return estimation + random_fix
 
     def find_neighbor(self, dist: list[float], neighbor: int) -> float:
@@ -66,7 +66,7 @@ class SimpleKrige(Kriging):
             return np.random.normal(0, self.model.sill**0.5, 1)
 
 
-class OrdinaryKrige(SimpleKrige):
+class OrdinaryKriging(SimpleKriging):
     def prediction(self, sample: np.array, unsampled: np.array) -> tuple[float, float]:
         n_sampled = len(sample)
         dist_diff = abs(sample[:, 0] - unsampled)
@@ -87,11 +87,11 @@ class OrdinaryKrige(SimpleKrige):
 
         residuals = grid[:, 1] - meanvalue
         estimation = np.dot(weights.T, residuals) + meanvalue
-        krige_var = float(self.model.sill - np.dot(weights.T, cov_dist))
+        kriging_var = float(self.model.sill - np.dot(weights.T, cov_dist))
 
-        if krige_var < 0:
-            krige_var = 0
+        if kriging_var < 0:
+            kriging_var = 0
 
-        krige_std = np.sqrt(krige_var)
+        kriging_std = np.sqrt(kriging_var)
 
-        return estimation, krige_std
+        return estimation, kriging_std

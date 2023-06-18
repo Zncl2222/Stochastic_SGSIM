@@ -6,7 +6,7 @@ from multiprocessing import Pool
 
 import numpy as np
 from uc_sgsim.exception import VariogramDoesNotCompute
-from uc_sgsim.krige import SimpleKrige, OrdinaryKrige
+from uc_sgsim.kriging import SimpleKriging, OrdinaryKriging
 from uc_sgsim.random_field import SgsimField
 from uc_sgsim.plot.plot import Visualize
 from uc_sgsim.cov_model.base import CovModel
@@ -21,20 +21,20 @@ class UCSgsim(SgsimField):
         x: int,
         model: CovModel,
         realization_number: int,
-        krige_method: str = 'SimpleKrige',
+        kriging_method: str = 'SimpleKriging',
     ):
         super().__init__(x, model, realization_number)
-        self.krige_method = krige_method
+        self.kriging_method = kriging_method
 
     def _process(self, randomseed: int = 0, parallel: bool = False) -> np.array:
         self.randomseed = randomseed
         if parallel is False:
             self.n_process = 1
 
-        if self.krige_method == 'SimpleKrige':
-            self.krige = SimpleKrige(self.model)
-        elif self.krige_method == 'OrdinaryKrige':
-            self.krige = OrdinaryKrige(self.model)
+        if self.kriging_method == 'SimpleKriging':
+            self.kriging = SimpleKriging(self.model)
+        elif self.kriging_method == 'OrdinaryKriging':
+            self.kriging = OrdinaryKriging(self.model)
 
         counts = 0
 
@@ -57,7 +57,7 @@ class UCSgsim(SgsimField):
             )
 
             for i in range(len(unsampled)):
-                z[int(randompath[i])] = self.krige.simulation(
+                z[int(randompath[i])] = self.kriging.simulation(
                     grid,
                     randompath[i],
                     neighbor=neigh,
@@ -149,10 +149,10 @@ class UCSgsimDLL(UCSgsim):
         x: int,
         model: CovModel,
         realization_number: int,
-        krige_method: str = 'SimpleKrige',
+        kriging_method: str = 'SimpleKriging',
     ):
         super().__init__(x, model, realization_number)
-        self.krige_method = krige_method
+        self.kriging_method = kriging_method
 
     def _lib_read(self) -> CDLL:
         if sys.platform.startswith('linux'):
