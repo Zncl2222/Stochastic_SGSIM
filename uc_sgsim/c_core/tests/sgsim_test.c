@@ -4,7 +4,7 @@
 # include <stdio.h>
 # include "../include/cov_model.h"
 # include "../include/sgsim.h"
-# include "../include/krige.h"
+# include "../include/kriging.h"
 # include "../include/variogram.h"
 # include "utest.h"
 
