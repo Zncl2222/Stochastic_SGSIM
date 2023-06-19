@@ -7,7 +7,7 @@
 # include <math.h>
 
 # include "../include/sgsim.h"
-# include "../include/krige.h"
+# include "../include/kriging.h"
 # include "../include/cov_model.h"
 # include "../include/random_tools.h"
 # include "../include/matrix_tools.h"
@@ -49,7 +49,7 @@ void sgsim_run(sgsim_t* _sgsim, const cov_model_t* _cov_model, int vario_flag) {
     c_array_init(&variogram_array, _cov_model->bw);
     c_array_init(&sgsim_array, _sgsim->x_len);
 
-    krige_param_setting(
+    kriging_param_setting(
         _sgsim->x_len, _cov_model);  // Initialize parameters
 
     x_grid.data = arange(_sgsim->x_len);
@@ -95,7 +95,7 @@ void sgsim_run(sgsim_t* _sgsim, const cov_model_t* _cov_model, int vario_flag) {
             count++;
         }
     }
-    krige_memory_free();
+    kriging_memory_free();
     sgsim_memory_free();
 }
 

@@ -3,7 +3,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <math.h>
-# include "../include/krige.h"
+# include "../include/kriging.h"
 # include "../include/random_tools.h"
 # include "../include/cov_model.h"
 # include "../include/matrix_tools.h"
@@ -13,7 +13,7 @@
 static cov_model_t* model;
 static double k_range;
 static double estimation;
-static double krige_var;
+static double kriging_var;
 static double fix;
 
 static c_array_double location;
@@ -41,7 +41,7 @@ void sampling_state_update(sampling_state* _sampling, double unsampled_point, in
     _sampling->idx = idx;
 }
 
-void krige_param_setting(int x_len, const cov_model_t* _cov_model) {
+void kriging_param_setting(int x_len, const cov_model_t* _cov_model) {
     model = _cov_model;
     k_range = _cov_model->k_range;
     c_array_init(&location, 10);
@@ -86,18 +86,18 @@ void simple_kriging(double* array, sampling_state* _sampling, mt19937_state* rng
         lu_inverse_solver(datacov.data, loc_cov.data, weights.data, _sampling->neighbor);
 
     estimation = 0;
-    krige_var = 0;
+    kriging_var = 0;
     fix = 0;
 
     for (int j = 0; j < _sampling->neighbor; j++) {
         estimation = estimation + array2d_temp.data[j][1] * weights.data[j];
-        krige_var = krige_var + loc_cov.data[j] * weights.data[j];
+        kriging_var = kriging_var + loc_cov.data[j] * weights.data[j];
     }
 
-    krige_var = model->sill - krige_var;
-    if (krige_var < 0)
-        krige_var = 0;
-    fix = mt19937_random_normal(rng_state) * pow(krige_var, 0.5);
+    kriging_var = model->sill - kriging_var;
+    if (kriging_var < 0)
+        kriging_var = 0;
+    fix = mt19937_random_normal(rng_state) * pow(kriging_var, 0.5);
 
     array[(int)_sampling->unsampled_point] = estimation + fix;
 }
@@ -127,7 +127,7 @@ int find_neighbor(double* array, sampling_state* _sampling,
     return 1;
 }
 
-void krige_memory_free() {
+void kriging_memory_free() {
     c_array_free(&location);
     c_array_free(&loc_cov);
     c_array_free(&data_temp);

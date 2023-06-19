@@ -22,7 +22,7 @@ add_library(
     lib/c_array.c
     lib/c_array_mt.c
     src/cov_model.c
-    src/krige.c
+    src/kriging.c
     src/matrix_tools.c
     src/random_tools.c
     src/sgsim.c
