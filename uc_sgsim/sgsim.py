@@ -1,12 +1,13 @@
 import time
 import sys
 from pathlib import Path
+from typing import Union
 from ctypes import CDLL, POINTER, c_double, c_int
 from multiprocessing import Pool
 
 import numpy as np
 from uc_sgsim.exception import VariogramDoesNotCompute
-from uc_sgsim.kriging import SimpleKriging, OrdinaryKriging
+from uc_sgsim.kriging import SimpleKriging, OrdinaryKriging, Kriging
 from uc_sgsim.random_field import SgsimField
 from uc_sgsim.plot.plot import Visualize
 from uc_sgsim.cov_model.base import CovModel
@@ -21,20 +22,16 @@ class UCSgsim(SgsimField):
         x: int,
         model: CovModel,
         realization_number: int,
-        kriging_method: str = 'SimpleKriging',
+        kriging: Union[str, Kriging] = 'SimpleKriging',
     ):
         super().__init__(x, model, realization_number)
-        self.kriging_method = kriging_method
+        self.kriging = kriging
+        self.__set_kriging_method()
 
     def _process(self, randomseed: int = 0, parallel: bool = False) -> np.array:
         self.randomseed = randomseed
         if parallel is False:
             self.n_process = 1
-
-        if self.kriging_method == 'SimpleKriging':
-            self.kriging = SimpleKriging(self.model)
-        elif self.kriging_method == 'OrdinaryKriging':
-            self.kriging = OrdinaryKriging(self.model)
 
         counts = 0
 
@@ -142,6 +139,15 @@ class UCSgsim(SgsimField):
         v_plot = Visualize(self.model, self.random_field)
         v_plot.variogram_plot(self.variogram)
 
+    def __set_kriging_method(self) -> None:
+        if self.kriging == 'SimpleKriging':
+            self.kriging = SimpleKriging(self.model)
+        elif self.kriging == 'OrdinaryKriging':
+            self.kriging = OrdinaryKriging(self.model)
+        else:
+            if not isinstance(self.kriging, (SimpleKriging, OrdinaryKriging)):
+                raise TypeError('Kriging should be class SimpleKriging or OrdinaryKriging')
+
 
 class UCSgsimDLL(UCSgsim):
     def __init__(
@@ -149,10 +155,10 @@ class UCSgsimDLL(UCSgsim):
         x: int,
         model: CovModel,
         realization_number: int,
-        kriging_method: str = 'SimpleKriging',
+        kriging: str = 'SimpleKriging',
     ):
         super().__init__(x, model, realization_number)
-        self.kriging_method = kriging_method
+        self.kriging = kriging
 
     def _lib_read(self) -> CDLL:
         if sys.platform.startswith('linux'):
