@@ -58,14 +58,14 @@ class TestUCSgsim:
         self.sgsim_save(sgsim)
 
     def test_uc_sgsim_gaussian_py_o_kriging_single_process(self):
-        sgsim = uc.UCSgsim(self.X, self.nR, self.gaussian, kriging_method='OrdinaryKriging')
+        sgsim = uc.UCSgsim(self.X, self.nR, self.gaussian, kriging='OrdinaryKriging')
         sgsim.compute(n_process=1, randomseed=454)
         sgsim.variogram_compute(n_process=1)
         self.sgsim_plot(sgsim)
         self.sgsim_save(sgsim)
 
     def test_uc_sgsim_gaussian_py_o_kriging_multi_process(self):
-        sgsim = uc.UCSgsim(self.X, self.nR, self.gaussian, kriging_method='OrdinaryKriging')
+        sgsim = uc.UCSgsim(self.X, self.nR, self.gaussian, kriging='OrdinaryKriging')
         sgsim.compute(n_process=2, randomseed=454)
         sgsim.variogram_compute(n_process=2)
         self.sgsim_plot(sgsim)
@@ -73,7 +73,7 @@ class TestUCSgsim:
 
     def test_uc_sgsim_gaussian_o_kriging_nugget_py(self):
         model = Gaussian(35, 1, 17.32, 1, 0.01)
-        sgsim = uc.UCSgsim(self.X, self.nR, model, kriging_method='OrdinaryKriging')
+        sgsim = uc.UCSgsim(self.X, self.nR, model, kriging='OrdinaryKriging')
         sgsim.compute(n_process=2, randomseed=454)
         sgsim.variogram_compute(n_process=2)
         self.sgsim_plot(sgsim)
