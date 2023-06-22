@@ -20,9 +20,10 @@ class SimpleKriging(Kriging):
         cov_data = squareform(pdist(grid[:, :1])).flatten()
         cov_data = np.array(self.model.cov_compute(cov_data))
         cov_data = cov_data.reshape(n_sampled, n_sampled)
+        # Add a small nugget to the diagonal of the covariance matrix for numerical stability
+        cov_data[np.diag_indices_from(cov_data)] += 1e-4
 
         weights = np.linalg.solve(cov_data, cov_dist)
-
         residuals = grid[:, 1] - meanvalue
         estimation = np.dot(weights.T, residuals) + meanvalue
         kriging_var = float(self.model.sill - np.dot(weights.T, cov_dist))
@@ -73,20 +74,20 @@ class OrdinaryKriging(SimpleKriging):
         dist_diff = dist_diff.reshape(len(dist_diff), 1)
 
         grid = np.hstack([sample, dist_diff])
-        meanvalue = np.mean(grid[:, 1])  # Calculate the mean of the sampled values
 
         cov_dist = np.array(self.model.cov_compute(grid[:, 2])).reshape(-1, 1)
         cov_data = squareform(pdist(grid[:, :1])).flatten()
         cov_data = np.array(self.model.cov_compute(cov_data))
         cov_data = cov_data.reshape(n_sampled, n_sampled)
 
-        # Add a small nugget to the diagonal of the covariance matrix for numerical stability
-        cov_data[np.diag_indices_from(cov_data)] += self.model.nugget
+        # Add a small value to the diagonal of the covariance matrix for numerical stability
+        cov_data[np.diag_indices_from(cov_data)] += 1e-4
 
-        weights = np.linalg.solve(cov_data, cov_dist)
+        cov_data_augmented = self.matrix_agumented(cov_data)
+        cov_dist_augmented = np.vstack((cov_dist, [1.0]))
+        weights = np.linalg.solve(cov_data_augmented, cov_dist_augmented)[:n_sampled]
 
-        residuals = grid[:, 1] - meanvalue
-        estimation = np.dot(weights.T, residuals) + meanvalue
+        estimation = np.dot(weights.T, grid[:, 1])
         kriging_var = float(self.model.sill - np.dot(weights.T, cov_dist))
 
         if kriging_var < 0:
@@ -95,3 +96,11 @@ class OrdinaryKriging(SimpleKriging):
         kriging_std = np.sqrt(kriging_var)
 
         return estimation, kriging_std
+
+    def matrix_agumented(self, mat):
+        ones_column = np.ones((mat.shape[0], 1))
+        cov_data_augmented = np.hstack([mat, ones_column])
+        ones_row = np.ones((1, cov_data_augmented.shape[1]))
+        ones_row[0][-1] = 0
+        cov_data_augmented = np.vstack((cov_data_augmented, ones_row))
+        return cov_data_augmented
