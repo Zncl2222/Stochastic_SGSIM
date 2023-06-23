@@ -180,9 +180,11 @@ class UCSgsimDLL(UCSgsim):
             c_int,
             c_int,
             c_int,
+            c_int,
         )
+        kriging = 1 if self.kriging == 'OrdinaryKriging' else 0
         sgsim_s = SgsimStructure()
-        sgsim_init(sgsim_s, mlen, realization_number, randomseed, 0)
+        sgsim_init(sgsim_s, mlen, realization_number, randomseed, kriging, 0)
         sgsim_s.array = (c_double * (mlen * realization_number))()
 
         cov_init = lib.cov_model_init
