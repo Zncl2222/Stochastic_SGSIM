@@ -20,6 +20,18 @@ UTEST(test, sgsim_simple_kriging) {
     sgsim_t_free(&sgsim_example);
 }
 
+UTEST(test, sgsim_ordinary_kriging) {
+    sgsim_t sgsim_example;
+    sgsim_init(&sgsim_example, 150, 5, 12345, 1, 1);
+
+    cov_model_t cov_example;
+    cov_model_init(&cov_example, 35, 1, 17.32, 1, 0);
+
+    sgsim_run(&sgsim_example, &cov_example, 0);
+    sgsim_run(&sgsim_example, &cov_example, 1);
+    sgsim_t_free(&sgsim_example);
+}
+
 UTEST(test, variance) {
     double** arr;
     arr = malloc(20 * sizeof(double));
