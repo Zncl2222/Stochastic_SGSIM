@@ -21,9 +21,12 @@ void sampling_state_update(sampling_state* _sampling, double unsampled_point, in
 
 void kriging_param_setting(int x_len, const cov_model_t* _cov_model);
 
-void simple_kriging(double* array, sampling_state* _sampling, mt19937_state* rng_state);
+void simple_kriging(double* array, sampling_state* _sampling,
+                    mt19937_state* rng_state, int kriging_method);
 
 int find_neighbor(double* array, sampling_state* _sampling, mt19937_state* rng_state);
+
+void matrix_agumented(double** mat, int neighbor);
 
 void kriging_memory_free();
 

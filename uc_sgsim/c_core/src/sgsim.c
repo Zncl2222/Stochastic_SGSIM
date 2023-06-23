@@ -30,11 +30,13 @@ void sgsim_init(
     int x_len,
     int realization_numbers,
     int randomseed,
+    int kriging_method,
     int if_alloc_memory
 ) {
     _sgsim->x_len = x_len;
     _sgsim->realization_numbers = realization_numbers;
     _sgsim->randomseed = randomseed;
+    _sgsim->kriging_method = kriging_method;
     if (if_alloc_memory == 1) {
         unsigned long size = (long)x_len * (long)realization_numbers;
         _sgsim->array = calloc(size, sizeof(double));
@@ -64,7 +66,7 @@ void sgsim_run(sgsim_t* _sgsim, const cov_model_t* _cov_model, int vario_flag) {
 
         for (int i = 0; i < _sgsim->x_len; i++) {
             sampling_state_update(&_sampling, x_grid.data[i], i);
-            simple_kriging(sgsim_array.data, &_sampling, &rng_state);
+            simple_kriging(sgsim_array.data, &_sampling, &rng_state, _sgsim->kriging_method);
             _sgsim->array[x_grid.data[i]+_sgsim->x_len*count] = sgsim_array.data[x_grid.data[i]];
 
             if (_sampling.neighbor < 8) {

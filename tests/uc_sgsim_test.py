@@ -116,6 +116,13 @@ class TestUCSgsim:
         self.sgsim_plot(sgsim)
         self.sgsim_save(sgsim)
 
+    def test_uc_sgsim_gaussian_ordinary_kriging_c(self):
+        sgsim = uc.UCSgsimDLL(self.X, self.nR, self.gaussian, kriging='OrdinaryKriging')
+        sgsim.compute(n_process=2, randomseed=454)
+        sgsim.variogram_compute(n_process=2)
+        self.sgsim_plot(sgsim)
+        self.sgsim_save(sgsim)
+
     def test_uc_sgsim_varigram_exception(self):
         sgsim = uc.UCSgsimDLL(self.X, self.nR, self.gaussian)
         sgsim.compute(n_process=1, randomseed=454)

@@ -9,12 +9,13 @@ typedef struct {
     int x_len;
     int realization_numbers;
     int randomseed;
+    int kriging_method;
     int if_alloc_memory;
     double* array;
 } sgsim_t;
 
 void sgsim_init(sgsim_t* _sgsim, int x_grid,
-                int realization_numbers, int randomseed, int if_alloc_memory);
+                int realization_numbers, int randomseed, int kriging_method, int if_alloc_memory);
 
 void sgsim_run(sgsim_t* _sgsim, const cov_model_t* cov_model, int vario_flag);
 

@@ -55,7 +55,11 @@ void kriging_param_setting(int x_len, const cov_model_t* _cov_model) {
     c_matrix_init(&array2d_temp, x_len, 3);
 }
 
-void simple_kriging(double* array, sampling_state* _sampling, mt19937_state* rng_state) {
+void simple_kriging(
+    double* array,
+    sampling_state* _sampling,
+    mt19937_state* rng_state,
+    int kriging_method) {
     int has_neighbor = find_neighbor(array, _sampling, rng_state);
 
     if (has_neighbor == 0) {
@@ -82,8 +86,14 @@ void simple_kriging(double* array, sampling_state* _sampling, mt19937_state* rng
     matrixform(flatten_temp.data, datacov.data, _sampling->neighbor);
     cov_model(loc_cov2.data, loc_cov.data, _sampling->neighbor, model);
 
+    if (kriging_method == 1) {
+        matrix_agumented(datacov.data, _sampling->neighbor);
+        loc_cov.data[_sampling->neighbor] = 1.0;
+    }
+
+    int neighbor = kriging_method == 1 ? _sampling->neighbor + 1 : _sampling->neighbor;
     if (_sampling->neighbor >= 1)
-        lu_inverse_solver(datacov.data, loc_cov.data, weights.data, _sampling->neighbor);
+        lu_inverse_solver(datacov.data, loc_cov.data, weights.data, neighbor);
 
     estimation = 0;
     kriging_var = 0;
@@ -125,6 +135,19 @@ int find_neighbor(double* array, sampling_state* _sampling,
     }
 
     return 1;
+}
+
+void matrix_agumented(double** mat, int neighbor) {
+    for (int i = 0; i < neighbor; i++) {
+        mat[i][neighbor] = 1;
+    }
+    for (int i = 0; i <= neighbor; i++) {
+        if (i == (neighbor)) {
+            mat[neighbor][i] = 0;
+        } else {
+            mat[neighbor][i] = 1;
+        }
+    }
 }
 
 void kriging_memory_free() {

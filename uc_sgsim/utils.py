@@ -38,6 +38,7 @@ class SgsimStructure(Structure):
         ('x_grid', c_int),
         ('realization_numbers', c_int),
         ('randomseed', c_int),
+        ('kriging_method', c_int),
         ('vario_flag', c_int),
         ('array', POINTER(c_double)),
     ]
