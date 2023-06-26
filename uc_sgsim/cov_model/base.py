@@ -71,3 +71,8 @@ class CovModel:
                 variogram.append(z_sum / (2 * len(z)))
 
         return np.array(variogram)
+
+    def variogram_plot(self, fig: int = None):
+        from ..plot.plot import Visualize
+
+        Visualize(model=self).theory_variogram_plot(fig=fig)

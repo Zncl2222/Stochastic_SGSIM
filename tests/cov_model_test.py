@@ -54,3 +54,7 @@ class TestCovModel:
         ans_spherical = [606.6, 1069.35714286, 1952.91666667, 2894.83333333, 4232.0]
         vario_spherical = self.spherical.variogram(array2d)
         assert list(vario_spherical) == pytest.approx(ans_spherical)
+
+    def test_theory_variogram_plot(self):
+        self.gaussian.variogram_plot()
+        self.spherical.variogram_plot()

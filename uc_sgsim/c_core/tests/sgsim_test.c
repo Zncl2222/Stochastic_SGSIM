@@ -4,13 +4,25 @@
 # include <stdio.h>
 # include "../include/cov_model.h"
 # include "../include/sgsim.h"
-# include "../include/krige.h"
+# include "../include/kriging.h"
 # include "../include/variogram.h"
 # include "utest.h"
 
-UTEST(test, sgsim) {
+UTEST(test, sgsim_simple_kriging) {
     sgsim_t sgsim_example;
-    sgsim_init(&sgsim_example, 150, 5, 12345, 1);
+    sgsim_init(&sgsim_example, 150, 5, 12345, 0, 1);
+
+    cov_model_t cov_example;
+    cov_model_init(&cov_example, 35, 1, 17.32, 1, 0);
+
+    sgsim_run(&sgsim_example, &cov_example, 0);
+    sgsim_run(&sgsim_example, &cov_example, 1);
+    sgsim_t_free(&sgsim_example);
+}
+
+UTEST(test, sgsim_ordinary_kriging) {
+    sgsim_t sgsim_example;
+    sgsim_init(&sgsim_example, 150, 5, 12345, 1, 1);
 
     cov_model_t cov_example;
     cov_model_init(&cov_example, 35, 1, 17.32, 1, 0);

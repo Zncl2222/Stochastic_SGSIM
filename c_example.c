@@ -15,7 +15,7 @@
 int main() {
     sgsim_t sgsim_example;
     // Initialize with function
-    sgsim_init(&sgsim_example, 150, 5, 12345, 1);
+    sgsim_init(&sgsim_example, 150, 5, 12345, 1, 1);
     // Initialize with assignment
     // sgsim.x_grid = 150;
     // sgsim_example.realization_numbers = 5;

@@ -1,12 +1,13 @@
 import time
 import sys
 from pathlib import Path
+from typing import Union
 from ctypes import CDLL, POINTER, c_double, c_int
 from multiprocessing import Pool
 
 import numpy as np
 from uc_sgsim.exception import VariogramDoesNotCompute
-from uc_sgsim.krige import SimpleKrige
+from uc_sgsim.kriging import SimpleKriging, OrdinaryKriging, Kriging
 from uc_sgsim.random_field import SgsimField
 from uc_sgsim.plot.plot import Visualize
 from uc_sgsim.cov_model.base import CovModel
@@ -21,18 +22,16 @@ class UCSgsim(SgsimField):
         x: int,
         model: CovModel,
         realization_number: int,
-        krige_method: str = 'SimpleKrige',
+        kriging: Union[str, Kriging] = 'SimpleKriging',
     ):
         super().__init__(x, model, realization_number)
-        self.krige_method = krige_method
+        self.kriging = kriging
+        self.__set_kriging_method()
 
     def _process(self, randomseed: int = 0, parallel: bool = False) -> np.array:
         self.randomseed = randomseed
         if parallel is False:
             self.n_process = 1
-
-        if self.krige_method == 'SimpleKrige':
-            self.krige = SimpleKrige(self.model)
 
         counts = 0
 
@@ -55,7 +54,7 @@ class UCSgsim(SgsimField):
             )
 
             for i in range(len(unsampled)):
-                z[int(randompath[i])] = self.krige.simulation(
+                z[int(randompath[i])] = self.kriging.simulation(
                     grid,
                     randompath[i],
                     neighbor=neigh,
@@ -140,6 +139,15 @@ class UCSgsim(SgsimField):
         v_plot = Visualize(self.model, self.random_field)
         v_plot.variogram_plot(self.variogram)
 
+    def __set_kriging_method(self) -> None:
+        if self.kriging == 'SimpleKriging':
+            self.kriging = SimpleKriging(self.model)
+        elif self.kriging == 'OrdinaryKriging':
+            self.kriging = OrdinaryKriging(self.model)
+        else:
+            if not isinstance(self.kriging, (SimpleKriging, OrdinaryKriging)):
+                raise TypeError('Kriging should be class SimpleKriging or OrdinaryKriging')
+
 
 class UCSgsimDLL(UCSgsim):
     def __init__(
@@ -147,10 +155,10 @@ class UCSgsimDLL(UCSgsim):
         x: int,
         model: CovModel,
         realization_number: int,
-        krige_method: str = 'SimpleKrige',
+        kriging: str = 'SimpleKriging',
     ):
         super().__init__(x, model, realization_number)
-        self.krige_method = krige_method
+        self.kriging = kriging
 
     def _lib_read(self) -> CDLL:
         if sys.platform.startswith('linux'):
@@ -172,9 +180,11 @@ class UCSgsimDLL(UCSgsim):
             c_int,
             c_int,
             c_int,
+            c_int,
         )
+        kriging = 1 if self.kriging == 'OrdinaryKriging' else 0
         sgsim_s = SgsimStructure()
-        sgsim_init(sgsim_s, mlen, realization_number, randomseed, 0)
+        sgsim_init(sgsim_s, mlen, realization_number, randomseed, kriging, 0)
         sgsim_s.array = (c_double * (mlen * realization_number))()
 
         cov_init = lib.cov_model_init
