@@ -10,11 +10,11 @@ if __name__ == '__main__':
 
     bw_s = 1  # lag step
     bw_l = 35  # lag range
-    randomseed = 151  # randomseed for simulation
+    randomseed = 11251  # randomseed for simulation
     k_range = 17.32  # effective range of covariance model
     sill = 1  # sill of covariance model
 
-    nR = 10  # numbers of realizations in each CPU cores,
+    nR = 100  # numbers of realizations in each CPU cores,
     # if nR = 1 n_process = 8
     # than you will compute total 8 realizations
 
@@ -22,8 +22,8 @@ if __name__ == '__main__':
     cov_model = Gaussian(bw_l, bw_s, k_range, sill)
 
     # Create simulation and input the Cov model
-    # sgsim = uc.UCSgsim(x, nR, cov_model)
-    sgsim = uc.UCSgsimDLL(x, nR, cov_model)
+    sgsim = uc.UCSgsim(x, nR, cov_model)
+    # sgsim = uc.UCSgsimDLL(x, nR, cov_model)
 
     # Start compute with n CPUs
     sgsim.compute(n_process=2, randomseed=randomseed)

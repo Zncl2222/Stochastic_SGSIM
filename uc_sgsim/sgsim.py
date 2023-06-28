@@ -38,22 +38,19 @@ class UCSgsim(SgsimField):
         start_time = time.time()
         np.random.seed(self.randomseed)
         for _ in range(self.realization_number // self.n_process):
-            unsampled = np.linspace(1, self.x_size - 2, self.x_size - 2)
-            y_value = np.random.normal(0, self.model.sill**0.5, 2).reshape(2, 1)
-            x_grid = np.array([0, self.x_size - 1]).reshape(2, 1)
+            unsampled = np.linspace(0, self.x_size - 1, self.x_size)
             z = np.zeros(self.x_size)
-            z[0], z[-1] = y_value[0], y_value[1]
             neigh = 0
 
-            grid = np.hstack([x_grid, y_value])
-
+            grid = np.array([])
             randompath = np.random.choice(
                 unsampled,
                 len(unsampled),
                 replace=False,
             )
-
             for i in range(len(unsampled)):
+                if neigh == 0:
+                    grid = np.array([[randompath[i], 0]])
                 z[int(randompath[i])] = self.kriging.simulation(
                     grid,
                     randompath[i],

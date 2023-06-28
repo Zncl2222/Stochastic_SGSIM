@@ -20,10 +20,11 @@ class SimpleKriging(Kriging):
         cov_data = squareform(pdist(grid[:, :1])).flatten()
         cov_data = np.array(self.model.cov_compute(cov_data))
         cov_data = cov_data.reshape(n_sampled, n_sampled)
-        # Add a small nugget to the diagonal of the covariance matrix for numerical stability
-        cov_data[np.diag_indices_from(cov_data)] += 1e-4
 
-        weights = np.linalg.solve(cov_data, cov_dist)
+        # Add a small nugget to the diagonal of the covariance matrix for numerical stability
+        cov_data[np.diag_indices_from(cov_data)] += 1e-6
+
+        weights = np.linalg.solve(cov_data.T, cov_dist)
         residuals = grid[:, 1] - meanvalue
         estimation = np.dot(weights.T, residuals) + meanvalue
         kriging_var = float(self.model.sill - np.dot(weights.T, cov_dist))
@@ -36,35 +37,35 @@ class SimpleKriging(Kriging):
         return estimation, kriging_std
 
     def simulation(self, x: np.array, unsampled: np.array, **kwargs) -> float:
-        neighbor = kwargs.get('neighbor')
-        if neighbor is not None:
+        self.neighbor = kwargs.get('neighbor')
+        if self.neighbor is not None:
             dist = abs(x[:, 0] - unsampled)
             dist = dist.reshape(len(dist), 1)
-            has_neighbor = self.find_neighbor(dist, neighbor)
+            has_neighbor = self.find_neighbor(dist)
             if has_neighbor:
                 return has_neighbor
             x = np.hstack([x, dist])
-            sorted_indices = np.argpartition(x[:, 2], neighbor)[:neighbor]
+            sorted_indices = np.argpartition(x[:, 2], self.neighbor)[: self.neighbor]
             x = x[sorted_indices]
 
         estimation, kriging_std = self.prediction(x, unsampled)
-
         random_fix = np.random.normal(0, kriging_std, 1)
         return estimation + random_fix
 
-    def find_neighbor(self, dist: list[float], neighbor: int) -> float:
-        if neighbor == 0:
-            return np.random.normal(0, self.model.sill**0.5, 1)
+    def find_neighbor(self, dist: list[float]) -> float:
         close_point = 0
+        if self.neighbor == 0:
+            return np.random.normal(0, self.model.sill**0.5, 1)
 
         criteria = self.k_range * 1.732 if self.model.model_name == 'Gaussian' else self.k_range
-
         for item in dist:
             if item <= criteria:
                 close_point += 1
 
         if close_point == 0:
             return np.random.normal(0, self.model.sill**0.5, 1)
+        if close_point < self.neighbor:
+            self.neighbor = close_point
 
 
 class OrdinaryKriging(SimpleKriging):
