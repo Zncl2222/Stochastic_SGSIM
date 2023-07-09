@@ -23,10 +23,12 @@ class UCSgsim(SgsimField):
         model: CovModel,
         realization_number: int,
         kriging: Union[str, Kriging] = 'SimpleKriging',
+        **kwargs,
     ):
         super().__init__(x, model, realization_number)
         self.kriging = kriging
         self.__set_kriging_method()
+        self.__set_kwargs(**kwargs)
 
     def _process(self, randomseed: int = 0, parallel: bool = False) -> np.array:
         self.randomseed = randomseed
@@ -37,7 +39,8 @@ class UCSgsim(SgsimField):
 
         start_time = time.time()
         np.random.seed(self.randomseed)
-        for _ in range(self.realization_number // self.n_process):
+        while counts < (self.realization_number // self.n_process):
+            drop = False
             unsampled = np.linspace(1, self.x_size - 2, self.x_size - 2)
             y_value = np.random.normal(0, self.model.sill**0.5, 2).reshape(2, 1)
             x_grid = np.array([0, self.x_size - 1]).reshape(2, 1)
@@ -59,16 +62,19 @@ class UCSgsim(SgsimField):
                     randompath[i],
                     neighbor=neigh,
                 )
+                if z[int(randompath[i])] >= self.z_max or z[int(randompath[i])] <= self.z_min:
+                    drop = True
+                    break
                 temp = np.hstack([randompath[i], z[int(randompath[i])]])
                 grid = np.vstack([grid, temp])
 
-                if neigh < 8:
+                if neigh < self.max_neigh:
                     neigh += 1
 
             self.randomseed += 1
-
-            self.random_field[counts, :] = z
-            counts = counts + 1
+            if drop is False:
+                self.random_field[counts, :] = z
+                counts = counts + 1
             print('Progress = %.2f' % (counts / self.realization_number * 100) + '%', end='\r')
 
         print('Progress = %.2f' % 100 + '%\n', end='\r')
@@ -147,6 +153,11 @@ class UCSgsim(SgsimField):
         else:
             if not isinstance(self.kriging, (SimpleKriging, OrdinaryKriging)):
                 raise TypeError('Kriging should be class SimpleKriging or OrdinaryKriging')
+
+    def __set_kwargs(self, **kwargs) -> None:
+        self.z_min = kwargs.get('z_min', -(self.model.sill**0.5 * 4))
+        self.z_max = kwargs.get('z_max', self.model.sill**0.5 * 4)
+        self.max_neigh = kwargs.get('max_neigh', 8)
 
 
 class UCSgsimDLL(UCSgsim):
