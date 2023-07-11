@@ -7,7 +7,7 @@ from multiprocessing import Pool
 
 import numpy as np
 from uc_sgsim.exception import VariogramDoesNotCompute
-from uc_sgsim.kriging import SimpleKriging, OrdinaryKriging, Kriging
+from uc_sgsim.kriging import Kriging
 from uc_sgsim.random_field import SgsimField
 from uc_sgsim.plot.plot import Visualize
 from uc_sgsim.cov_model.base import CovModel
@@ -25,10 +25,7 @@ class UCSgsim(SgsimField):
         kriging: Union[str, Kriging] = 'SimpleKriging',
         **kwargs,
     ):
-        super().__init__(x, model, realization_number)
-        self.kriging = kriging
-        self.__set_kriging_method()
-        self.__set_kwargs(**kwargs)
+        super().__init__(x, model, realization_number, kriging, **kwargs)
 
     def _process(self, randomseed: int = 0, parallel: bool = False) -> np.array:
         self.randomseed = randomseed
@@ -144,20 +141,6 @@ class UCSgsim(SgsimField):
             raise VariogramDoesNotCompute()
         v_plot = Visualize(self.model, self.random_field)
         v_plot.variogram_plot(self.variogram)
-
-    def __set_kriging_method(self) -> None:
-        if self.kriging == 'SimpleKriging':
-            self.kriging = SimpleKriging(self.model)
-        elif self.kriging == 'OrdinaryKriging':
-            self.kriging = OrdinaryKriging(self.model)
-        else:
-            if not isinstance(self.kriging, (SimpleKriging, OrdinaryKriging)):
-                raise TypeError('Kriging should be class SimpleKriging or OrdinaryKriging')
-
-    def __set_kwargs(self, **kwargs) -> None:
-        self.z_min = kwargs.get('z_min', -(self.model.sill**0.5 * 4))
-        self.z_max = kwargs.get('z_max', self.model.sill**0.5 * 4)
-        self.max_neigh = kwargs.get('max_neigh', 8)
 
 
 class UCSgsimDLL(UCSgsim):
