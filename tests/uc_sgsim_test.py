@@ -42,6 +42,20 @@ class TestUCSgsim:
         self.sgsim_plot(sgsim)
         self.sgsim_save(sgsim)
 
+    def test_uc_sgsim_gaussian_py_with_params(self):
+        sgsim = uc.UCSgsim(
+            self.X,
+            self.nR,
+            self.gaussian,
+            z_max=3,
+            z_min=-3,
+            max_neigh=6,
+        )
+        sgsim.compute(n_process=1, randomseed=454)
+        sgsim.variogram_compute(n_process=1)
+        self.sgsim_plot(sgsim)
+        self.sgsim_save(sgsim)
+
     def test_uc_sgsim_gaussian_py_multi_process(self):
         sgsim = uc.UCSgsim(self.X, self.nR, self.gaussian)
         sgsim.compute(n_process=2, randomseed=454)
@@ -123,7 +137,16 @@ class TestUCSgsim:
         self.sgsim_plot(sgsim)
         self.sgsim_save(sgsim)
 
-    def test_uc_sgsim_varigram_exception(self):
+    def test_uc_wrong_kriging_method(self):
+        with pytest.raises(TypeError):
+            sgsim = uc.UCSgsim(  # noqa
+                self.X,
+                self.nR,
+                self.gaussian,
+                kriging='wrongKriging',
+            )
+
+    def test_uc_sgsim_variogram_exception(self):
         sgsim = uc.UCSgsimDLL(self.X, self.nR, self.gaussian)
         sgsim.compute(n_process=1, randomseed=454)
         with pytest.raises(VariogramDoesNotCompute):
