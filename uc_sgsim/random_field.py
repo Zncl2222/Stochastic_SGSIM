@@ -1,5 +1,6 @@
 import numpy as np
 from typing import Union
+from uc_sgsim.plot import Visualize
 from uc_sgsim.exception import VariogramDoesNotCompute
 from uc_sgsim.kriging import SimpleKriging, OrdinaryKriging, Kriging
 from uc_sgsim.utils import save_as_multiple_file, save_as_one_file
@@ -95,7 +96,7 @@ class RandomField:
             save_as_one_file(path, self.variogram)
 
 
-class SgsimField(RandomField):
+class SgsimField(RandomField, Visualize):
     def __init__(
         self,
         x: int,
@@ -104,7 +105,9 @@ class SgsimField(RandomField):
         kriging: Union[str, Kriging] = 'SimpleKriging',
         **kwargs,
     ):
-        super().__init__(x, realization_number)
+        RandomField.__init__(self, x, realization_number)
+        Visualize.__init__(self, model)
+
         self.__model = model
         self.__bandwidth_step = model.bandwidth_step
         self.__bandwidth = model.bandwidth

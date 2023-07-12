@@ -6,28 +6,19 @@ class PlotBase:
     def __init__(
         self,
         model: CovModel,
-        random_field: np.array = np.array([]),
         figsize: tuple = (10, 8),
     ):
         self.__model = model
-        self.__random_field = random_field
         self.__figsize = figsize
         self.__model_name = model.model_name
         self.__bandwidth_step = model.bandwidth_step
         self.__bandwidth = model.bandwidth
         self.__k_range = model.k_range
         self.__sill = model.sill
-        self.__size = len(random_field)
-        if random_field.size != 0:
-            self.__realization_number = len(random_field[:, 0])
 
     @property
     def model(self) -> CovModel:
         return self.__model
-
-    @property
-    def random_field(self) -> np.array:
-        return self.__random_field
 
     @property
     def figsize(self) -> tuple:
@@ -52,11 +43,3 @@ class PlotBase:
     @property
     def sill(self) -> float:
         return self.__sill
-
-    @property
-    def size(self) -> int:
-        return self.__size
-
-    @property
-    def realization_number(self) -> int:
-        return self.__realization_number
