@@ -14,7 +14,7 @@ class Visualize(PlotBase):
             for i in range(realization_number):
                 plt.figure(self.curr_fig_num, figsize=self.figsize)
                 plt.plot(self.random_field[i, :] + mean)
-                plt.title('Realizations: ' + self.model_name, fontsize=20)
+                plt.title('Realizations: ' + self.vmodel_name, fontsize=20)
                 plt.xlabel(self.xlabel, fontsize=20)
                 plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
                 plt.ylabel('Y', fontsize=20)
@@ -22,7 +22,7 @@ class Visualize(PlotBase):
             for item in realizations:
                 plt.figure(self.curr_fig_num, figsize=self.figsize)
                 plt.plot(self.random_field[:, item] + mean)
-                plt.title('Realizations: ' + self.model_name, fontsize=20)
+                plt.title('Realizations: ' + self.vmodel_name, fontsize=20)
                 plt.xlabel(self.xlabel, fontsize=20)
                 plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
                 plt.ylabel('Y', fontsize=20)
@@ -62,7 +62,7 @@ class Visualize(PlotBase):
         )
         plt.xlabel(self.xlabel, fontsize=20)
         plt.ylabel('Variance', fontsize=20)
-        plt.axhline(y=self.model.sill, color='b', linestyle='--', zorder=1)
+        plt.axhline(y=self.vmodel.sill, color='b', linestyle='--', zorder=1)
         plt.xticks(fontsize=17), plt.yticks(fontsize=17)
         self.curr_fig_num += 1
 
@@ -128,15 +128,15 @@ class Visualize(PlotBase):
         for i in range(self.realization_number):
             plt.figure(self.curr_fig_num, figsize=(10, 6))
             plt.plot(self.variogram[i, :], alpha=0.1)
-            plt.title('Model: ' + self.model_name, fontsize=20)
+            plt.title('Model: ' + self.vmodel_name, fontsize=20)
             plt.xlabel('Lag(m)', fontsize=20)
             plt.ylabel('Variogram', fontsize=20)
             plt.xticks(fontsize=17), plt.yticks(fontsize=17)
 
         self.theory_variogram_plot()
 
-        Vario_mean = np.zeros(len(self.bandwidth))
-        for i in range(len(self.bandwidth)):
+        Vario_mean = np.zeros(len(self.vbandwidth))
+        for i in range(len(self.vbandwidth)):
             Vario_mean[i] = np.mean(self.variogram[:, i])
 
         plt.plot(Vario_mean, '--', color='blue')
@@ -146,12 +146,12 @@ class Visualize(PlotBase):
         if fig is not None:
             plt.figure(fig, figsize=self.figsize)
         plt.plot(
-            self.model.var_compute(self.bandwidth),
+            self.vmodel.var_compute(self.vbandwidth),
             'o',
             markeredgecolor='k',
             markerfacecolor='w',
         )
-        plt.title('Model: ' + self.model_name, fontsize=20)
+        plt.title('Model: ' + self.vmodel_name, fontsize=20)
         plt.xlabel('Lag(m)', fontsize=20)
         plt.ylabel('Variogram', fontsize=20)
 
