@@ -1,3 +1,3 @@
-from uc_sgsim.plot.plot import Visualize
+from uc_sgsim.plot.plot import SgsimPlot
 
-__all__ = ['Visualize']
+__all__ = ['SgsimPlot']

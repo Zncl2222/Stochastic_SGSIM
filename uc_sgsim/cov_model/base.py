@@ -73,6 +73,6 @@ class CovModel:
         return np.array(variogram)
 
     def variogram_plot(self, fig: int = None):
-        from ..plot.plot import Visualize
+        from ..plot.plot import SgsimPlot
 
-        Visualize(model=self).theory_variogram_plot(fig=fig)
+        SgsimPlot(model=self).theory_variogram_plot(fig=fig)

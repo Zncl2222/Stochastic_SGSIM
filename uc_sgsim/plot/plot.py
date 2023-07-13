@@ -2,11 +2,49 @@ import matplotlib.pyplot as plt
 import numpy as np
 from uc_sgsim.exception import VariogramDoesNotCompute
 from uc_sgsim.plot.base import PlotBase
+from ..cov_model.base import CovModel
 
 
-class Visualize(PlotBase):
+class SgsimPlot(PlotBase):
     xlabel = 'Distance(-)'
     curr_fig_num = 0
+
+    def __init__(
+        self,
+        model: CovModel,
+        figsize: tuple = (10, 8),
+    ):
+        super().__init__(figsize)
+        self.__vmodel = model
+        self.__vmodel_name = model.model_name
+        self.__vbandwidth_step = model.bandwidth_step
+        self.__vbandwidth = model.bandwidth
+        self.__vk_range = model.k_range
+        self.__vsill = model.sill
+
+    @property
+    def vmodel(self) -> CovModel:
+        return self.__vmodel
+
+    @property
+    def vmodel_name(self) -> str:
+        return self.__vmodel_name
+
+    @property
+    def vbandwidth_step(self) -> int:
+        return self.__vbandwidth_step
+
+    @property
+    def vbandwidth(self) -> np.array:
+        return self.__vbandwidth
+
+    @property
+    def vk_range(self) -> float:
+        return self.__vk_range
+
+    @property
+    def vsill(self) -> float:
+        return self.__vsill
 
     def plot(self, realizations: list[int] = None, mean=0) -> None:
         realization_number = len(self.random_field[:, 0])
@@ -18,7 +56,7 @@ class Visualize(PlotBase):
                 plt.xlabel(self.xlabel, fontsize=20)
                 plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
                 plt.ylabel('Y', fontsize=20)
-        else:
+        elif type(realizations) == list:
             for item in realizations:
                 plt.figure(self.curr_fig_num, figsize=self.figsize)
                 plt.plot(self.random_field[:, item] + mean)
@@ -26,6 +64,8 @@ class Visualize(PlotBase):
                 plt.xlabel(self.xlabel, fontsize=20)
                 plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
                 plt.ylabel('Y', fontsize=20)
+        else:
+            raise TypeError("Argument 'realizations' should be list or None")
         self.curr_fig_num += 1
 
     def mean_plot(self, mean=0) -> None:
