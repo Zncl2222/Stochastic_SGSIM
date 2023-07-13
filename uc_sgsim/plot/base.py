@@ -6,57 +6,40 @@ class PlotBase:
     def __init__(
         self,
         model: CovModel,
-        random_field: np.array = np.array([]),
         figsize: tuple = (10, 8),
     ):
-        self.__model = model
-        self.__random_field = random_field
+        self.__vmodel = model
         self.__figsize = figsize
-        self.__model_name = model.model_name
-        self.__bandwidth_step = model.bandwidth_step
-        self.__bandwidth = model.bandwidth
-        self.__k_range = model.k_range
-        self.__sill = model.sill
-        self.__size = len(random_field)
-        if random_field.size != 0:
-            self.__realization_number = len(random_field[:, 0])
+        self.__vmodel_name = model.model_name
+        self.__vbandwidth_step = model.bandwidth_step
+        self.__vbandwidth = model.bandwidth
+        self.__vk_range = model.k_range
+        self.__vsill = model.sill
 
     @property
-    def model(self) -> CovModel:
-        return self.__model
-
-    @property
-    def random_field(self) -> np.array:
-        return self.__random_field
+    def vmodel(self) -> CovModel:
+        return self.__vmodel
 
     @property
     def figsize(self) -> tuple:
         return self.__figsize
 
     @property
-    def model_name(self) -> str:
-        return self.__model_name
+    def vmodel_name(self) -> str:
+        return self.__vmodel_name
 
     @property
-    def bandwidth_step(self) -> int:
-        return self.__bandwidth_step
+    def vbandwidth_step(self) -> int:
+        return self.__vbandwidth_step
 
     @property
-    def bandwidth(self) -> np.array:
-        return self.__bandwidth
+    def vbandwidth(self) -> np.array:
+        return self.__vbandwidth
 
     @property
-    def k_range(self) -> float:
-        return self.__k_range
+    def vk_range(self) -> float:
+        return self.__vk_range
 
     @property
     def sill(self) -> float:
-        return self.__sill
-
-    @property
-    def size(self) -> int:
-        return self.__size
-
-    @property
-    def realization_number(self) -> int:
-        return self.__realization_number
+        return self.__vsill

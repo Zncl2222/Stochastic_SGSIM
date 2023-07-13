@@ -6,10 +6,8 @@ from ctypes import CDLL, POINTER, c_double, c_int
 from multiprocessing import Pool
 
 import numpy as np
-from uc_sgsim.exception import VariogramDoesNotCompute
 from uc_sgsim.kriging import Kriging
 from uc_sgsim.random_field import SgsimField
-from uc_sgsim.plot.plot import Visualize
 from uc_sgsim.cov_model.base import CovModel
 from uc_sgsim.utils import CovModelStructure, SgsimStructure
 
@@ -115,32 +113,6 @@ class UCSgsim(SgsimField):
         # use pool.join() to measure the coverage of sub process
         pool.join()
         self.variogram = np.array(self.variogram)
-
-    def plot(self, realizations: list[int] = None, mean: float = 0):
-        plot = Visualize(self.model, self.random_field)
-        plot.plot(realizations, mean)
-
-    def mean_plot(self, mean: float = 0) -> None:
-        m_plot = Visualize(self.model, self.random_field)
-        m_plot.mean_plot(mean)
-
-    def variance_plot(self) -> None:
-        s_plot = Visualize(self.model, self.random_field)
-        s_plot.variance_plot()
-
-    def cdf_plot(self, x_location: int) -> None:
-        c_plot = Visualize(self.model, self.random_field)
-        c_plot.cdf_plot(x_location)
-
-    def hist_plot(self, x_location: int) -> None:
-        h_plot = Visualize(self.model, self.random_field)
-        h_plot.hist_plot(x_location)
-
-    def variogram_plot(self) -> None:
-        if type(self.variogram) == int:
-            raise VariogramDoesNotCompute()
-        v_plot = Visualize(self.model, self.random_field)
-        v_plot.variogram_plot(self.variogram)
 
 
 class UCSgsimDLL(UCSgsim):

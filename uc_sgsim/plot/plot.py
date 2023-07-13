@@ -1,36 +1,39 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from uc_sgsim.exception import VariogramDoesNotCompute
 from uc_sgsim.plot.base import PlotBase
 
 
 class Visualize(PlotBase):
     xlabel = 'Distance(-)'
+    curr_fig_num = 0
 
     def plot(self, realizations: list[int] = None, mean=0) -> None:
         realization_number = len(self.random_field[:, 0])
         if realizations is None:
             for i in range(realization_number):
-                plt.figure(77879, figsize=self.figsize)
+                plt.figure(self.curr_fig_num, figsize=self.figsize)
                 plt.plot(self.random_field[i, :] + mean)
-                plt.title('Realizations: ' + self.model_name, fontsize=20)
+                plt.title('Realizations: ' + self.vmodel_name, fontsize=20)
                 plt.xlabel(self.xlabel, fontsize=20)
                 plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
                 plt.ylabel('Y', fontsize=20)
         else:
             for item in realizations:
-                plt.figure(77879, figsize=self.figsize)
+                plt.figure(self.curr_fig_num, figsize=self.figsize)
                 plt.plot(self.random_field[:, item] + mean)
-                plt.title('Realizations: ' + self.model_name, fontsize=20)
+                plt.title('Realizations: ' + self.vmodel_name, fontsize=20)
                 plt.xlabel(self.xlabel, fontsize=20)
                 plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
                 plt.ylabel('Y', fontsize=20)
+        self.curr_fig_num += 1
 
     def mean_plot(self, mean=0) -> None:
         zmean = np.zeros(len(self.random_field[0, :]))
         for i in range(len(self.random_field[0, :])):
             zmean[i] = np.mean(self.random_field[:, i] + mean)
 
-        plt.figure(5212, figsize=self.figsize)
+        plt.figure(self.curr_fig_num, figsize=self.figsize)
         plt.plot(
             zmean,
             '-s',
@@ -42,13 +45,14 @@ class Visualize(PlotBase):
         plt.ylabel('Mean', fontsize=20)
         plt.axhline(y=mean, color='r', linestyle='--', zorder=1)
         plt.xticks(fontsize=17), plt.yticks(fontsize=17)
+        self.curr_fig_num += 1
 
     def variance_plot(self) -> None:
         zvar = np.zeros(len(self.random_field[0, :]))
         for i in range(len(self.random_field[0, :])):
             zvar[i] = np.var(self.random_field[:, i])
 
-        plt.figure(52712, figsize=self.figsize)
+        plt.figure(self.curr_fig_num, figsize=self.figsize)
         plt.plot(
             zvar,
             '-o',
@@ -58,8 +62,9 @@ class Visualize(PlotBase):
         )
         plt.xlabel(self.xlabel, fontsize=20)
         plt.ylabel('Variance', fontsize=20)
-        plt.axhline(y=self.model.sill, color='b', linestyle='--', zorder=1)
+        plt.axhline(y=self.vmodel.sill, color='b', linestyle='--', zorder=1)
         plt.xticks(fontsize=17), plt.yticks(fontsize=17)
+        self.curr_fig_num += 1
 
     def cdf_plot(self, x_location: int) -> None:
         x = self.random_field[:, x_location]
@@ -91,13 +96,14 @@ class Visualize(PlotBase):
         ax.set_title('Cumulative step histograms, x = ' + str(x_location))
         ax.set_xlabel('Random Variable (mm)')
         ax.set_ylabel('Occurrence')
+        self.curr_fig_num += 1
 
     def hist_plot(self, x_location: int) -> None:
         x = self.random_field[:, x_location]
         mu = np.mean(x)
         sigma = np.std(x)
         num_bins = 50
-        plt.figure(num=1151)
+        plt.figure(self.curr_fig_num)
         _, bins, _ = plt.hist(
             x,
             num_bins,
@@ -115,33 +121,40 @@ class Visualize(PlotBase):
         plt.xlabel('X-Axis')
         plt.ylabel('Y-Axis')
         plt.title('Histogram, x = ' + str(x_location))
+        self.curr_fig_num += 1
 
-    def variogram_plot(self, variogram: np.array) -> None:
+    def variogram_plot(self) -> None:
+        self.__variogram_validate()
         for i in range(self.realization_number):
-            plt.figure(123456, figsize=(10, 6))
-            plt.plot(variogram[i, :], alpha=0.1)
-            plt.title('Model: ' + self.model_name, fontsize=20)
+            plt.figure(self.curr_fig_num, figsize=(10, 6))
+            plt.plot(self.variogram[i, :], alpha=0.1)
+            plt.title('Model: ' + self.vmodel_name, fontsize=20)
             plt.xlabel('Lag(m)', fontsize=20)
             plt.ylabel('Variogram', fontsize=20)
             plt.xticks(fontsize=17), plt.yticks(fontsize=17)
 
         self.theory_variogram_plot()
 
-        Vario_mean = np.zeros(len(self.bandwidth))
-        for i in range(len(self.bandwidth)):
-            Vario_mean[i] = np.mean(variogram[:, i])
+        Vario_mean = np.zeros(len(self.vbandwidth))
+        for i in range(len(self.vbandwidth)):
+            Vario_mean[i] = np.mean(self.variogram[:, i])
 
         plt.plot(Vario_mean, '--', color='blue')
+        self.curr_fig_num += 1
 
     def theory_variogram_plot(self, fig: int = None) -> None:
         if fig is not None:
             plt.figure(fig, figsize=self.figsize)
         plt.plot(
-            self.model.var_compute(self.bandwidth),
+            self.vmodel.var_compute(self.vbandwidth),
             'o',
             markeredgecolor='k',
             markerfacecolor='w',
         )
-        plt.title('Model: ' + self.model_name, fontsize=20)
+        plt.title('Model: ' + self.vmodel_name, fontsize=20)
         plt.xlabel('Lag(m)', fontsize=20)
         plt.ylabel('Variogram', fontsize=20)
+
+    def __variogram_validate(self) -> None:
+        if type(self.variogram) == int:
+            raise VariogramDoesNotCompute
