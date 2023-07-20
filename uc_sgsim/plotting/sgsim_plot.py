@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from uc_sgsim.exception import VariogramDoesNotCompute
-from uc_sgsim.plot.base import PlotBase
+from uc_sgsim.plotting.base import PlotBase
 from ..cov_model.base import CovModel
 
 

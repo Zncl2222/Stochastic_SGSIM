@@ -1,6 +1,6 @@
 import numpy as np
 from typing import Union
-from uc_sgsim.plot import SgsimPlot
+from uc_sgsim.plotting import SgsimPlot
 from uc_sgsim.exception import VariogramDoesNotCompute
 from uc_sgsim.kriging import SimpleKriging, OrdinaryKriging, Kriging
 from uc_sgsim.utils import save_as_multiple_file, save_as_one_file
