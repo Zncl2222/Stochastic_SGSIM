@@ -97,7 +97,7 @@ class OrdinaryKriging(SimpleKriging):
 
         return estimation, kriging_std
 
-    def matrix_agumented(self, mat):
+    def matrix_agumented(self, mat: np.array):
         ones_column = np.ones((mat.shape[0], 1))
         cov_data_augmented = np.hstack([mat, ones_column])
         ones_row = np.ones((1, cov_data_augmented.shape[1]))

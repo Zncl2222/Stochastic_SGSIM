@@ -59,9 +59,8 @@ class CovModel:
     def variogram(self, x: np.array) -> np.array:
         dist = cdist(x[:, :1], x[:, :1])
         variogram = []
-        # variogram = np.zeros(len(self.__bandwidth))
 
-        for idx, h in enumerate(self.__bandwidth):
+        for h in self.__bandwidth:
             indices = np.where(
                 (dist >= h - self.__bandwidth_step) & (dist <= h + self.__bandwidth_step),
             )

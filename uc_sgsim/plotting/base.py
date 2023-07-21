@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 
 class PlotBase:
-    def __init__(self, figsize: tuple = (10, 8)):
+    def __init__(self, figsize: tuple[int, int] = (10, 8)):
         self.__figsize = figsize
 
     @property

@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import numpy as np
-from typing import Union
 from uc_sgsim.plotting import SgsimPlot
 from uc_sgsim.exception import VariogramDoesNotCompute
 from uc_sgsim.kriging import SimpleKriging, OrdinaryKriging, Kriging
@@ -102,7 +103,7 @@ class SgsimField(RandomField, SgsimPlot):
         x: int,
         realization_number: int,
         model: CovModel,
-        kriging: Union[str, Kriging] = 'SimpleKriging',
+        kriging: str | Kriging = 'SimpleKriging',
         **kwargs,
     ):
         RandomField.__init__(self, x, realization_number)
