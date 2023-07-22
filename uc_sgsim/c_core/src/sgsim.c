@@ -5,6 +5,7 @@
 # include <malloc.h>
 # include <stdlib.h>
 # include <math.h>
+# include <float.h>
 
 # include "../include/sgsim.h"
 # include "../include/kriging.h"
@@ -22,6 +23,10 @@ static c_array_double variogram_array;
 static c_array_double sgsim_array;
 static sampling_state _sampling;
 
+static double _z_min = DBL_MIN;
+static double _z_max = DBL_MAX;
+static double eplsion = 1e-6;
+static int _max_neighbor = 8;
 static int flag;
 static int count;
 
@@ -43,6 +48,12 @@ void sgsim_init(
     }
 }
 
+void set_sgsim_params(double z_min, double z_max, int max_neighbor) {
+    _z_min = z_min;
+    _z_max = z_max;
+    _max_neighbor = max_neighbor;
+}
+
 void sgsim_run(sgsim_t* _sgsim, const cov_model_t* _cov_model, int vario_flag) {
     mt19937_state rng_state;
     mt19937_init(&rng_state, _sgsim->randomseed);
@@ -54,6 +65,10 @@ void sgsim_run(sgsim_t* _sgsim, const cov_model_t* _cov_model, int vario_flag) {
     kriging_param_setting(
         _sgsim->x_len, _cov_model);  // Initialize parameters
 
+    double boundary_val = pow(_cov_model->sill, 0.5) * 4;
+    _z_min = fabs(_z_min - DBL_MIN) < eplsion ? -(boundary_val) : _z_min;
+    _z_max = fabs(_z_max - DBL_MAX) < eplsion ? (boundary_val) : _z_max;
+
     x_grid.data = arange(_sgsim->x_len);
     count = 0;
     while (count < _sgsim->realization_numbers) {
@@ -63,13 +78,17 @@ void sgsim_run(sgsim_t* _sgsim, const cov_model_t* _cov_model, int vario_flag) {
         flag = 0;
 
         x_grid.data = randompath(x_grid.data, _sgsim->x_len, &rng_state);
-
         for (int i = 0; i < _sgsim->x_len; i++) {
             sampling_state_update(&_sampling, x_grid.data[i], i);
             simple_kriging(sgsim_array.data, &_sampling, &rng_state, _sgsim->kriging_method);
+            if ((sgsim_array.data[x_grid.data[i]] >= _z_max)
+                 || (sgsim_array.data[x_grid.data[i]] <= _z_min)) {
+                flag++;
+                break;
+            }
             _sgsim->array[x_grid.data[i]+_sgsim->x_len*count] = sgsim_array.data[x_grid.data[i]];
 
-            if (_sampling.neighbor < 8) {
+            if (_sampling.neighbor < _max_neighbor) {
                 _sampling.neighbor++;
             }
 
@@ -80,15 +99,13 @@ void sgsim_run(sgsim_t* _sgsim, const cov_model_t* _cov_model, int vario_flag) {
             }
         }
 
-        if (vario_flag == 1)
-            variogram(
-                sgsim_array.data, variogram_array.data,
-                _sgsim->x_len, _cov_model->bw, _cov_model->bw_s);
-
         if (flag == 0) {
             save_1darray(sgsim_array.data, _sgsim->x_len, "Realizations",
                         "./Realizations/", _sgsim->realization_numbers, count);
             if (vario_flag ==1) {
+                variogram(
+                    sgsim_array.data, variogram_array.data,
+                    _sgsim->x_len, _cov_model->bw, _cov_model->bw_s);
                 save_1darray(variogram_array.data, _cov_model->bw,
                             "Variogram",
                             "./Realizations/Variogram/",
