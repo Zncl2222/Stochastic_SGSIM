@@ -51,7 +51,7 @@ class SgsimPlot(PlotBase):
 
     def plot(
         self,
-        realizations: list[int] = None,
+        realizations: list[int] | None = None,
         mean: float | int = 0,
         fontsize: int = 20,
         y_title: str = 'Y',
