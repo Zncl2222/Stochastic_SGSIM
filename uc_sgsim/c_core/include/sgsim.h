@@ -17,6 +17,8 @@ typedef struct {
 void sgsim_init(sgsim_t* _sgsim, int x_grid,
                 int realization_numbers, int randomseed, int kriging_method, int if_alloc_memory);
 
+void set_sgsim_params(double z_min, double z_max, int max_neighbor);
+
 void sgsim_run(sgsim_t* _sgsim, const cov_model_t* cov_model, int vario_flag);
 
 void sgsim_t_free(sgsim_t* _sgsim);
