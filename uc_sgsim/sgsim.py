@@ -153,6 +153,14 @@ class UCSgsimDLL(UCSgsim):
         sgsim_init(sgsim_s, mlen, realization_number, randomseed, kriging, 0)
         sgsim_s.array = (c_double * (mlen * realization_number))()
 
+        set_sgsim_params = lib.set_sgsim_params
+        set_sgsim_params.argtypes = (
+            c_double,
+            c_double,
+            c_int,
+        )
+        set_sgsim_params(self.z_min, self.z_max, self.max_neigh)
+
         cov_init = lib.cov_model_init
         cov_s = CovModelStructure()
         cov_init.argtypes = (
