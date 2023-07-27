@@ -17,14 +17,13 @@ static double kriging_var;
 static double fix;
 
 static c_array_double location;
-static c_array_double loc_cov;
-static c_array_double data_temp;
-static c_array_double loc_cov2;
+static c_array_double location_cov;
+static c_array_double location_cov2d;
 static c_array_double flatten_temp;
 static c_array_double weights;
-static c_matrix_double array2d_temp;
+static c_matrix_double distance_mat;
 static c_matrix_double pdist_temp;
-static c_matrix_double datacov;
+static c_matrix_double data_cov;
 
 void sampling_state_init(sampling_state* _sampling, int x_grid_len) {
     _sampling->neighbor = 0;
@@ -45,14 +44,13 @@ void kriging_param_setting(int x_len, const cov_model_t* _cov_model) {
     model = _cov_model;
     k_range = _cov_model->k_range;
     c_array_init(&location, 10);
-    c_array_init(&loc_cov, 10);
-    c_array_init(&loc_cov2, 10);
+    c_array_init(&location_cov, 10);
+    c_array_init(&location_cov2d, 10);
     c_array_init(&weights, 10);
     c_array_init(&flatten_temp, 100);
-    c_array_init(&data_temp, 10);
     c_matrix_init(&pdist_temp, 10, 10);
-    c_matrix_init(&datacov, 10, 10);
-    c_matrix_init(&array2d_temp, x_len, 3);
+    c_matrix_init(&data_cov, 10, 10);
+    c_matrix_init(&distance_mat, x_len, 3);
 }
 
 void simple_kriging(
@@ -67,41 +65,41 @@ void simple_kriging(
     }
 
     for (int j = 0; j < _sampling->currlen; j++) {
-        array2d_temp.data[j][0] = _sampling->sampled.data[j];
-        array2d_temp.data[j][1] = array[(int)_sampling->sampled.data[j]];
-        array2d_temp.data[j][2] = _sampling->u_array.data[j];
+        distance_mat.data[j][0] = _sampling->sampled.data[j];
+        distance_mat.data[j][1] = array[(int)_sampling->sampled.data[j]];
+        distance_mat.data[j][2] = _sampling->u_array.data[j];
     }
 
     if (_sampling->neighbor >= 2) {
-        quickselect2d(array2d_temp.data, 0, _sampling->currlen - 1, _sampling->neighbor);
+        quickselect2d(distance_mat.data, 0, _sampling->currlen - 1, _sampling->neighbor);
     }
 
     for (int j = 0; j < _sampling->neighbor; j++) {
-        location.data[j] = array2d_temp.data[j][0];
-        loc_cov2.data[j] = array2d_temp.data[j][2];
+        location.data[j] = distance_mat.data[j][0];
+        location_cov2d.data[j] = distance_mat.data[j][2];
     }
 
     pdist(location.data, pdist_temp.data, _sampling->neighbor);
     cov_model2d(pdist_temp.data, flatten_temp.data, _sampling->neighbor, model);
-    matrixform(flatten_temp.data, datacov.data, _sampling->neighbor);
-    cov_model(loc_cov2.data, loc_cov.data, _sampling->neighbor, model);
+    matrixform(flatten_temp.data, data_cov.data, _sampling->neighbor);
+    cov_model(location_cov2d.data, location_cov.data, _sampling->neighbor, model);
 
     if (kriging_method == 1) {
-        matrix_agumented(datacov.data, _sampling->neighbor);
-        loc_cov.data[_sampling->neighbor] = 1.0;
+        matrix_agumented(data_cov.data, _sampling->neighbor);
+        location_cov.data[_sampling->neighbor] = 1.0;
     }
 
     int neighbor = kriging_method == 1 ? _sampling->neighbor + 1 : _sampling->neighbor;
     if (_sampling->neighbor >= 1)
-        lu_inverse_solver(datacov.data, loc_cov.data, weights.data, neighbor);
+        lu_inverse_solver(data_cov.data, location_cov.data, weights.data, neighbor);
 
     estimation = 0;
     kriging_var = 0;
     fix = 0;
 
     for (int j = 0; j < _sampling->neighbor; j++) {
-        estimation = estimation + array2d_temp.data[j][1] * weights.data[j];
-        kriging_var = kriging_var + loc_cov.data[j] * weights.data[j];
+        estimation = estimation + distance_mat.data[j][1] * weights.data[j];
+        kriging_var = kriging_var + location_cov.data[j] * weights.data[j];
     }
 
     kriging_var = model->sill - kriging_var;
@@ -152,12 +150,11 @@ void matrix_agumented(double** mat, int neighbor) {
 
 void kriging_memory_free() {
     c_array_free(&location);
-    c_array_free(&loc_cov);
-    c_array_free(&data_temp);
-    c_array_free(&loc_cov2);
+    c_array_free(&location_cov);
+    c_array_free(&location_cov2d);
     c_array_free(&flatten_temp);
     c_array_free(&weights);
-    c_matrix_free(&array2d_temp);
+    c_matrix_free(&distance_mat);
     c_matrix_free(&pdist_temp);
-    c_matrix_free(&datacov);
+    c_matrix_free(&data_cov);
 }
