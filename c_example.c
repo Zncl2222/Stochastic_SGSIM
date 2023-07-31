@@ -13,9 +13,15 @@
 # endif
 
 int main() {
-    sgsim_t sgsim_example;
+    sgsim_t sgsim_example = {
+        .x_len = 150,
+        .realization_numbers = 5,
+        .randomseed = 12345,
+        .kriging_method = 1,
+        .if_alloc_memory = 1,
+    };
     // Initialize with function
-    sgsim_init(&sgsim_example, 150, 5, 12345, 1, 1);
+    // sgsim_init(&sgsim_example, 150, 5, 12345, 1, 1);
     // Initialize with assignment
     // sgsim.x_grid = 150;
     // sgsim_example.realization_numbers = 5;
@@ -23,9 +29,15 @@ int main() {
     // sgsim_example.if_alloc_memory = 0;
     // sgsim_example.array = malloc(150 * 5 * sizeof(double));
 
-    cov_model_t cov_example;
+    cov_model_t cov_example = {
+        .bw_l = 35,
+        .bw_s = 1,
+        .k_range = 17.32,
+        .sill = 1,
+        .nugget = 0,
+    };
     // Initialize with function
-    cov_model_init(&cov_example, 1, 35, 17.32, 1, 0);
+    // cov_model_init(&cov_example, 1, 35, 17.32, 1, 0);
     // Initialize with assignment
     // cov_example.bw = 1;
     // cov_example.hs = 35;
