@@ -2,18 +2,10 @@
 
 # include "../include/cov_model.h"
 
-
-void cov_model_init(
-    cov_model_t* _cov_model, int bw_l,
-    int bw_s, double k_range, double sill, double nugget) {
-    _cov_model->bw_l = bw_l;
-    _cov_model->bw_s = bw_s;
-    _cov_model->bw = bw_l / bw_s;
-    _cov_model->k_range = k_range;
-    _cov_model->sill = sill;
-    _cov_model->nugget = nugget;
+void set_cov_model_default(cov_model_t* _cov_model) {
+    _cov_model->max_neighbor = _cov_model->max_neighbor == 0 ? 4 : _cov_model->max_neighbor;
+    _cov_model->sill = _cov_model->sill ==0 ? 1 : _cov_model->sill;
 }
-
 
 void cov_model(const double* x, double* cov, int n_dim, cov_model_t* _cov_model) {
     double partial_sill = _cov_model->sill - _cov_model->nugget;

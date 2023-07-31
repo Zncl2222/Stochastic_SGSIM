@@ -23,40 +23,22 @@ static c_array_double variogram_array;
 static c_array_double sgsim_array;
 static sampling_state _sampling;
 
-static double _z_min = DBL_MIN;
-static double _z_max = DBL_MAX;
-static double eplsion = 1e-6;
-static int _max_neighbor = 8;
 static int flag;
 static int count;
 
-void sgsim_init(
-    sgsim_t* _sgsim,
-    int x_len,
-    int realization_numbers,
-    int randomseed,
-    int kriging_method,
-    int if_alloc_memory
-) {
-    _sgsim->x_len = x_len;
-    _sgsim->realization_numbers = realization_numbers;
-    _sgsim->randomseed = randomseed;
-    _sgsim->kriging_method = kriging_method;
-    if (if_alloc_memory == 1) {
-        unsigned long size = (long)x_len * (long)realization_numbers;
-        _sgsim->array = calloc(size, sizeof(double));
-    }
+void set_sgsim_default(sgsim_t* _sgsim, cov_model_t* _cov_model) {
+    set_cov_model_default(_cov_model);
+    double boundary_val = pow(_cov_model->sill, 0.5) * 4;
+    _sgsim->z_min = _sgsim->z_min == 0 ? -(boundary_val) : _sgsim->z_min;
+    _sgsim->z_max = _sgsim->z_max == 0 ? (boundary_val) : _sgsim->z_max;
+    unsigned long size = (long)_sgsim->x_len * (long)_sgsim->realization_numbers;
+    _sgsim->array = calloc(size, sizeof(double));
 }
 
-void set_sgsim_params(double z_min, double z_max, int max_neighbor) {
-    _z_min = z_min;
-    _z_max = z_max;
-    _max_neighbor = max_neighbor;
-}
-
-void sgsim_run(sgsim_t* _sgsim, const cov_model_t* _cov_model, int vario_flag) {
+void sgsim_run(sgsim_t* _sgsim, cov_model_t* _cov_model, int vario_flag) {
     mt19937_state rng_state;
     mt19937_init(&rng_state, _sgsim->randomseed);
+    set_sgsim_default(_sgsim, _cov_model);
 
     sampling_state_init(&_sampling, _sgsim->x_len);
     c_array_init(&variogram_array, _cov_model->bw);
@@ -64,10 +46,6 @@ void sgsim_run(sgsim_t* _sgsim, const cov_model_t* _cov_model, int vario_flag) {
 
     kriging_param_setting(
         _sgsim->x_len, _cov_model);  // Initialize parameters
-
-    double boundary_val = pow(_cov_model->sill, 0.5) * 4;
-    _z_min = fabs(_z_min - DBL_MIN) < eplsion ? -(boundary_val) : _z_min;
-    _z_max = fabs(_z_max - DBL_MAX) < eplsion ? (boundary_val) : _z_max;
 
     x_grid.data = arange(_sgsim->x_len);
     count = 0;
@@ -81,14 +59,14 @@ void sgsim_run(sgsim_t* _sgsim, const cov_model_t* _cov_model, int vario_flag) {
         for (int i = 0; i < _sgsim->x_len; i++) {
             sampling_state_update(&_sampling, x_grid.data[i], i);
             simple_kriging(sgsim_array.data, &_sampling, &rng_state, _sgsim->kriging_method);
-            if ((sgsim_array.data[x_grid.data[i]] >= _z_max)
-                 || (sgsim_array.data[x_grid.data[i]] <= _z_min)) {
+            if ((sgsim_array.data[x_grid.data[i]] >= _sgsim->z_max)
+                 || (sgsim_array.data[x_grid.data[i]] <= _sgsim->z_min)) {
                 flag++;
                 break;
             }
             _sgsim->array[x_grid.data[i]+_sgsim->x_len*count] = sgsim_array.data[x_grid.data[i]];
 
-            if (_sampling.neighbor < _max_neighbor) {
+            if (_sampling.neighbor < _cov_model->max_neighbor) {
                 _sampling.neighbor++;
             }
 

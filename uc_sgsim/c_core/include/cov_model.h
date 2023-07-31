@@ -6,14 +6,13 @@ typedef struct {
     int bw_l;
     int bw_s;
     int bw;
+    int max_neighbor;
     double k_range;
     double sill;
     double nugget;
 } cov_model_t;
 
-void cov_model_init(
-    cov_model_t* _cov_model, int bw_l,
-    int bw_s, double k_range, double sill, double nugget);
+void set_cov_model_default(cov_model_t* _cov_model);
 
 void cov_model(const double* x, double* cov, int n_dim, cov_model_t* _cov_model);
 
