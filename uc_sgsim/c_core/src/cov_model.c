@@ -4,7 +4,8 @@
 
 void set_cov_model_default(cov_model_t* _cov_model) {
     _cov_model->max_neighbor = _cov_model->max_neighbor == 0 ? 4 : _cov_model->max_neighbor;
-    _cov_model->sill = _cov_model->sill ==0 ? 1 : _cov_model->sill;
+    _cov_model->sill = _cov_model->sill == 0 ? 1 : _cov_model->sill;
+    _cov_model->bw = _cov_model->bw_l / _cov_model->bw_s;
 }
 
 void cov_model(const double* x, double* cov, int n_dim, cov_model_t* _cov_model) {

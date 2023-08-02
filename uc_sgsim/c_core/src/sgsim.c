@@ -25,22 +25,26 @@ static sampling_state _sampling;
 
 static int flag;
 static int count;
+static double epsilon = 1e-6;
 
 void set_sgsim_default(sgsim_t* _sgsim, cov_model_t* _cov_model) {
     set_cov_model_default(_cov_model);
     double boundary_val = pow(_cov_model->sill, 0.5) * 4;
-    _sgsim->z_min = _sgsim->z_min == 0 ? -(boundary_val) : _sgsim->z_min;
-    _sgsim->z_max = _sgsim->z_max == 0 ? (boundary_val) : _sgsim->z_max;
-    unsigned long size = (long)_sgsim->x_len * (long)_sgsim->realization_numbers;
-    _sgsim->array = calloc(size, sizeof(double));
+    _sgsim->z_min = _sgsim->z_min < epsilon ? -(boundary_val) : _sgsim->z_min;
+    _sgsim->z_max = _sgsim->z_max < epsilon ? boundary_val : _sgsim->z_max;
+    if (_sgsim->if_alloc_memory == 1) {
+        unsigned long size = (long)_sgsim->x_len * (long)_sgsim->realization_numbers;
+        _sgsim->array = calloc(size, sizeof(double));
+    }
 }
 
 void sgsim_run(sgsim_t* _sgsim, cov_model_t* _cov_model, int vario_flag) {
     mt19937_state rng_state;
     mt19937_init(&rng_state, _sgsim->randomseed);
-    set_sgsim_default(_sgsim, _cov_model);
 
+    set_sgsim_default(_sgsim, _cov_model);
     sampling_state_init(&_sampling, _sgsim->x_len);
+
     c_array_init(&variogram_array, _cov_model->bw);
     c_array_init(&sgsim_array, _sgsim->x_len);
 
