@@ -139,51 +139,32 @@ class UCSgsimDLL(UCSgsim):
         realization_number = int(self.realization_number // self.n_process)
         random_field = np.empty([realization_number, self.x_size])
 
-        sgsim_init = lib.sgsim_init
-        sgsim_init.argtypes = (
-            POINTER(SgsimStructure),
-            c_int,
-            c_int,
-            c_int,
-            c_int,
-            c_int,
-        )
         kriging = 1 if self.kriging == 'OrdinaryKriging' else 0
-        sgsim_s = SgsimStructure()
-        sgsim_init(sgsim_s, mlen, realization_number, randomseed, kriging, 0)
-        sgsim_s.array = (c_double * (mlen * realization_number))()
-
-        set_sgsim_params = lib.set_sgsim_params
-        set_sgsim_params.argtypes = (
-            c_double,
-            c_double,
-            c_int,
+        sgsim_s = SgsimStructure(
+            x_len=mlen,
+            realization_numbers=realization_number,
+            randomseed=randomseed,
+            kirging_method=kriging,
+            if_alloc_memory=0,
+            array=(c_double * (mlen * realization_number))(),
+            z_min=self.z_min,
+            z_max=self.z_max,
         )
-        set_sgsim_params(self.z_min, self.z_max, self.max_neigh)
 
-        cov_init = lib.cov_model_init
-        cov_s = CovModelStructure()
-        cov_init.argtypes = (
-            POINTER(CovModelStructure),
-            c_int,
-            c_int,
-            c_double,
-            c_double,
-        )
-        cov_init(
-            cov_s,
-            self.model.bandwidth_len,
-            self.model.bandwidth_step,
-            self.model.k_range,
-            self.model.sill,
-            self.model.nugget,
+        cov_s = CovModelStructure(
+            bw_l=self.model.bandwidth_len,
+            bw_s=self.model.bandwidth_step,
+            bw=self.model.bandwidth_len // self.model.bandwidth_step,
+            max_neighbor=self.max_neigh,
+            range=self.model.k_range,
+            sill=self.model.sill,
+            nugget=self.model.nugget,
         )
 
         sgsim = lib.sgsim_run
         sgsim.argtypes = (POINTER(SgsimStructure), POINTER(CovModelStructure), c_int)
         sgsim(sgsim_s, cov_s, 0)
 
-        # array = as_array(sgsim_s.array, shape=(realization_number * mlen, 1))
         for i in range(realization_number):
             random_field[i, :] = sgsim_s.array[i * mlen : (i + 1) * mlen]
         return random_field

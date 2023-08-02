@@ -35,19 +35,23 @@ def save_as_one_file(path: str, field: list) -> None:
 
 class SgsimStructure(Structure):
     _fields_ = [
-        ('x_grid', c_int),
+        ('x_len', c_int),
         ('realization_numbers', c_int),
         ('randomseed', c_int),
         ('kriging_method', c_int),
-        ('vario_flag', c_int),
+        ('if_alloc_memory', c_int),
         ('array', POINTER(c_double)),
+        ('z_min', c_double),
+        ('z_max', c_double),
     ]
 
 
 class CovModelStructure(Structure):
     _fields_ = [
+        ('bw_l', c_int),
+        ('bw_s', c_int),
         ('bw', c_int),
-        ('hs', c_int),
+        ('max_neighbor', c_int),
         ('range', c_double),
         ('sill', c_double),
         ('nugget', c_double),
