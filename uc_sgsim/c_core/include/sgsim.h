@@ -16,7 +16,6 @@ typedef struct {
     double z_max;
 } sgsim_t;
 
-
 void set_sgsim_defaults(sgsim_t* _sgsim, cov_model_t* cov_model);
 
 void sgsim_run(sgsim_t* _sgsim, cov_model_t* cov_model, int vario_flag);
