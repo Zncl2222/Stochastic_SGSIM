@@ -122,8 +122,9 @@ class UCSgsimDLL(UCSgsim):
         model: CovModel,
         realization_number: int,
         kriging: str = 'SimpleKriging',
+        **kwargs,
     ):
-        super().__init__(x, model, realization_number)
+        super().__init__(x, model, realization_number, **kwargs)
         self.kriging = kriging
 
     def _lib_read(self) -> CDLL:
