@@ -43,13 +43,14 @@ void sampling_state_update(sampling_state* _sampling, double unsampled_point, in
 void kriging_param_setting(int x_len, const cov_model_t* _cov_model) {
     model = _cov_model;
     k_range = _cov_model->k_range;
-    c_array_init(&location, 10);
-    c_array_init(&location_cov, 10);
-    c_array_init(&location_cov2d, 10);
-    c_array_init(&weights, 10);
-    c_array_init(&flatten_temp, 100);
-    c_matrix_init(&pdist_temp, 10, 10);
-    c_matrix_init(&data_cov, 10, 10);
+    int buffer = _cov_model->max_neighbor + 2;
+    c_array_init(&location, buffer);
+    c_array_init(&location_cov, buffer);
+    c_array_init(&location_cov2d, buffer);
+    c_array_init(&weights, buffer);
+    c_array_init(&flatten_temp, buffer * buffer);
+    c_matrix_init(&pdist_temp, buffer, buffer);
+    c_matrix_init(&data_cov, buffer, buffer);
     c_matrix_init(&distance_mat, x_len, 3);
 }
 
