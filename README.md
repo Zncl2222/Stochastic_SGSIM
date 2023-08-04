@@ -173,7 +173,7 @@ int main() {
         .realization_numbers = 5,
         .randomseed = 12345,
         .kriging_method = 1,
-        .if_alloc_memory = 1,
+        .if_alloc_memory = 1,  // This should be equal to 1 if you want to run by c.
     };
 
     // you can also set max_negibor at cov_model_t. Defualt value is 4.

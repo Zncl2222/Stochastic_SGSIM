@@ -30,11 +30,11 @@ if __name__ == '__main__':
     # sgsim.max_neigh = 10
 
     # Create simulation with default z_min, z_max and max_neigh params
-    sgsim = uc.UCSgsim(x, nR, cov_model)
+    # sgsim = uc.UCSgsim(x, nR, cov_model)
     sgsim_c = uc.UCSgsimDLL(x, nR, cov_model)
 
     # Start compute with n CPUs
-    sgsim.compute(n_process=2, randomseed=randomseed)
+    sgsim_c.compute(n_process=2, randomseed=randomseed)
 
     mid = time.time()
 
