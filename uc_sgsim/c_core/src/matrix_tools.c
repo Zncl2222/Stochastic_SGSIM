@@ -20,29 +20,30 @@ struct stat st = {0};
 void lu_inverse_solver(double** mat, const double* array, double* result, int n) {
     c_matrix_double lower;
     c_matrix_double upper;
+    c_array_double y;
 
-    c_matrix_init(&lower, 10, 10);
-    c_matrix_init(&upper, 10, 10);
-
-    double y[10];
+    int buffer = n + 1;
+    c_matrix_init(&lower, buffer, buffer);
+    c_matrix_init(&upper, buffer, buffer);
+    c_array_init(&y, buffer);
 
     lu_decomposition(mat, lower.data, upper.data, n);
 
     // Solve L(Ux)=b, assume Ux=y
-    y[0] = array[0] / lower.data[0][0];
+    y.data[0] = array[0] / lower.data[0][0];  // NOSONAR
 
     for (int i = 1; i < n; i++) {
-        y[i] = array[i];
+        y.data[i] = array[i];
         for (int j = 0; j < i; j++) {
-            y[i] = y[i] - lower.data[i][j] * y[j];
+            y.data[i] = y.data[i] - lower.data[i][j] * y.data[j];
         }
-        y[i] = y[i] / lower.data[i][i];
+        y.data[i] = y.data[i] / lower.data[i][i];
     }
 
-    result[n] = y[n];
+    result[n] = y.data[n];
 
     for (int i = n - 1; i >= 0; i--) {
-        result[i] = y[i];
+        result[i] = y.data[i];
         for (int j = i + 1; j < n; j++) {
             result[i] -= upper.data[i][j] * result[j];
         }
@@ -50,6 +51,7 @@ void lu_inverse_solver(double** mat, const double* array, double* result, int n)
 
     c_matrix_free(&lower);
     c_matrix_free(&upper);
+    c_array_free(&y);
 }
 
 void lu_decomposition(double** mat, double** l, double** u, int n) {
@@ -58,7 +60,7 @@ void lu_decomposition(double** mat, double** l, double** u, int n) {
             if (j < i) {
                 l[j][i] = 0;
             } else {
-                l[j][i] = mat[j][i];
+                l[j][i] = mat[j][i];  // NOSONAR
                 for (int k = 0; k < i; k++) {
                     l[j][i] = l[j][i] - l[j][k] * u[k][i];
                 }
