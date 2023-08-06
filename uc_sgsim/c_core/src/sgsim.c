@@ -5,6 +5,7 @@
 # include <malloc.h>
 # include <stdlib.h>
 # include <math.h>
+# include <float.h>
 
 # include "../include/sgsim.h"
 # include "../include/kriging.h"
@@ -24,30 +25,26 @@ static sampling_state _sampling;
 
 static int flag;
 static int count;
+static double epsilon = 1e-6;
 
-void sgsim_init(
-    sgsim_t* _sgsim,
-    int x_len,
-    int realization_numbers,
-    int randomseed,
-    int kriging_method,
-    int if_alloc_memory
-) {
-    _sgsim->x_len = x_len;
-    _sgsim->realization_numbers = realization_numbers;
-    _sgsim->randomseed = randomseed;
-    _sgsim->kriging_method = kriging_method;
-    if (if_alloc_memory == 1) {
-        unsigned long size = (long)x_len * (long)realization_numbers;
+void set_sgsim_default(sgsim_t* _sgsim, cov_model_t* _cov_model) {
+    set_cov_model_default(_cov_model);
+    double boundary_val = pow(_cov_model->sill, 0.5) * 4;
+    _sgsim->z_min = _sgsim->z_min < epsilon ? -(boundary_val) : _sgsim->z_min;
+    _sgsim->z_max = _sgsim->z_max < epsilon ? boundary_val : _sgsim->z_max;
+    if (_sgsim->if_alloc_memory == 1) {
+        unsigned long size = (long)_sgsim->x_len * (long)_sgsim->realization_numbers;
         _sgsim->array = calloc(size, sizeof(double));
     }
 }
 
-void sgsim_run(sgsim_t* _sgsim, const cov_model_t* _cov_model, int vario_flag) {
+void sgsim_run(sgsim_t* _sgsim, cov_model_t* _cov_model, int vario_flag) {
     mt19937_state rng_state;
     mt19937_init(&rng_state, _sgsim->randomseed);
 
+    set_sgsim_default(_sgsim, _cov_model);
     sampling_state_init(&_sampling, _sgsim->x_len);
+
     c_array_init(&variogram_array, _cov_model->bw);
     c_array_init(&sgsim_array, _sgsim->x_len);
 
@@ -63,13 +60,17 @@ void sgsim_run(sgsim_t* _sgsim, const cov_model_t* _cov_model, int vario_flag) {
         flag = 0;
 
         x_grid.data = randompath(x_grid.data, _sgsim->x_len, &rng_state);
-
         for (int i = 0; i < _sgsim->x_len; i++) {
             sampling_state_update(&_sampling, x_grid.data[i], i);
             simple_kriging(sgsim_array.data, &_sampling, &rng_state, _sgsim->kriging_method);
+            if ((sgsim_array.data[x_grid.data[i]] >= _sgsim->z_max)
+                 || (sgsim_array.data[x_grid.data[i]] <= _sgsim->z_min)) {
+                flag++;
+                break;
+            }
             _sgsim->array[x_grid.data[i]+_sgsim->x_len*count] = sgsim_array.data[x_grid.data[i]];
 
-            if (_sampling.neighbor < 8) {
+            if (_sampling.neighbor < _cov_model->max_neighbor) {
                 _sampling.neighbor++;
             }
 
@@ -80,15 +81,13 @@ void sgsim_run(sgsim_t* _sgsim, const cov_model_t* _cov_model, int vario_flag) {
             }
         }
 
-        if (vario_flag == 1)
-            variogram(
-                sgsim_array.data, variogram_array.data,
-                _sgsim->x_len, _cov_model->bw, _cov_model->bw_s);
-
         if (flag == 0) {
             save_1darray(sgsim_array.data, _sgsim->x_len, "Realizations",
                         "./Realizations/", _sgsim->realization_numbers, count);
             if (vario_flag ==1) {
+                variogram(
+                    sgsim_array.data, variogram_array.data,
+                    _sgsim->x_len, _cov_model->bw, _cov_model->bw_s);
                 save_1darray(variogram_array.data, _cov_model->bw,
                             "Variogram",
                             "./Realizations/Variogram/",

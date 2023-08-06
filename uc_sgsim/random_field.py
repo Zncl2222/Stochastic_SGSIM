@@ -1,5 +1,9 @@
+from __future__ import annotations
+
 import numpy as np
+from uc_sgsim.plotting import SgsimPlot
 from uc_sgsim.exception import VariogramDoesNotCompute
+from uc_sgsim.kriging import SimpleKriging, OrdinaryKriging, Kriging
 from uc_sgsim.utils import save_as_multiple_file, save_as_one_file
 from uc_sgsim.cov_model.base import CovModel
 
@@ -93,17 +97,37 @@ class RandomField:
             save_as_one_file(path, self.variogram)
 
 
-class SgsimField(RandomField):
+class SgsimField(RandomField, SgsimPlot):
     def __init__(
         self,
         x: int,
         realization_number: int,
         model: CovModel,
+        kriging: str | Kriging = 'SimpleKriging',
+        **kwargs,
     ):
-        super().__init__(x, realization_number)
+        RandomField.__init__(self, x, realization_number)
+        SgsimPlot.__init__(self, model)
+
         self.__model = model
         self.__bandwidth_step = model.bandwidth_step
         self.__bandwidth = model.bandwidth
+        self.__set_kriging_method(kriging)
+        self.__set_kwargs(**kwargs)
+
+    def __set_kriging_method(self, kriging) -> None:
+        if kriging == 'SimpleKriging':
+            self.kriging = SimpleKriging(self.model)
+        elif kriging == 'OrdinaryKriging':
+            self.kriging = OrdinaryKriging(self.model)
+        else:
+            if not isinstance(kriging, (SimpleKriging, OrdinaryKriging)):
+                raise TypeError('Kriging should be class SimpleKriging or OrdinaryKriging')
+
+    def __set_kwargs(self, **kwargs) -> None:
+        self.z_min = kwargs.get('z_min', -(self.model.sill**0.5 * 4))
+        self.z_max = kwargs.get('z_max', self.model.sill**0.5 * 4)
+        self.max_neigh = kwargs.get('max_neigh', 8)
 
     @property
     def model(self) -> CovModel:

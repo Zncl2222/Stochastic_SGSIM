@@ -88,7 +88,7 @@ pip install uc-sgsim
 * Muti-cores simulation (mutiprocessing)
 * Run C to generate randomfield in python via ctype interface, or just generate randomfield in python with numpy and scipy library.
 
-## Example
+## Examples
 ```py
 import matplotlib.pyplot as plt
 import uc_sgsim as uc
@@ -111,6 +111,14 @@ if __name__ == '__main__':
     cov_model = Gaussian(bw_l, bw_s, k_range, sill)
 
     # Create simulation and input the Cov model
+    # You could also set z_min, z_max and max_neighbor for sgsim by key words
+    # sgsim = uc.UCSgsimDLL(x, nR, cov_model, z_min=-6, z_max=6, max_neigh=10)
+    # set z_min, z_max and max_neighbor by directly assign
+    # sgsim.z_min = -6
+    # sgsim.z_max = 6
+    # sgsim.max_neigh = 10
+
+    # Create simulation with default z_min, z_max and max_neigh params
     sgsim_py = uc.UCSgsim(x, nR, cov_model) # run sgsim with python
     sgsim_c = uc.UCSgsimDLL(x, nR, cov_model) # run sgsim with c
 
@@ -141,6 +149,48 @@ if __name__ == '__main__':
    <img src="https://github.com/Zncl2222/Stochastic_SGSIM/blob/main/figure/HIST.png"  width="40%"/>
    <img src="https://github.com/Zncl2222/Stochastic_SGSIM/blob/main/figure/CDF.png"  width="50%"/>
 </p>
+
+If you would like to use pure C to run this code, you can modify the c_example.c file in this root directory. After modifying the c_example.c file, run ```sh cmake_build.sh``` on Linux or ```cmake_build.bat``` on Windows to compile and execute the code.
+
+```c
+// c_example.c
+# include <stdio.h>
+# include <stdlib.h>
+
+# include "./uc_sgsim/c_core/include/sgsim.h"
+# include "./uc_sgsim/c_core/include/cov_model.h"
+# if defined(__linux__) || defined(__unix__)
+# define PAUSE printf("Press Enter key to continue..."); fgetc(stdin);//NOLINT
+# elif _WIN32
+# define PAUSE system("PAUSE");
+# endif
+
+int main() {
+    // you can also set z_min and z_max at sgsim_t. Default value will depend on
+    // sill value in cov_model_t
+    sgsim_t sgsim_example = {
+        .x_len = 150,
+        .realization_numbers = 5,
+        .randomseed = 12345,
+        .kriging_method = 1,
+        .if_alloc_memory = 1,  // This should be equal to 1 if you want to run by c.
+    };
+
+    // you can also set max_negibor at cov_model_t. Defualt value is 4.
+    cov_model_t cov_example = {
+        .bw_l = 35,
+        .bw_s = 1,
+        .k_range = 17.32,
+        .sill = 1,
+        .nugget = 0,
+    };
+
+    sgsim_run(&sgsim_example, &cov_example, 0);
+    sgsim_t_free(&sgsim_example);
+    PAUSE
+    return 0;
+}
+```
 
 ## Future plans
 * 2D unconditional randomfield generation

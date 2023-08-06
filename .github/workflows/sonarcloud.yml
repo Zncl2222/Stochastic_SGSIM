@@ -39,6 +39,33 @@ jobs:
           name: python-coverage
           path: ./py_coverage.xml
 
+  python_test_windows:
+    name: py-unittest-windows
+    runs-on: windows-latest
+
+    strategy:
+      max-parallel: 5
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          if (Test-Path requirements.txt) {
+            pip install --upgrade pip
+            pip install -r requirements.txt
+          }
+      - name: Run tests to generate coverage statistics
+        run: |
+          pytest --cov --cov-report xml:py_coverage.xml
+
   c_test:
     name: c-unittest
     runs-on: ubuntu-latest
@@ -93,6 +120,19 @@ jobs:
           path: |
             ./build/cover.info
 
+  c_test_windows:
+    name: c-unittest-windows
+    runs-on: windows-latest
+    env:
+      BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+      - name: build and test
+        run: |
+          .\cmake_build.bat
+
   python_scan:
     name: SonarCloud-py
     runs-on: ubuntu-latest
@@ -135,7 +175,7 @@ jobs:
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - name: Install sonar-scanner and build-wrapper
-        uses: SonarSource/sonarcloud-github-c-cpp@v1
+        uses: SonarSource/sonarcloud-github-c-cpp@v2
       - name: Download artifacts
         uses: actions/download-artifact@v2
       - name: Run build-wrapper

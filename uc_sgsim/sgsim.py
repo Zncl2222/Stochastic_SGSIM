@@ -6,10 +6,8 @@ from ctypes import CDLL, POINTER, c_double, c_int
 from multiprocessing import Pool
 
 import numpy as np
-from uc_sgsim.exception import VariogramDoesNotCompute
-from uc_sgsim.kriging import SimpleKriging, OrdinaryKriging, Kriging
+from uc_sgsim.kriging import Kriging
 from uc_sgsim.random_field import SgsimField
-from uc_sgsim.plot.plot import Visualize
 from uc_sgsim.cov_model.base import CovModel
 from uc_sgsim.utils import CovModelStructure, SgsimStructure
 
@@ -23,10 +21,9 @@ class UCSgsim(SgsimField):
         model: CovModel,
         realization_number: int,
         kriging: Union[str, Kriging] = 'SimpleKriging',
+        **kwargs,
     ):
-        super().__init__(x, model, realization_number)
-        self.kriging = kriging
-        self.__set_kriging_method()
+        super().__init__(x, model, realization_number, kriging, **kwargs)
 
     def _process(self, randomseed: int = 0, parallel: bool = False) -> np.array:
         self.randomseed = randomseed
@@ -37,7 +34,8 @@ class UCSgsim(SgsimField):
 
         start_time = time.time()
         np.random.seed(self.randomseed)
-        for _ in range(self.realization_number // self.n_process):
+        while counts < (self.realization_number // self.n_process):
+            drop = False
             unsampled = np.linspace(1, self.x_size - 2, self.x_size - 2)
             y_value = np.random.normal(0, self.model.sill**0.5, 2).reshape(2, 1)
             x_grid = np.array([0, self.x_size - 1]).reshape(2, 1)
@@ -59,16 +57,19 @@ class UCSgsim(SgsimField):
                     randompath[i],
                     neighbor=neigh,
                 )
+                if z[int(randompath[i])] >= self.z_max or z[int(randompath[i])] <= self.z_min:
+                    drop = True
+                    break
                 temp = np.hstack([randompath[i], z[int(randompath[i])]])
                 grid = np.vstack([grid, temp])
 
-                if neigh < 8:
+                if neigh < self.max_neigh:
                     neigh += 1
 
             self.randomseed += 1
-
-            self.random_field[counts, :] = z
-            counts = counts + 1
+            if drop is False:
+                self.random_field[counts, :] = z
+                counts = counts + 1
             print('Progress = %.2f' % (counts / self.realization_number * 100) + '%', end='\r')
 
         print('Progress = %.2f' % 100 + '%\n', end='\r')
@@ -113,41 +114,6 @@ class UCSgsim(SgsimField):
         pool.join()
         self.variogram = np.array(self.variogram)
 
-    def plot(self, realizations: list[int] = None, mean: float = 0):
-        plot = Visualize(self.model, self.random_field)
-        plot.plot(realizations, mean)
-
-    def mean_plot(self, mean: float = 0) -> None:
-        m_plot = Visualize(self.model, self.random_field)
-        m_plot.mean_plot(mean)
-
-    def variance_plot(self) -> None:
-        s_plot = Visualize(self.model, self.random_field)
-        s_plot.variance_plot()
-
-    def cdf_plot(self, x_location: int) -> None:
-        c_plot = Visualize(self.model, self.random_field)
-        c_plot.cdf_plot(x_location)
-
-    def hist_plot(self, x_location: int) -> None:
-        h_plot = Visualize(self.model, self.random_field)
-        h_plot.hist_plot(x_location)
-
-    def variogram_plot(self) -> None:
-        if type(self.variogram) == int:
-            raise VariogramDoesNotCompute()
-        v_plot = Visualize(self.model, self.random_field)
-        v_plot.variogram_plot(self.variogram)
-
-    def __set_kriging_method(self) -> None:
-        if self.kriging == 'SimpleKriging':
-            self.kriging = SimpleKriging(self.model)
-        elif self.kriging == 'OrdinaryKriging':
-            self.kriging = OrdinaryKriging(self.model)
-        else:
-            if not isinstance(self.kriging, (SimpleKriging, OrdinaryKriging)):
-                raise TypeError('Kriging should be class SimpleKriging or OrdinaryKriging')
-
 
 class UCSgsimDLL(UCSgsim):
     def __init__(
@@ -156,8 +122,9 @@ class UCSgsimDLL(UCSgsim):
         model: CovModel,
         realization_number: int,
         kriging: str = 'SimpleKriging',
+        **kwargs,
     ):
-        super().__init__(x, model, realization_number)
+        super().__init__(x, model, realization_number, **kwargs)
         self.kriging = kriging
 
     def _lib_read(self) -> CDLL:
@@ -173,43 +140,32 @@ class UCSgsimDLL(UCSgsim):
         realization_number = int(self.realization_number // self.n_process)
         random_field = np.empty([realization_number, self.x_size])
 
-        sgsim_init = lib.sgsim_init
-        sgsim_init.argtypes = (
-            POINTER(SgsimStructure),
-            c_int,
-            c_int,
-            c_int,
-            c_int,
-            c_int,
-        )
         kriging = 1 if self.kriging == 'OrdinaryKriging' else 0
-        sgsim_s = SgsimStructure()
-        sgsim_init(sgsim_s, mlen, realization_number, randomseed, kriging, 0)
-        sgsim_s.array = (c_double * (mlen * realization_number))()
-
-        cov_init = lib.cov_model_init
-        cov_s = CovModelStructure()
-        cov_init.argtypes = (
-            POINTER(CovModelStructure),
-            c_int,
-            c_int,
-            c_double,
-            c_double,
+        sgsim_s = SgsimStructure(
+            x_len=mlen,
+            realization_numbers=realization_number,
+            randomseed=randomseed,
+            kirging_method=kriging,
+            if_alloc_memory=0,
+            array=(c_double * (mlen * realization_number))(),
+            z_min=self.z_min,
+            z_max=self.z_max,
         )
-        cov_init(
-            cov_s,
-            self.model.bandwidth_len,
-            self.model.bandwidth_step,
-            self.model.k_range,
-            self.model.sill,
-            self.model.nugget,
+
+        cov_s = CovModelStructure(
+            bw_l=self.model.bandwidth_len,
+            bw_s=self.model.bandwidth_step,
+            bw=self.model.bandwidth_len // self.model.bandwidth_step,
+            max_neighbor=self.max_neigh,
+            range=self.model.k_range,
+            sill=self.model.sill,
+            nugget=self.model.nugget,
         )
 
         sgsim = lib.sgsim_run
         sgsim.argtypes = (POINTER(SgsimStructure), POINTER(CovModelStructure), c_int)
         sgsim(sgsim_s, cov_s, 0)
 
-        # array = as_array(sgsim_s.array, shape=(realization_number * mlen, 1))
         for i in range(realization_number):
             random_field[i, :] = sgsim_s.array[i * mlen : (i + 1) * mlen]
         return random_field

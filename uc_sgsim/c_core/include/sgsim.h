@@ -12,12 +12,13 @@ typedef struct {
     int kriging_method;
     int if_alloc_memory;
     double* array;
+    double z_min;
+    double z_max;
 } sgsim_t;
 
-void sgsim_init(sgsim_t* _sgsim, int x_grid,
-                int realization_numbers, int randomseed, int kriging_method, int if_alloc_memory);
+void set_sgsim_defaults(sgsim_t* _sgsim, cov_model_t* cov_model);
 
-void sgsim_run(sgsim_t* _sgsim, const cov_model_t* cov_model, int vario_flag);
+void sgsim_run(sgsim_t* _sgsim, cov_model_t* cov_model, int vario_flag);
 
 void sgsim_t_free(sgsim_t* _sgsim);
 
