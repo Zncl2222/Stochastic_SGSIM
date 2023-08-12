@@ -25,6 +25,71 @@ class UCSgsim(SgsimField):
     ):
         super().__init__(x, model, realization_number, kriging, **kwargs)
 
+    def _process2d(self, randomseed: int = 0, parallel: bool = False) -> np.array:
+        self.randomseed = randomseed
+        if parallel is False:
+            self.n_process = 1
+
+        counts = 0
+
+        start_time = time.time()
+        np.random.seed(self.randomseed)
+        while counts < (self.realization_number // self.n_process):
+            drop = False
+            unsampled = np.array(
+                [(x, y) for x in range(1, self.x_size - 1) for y in range(1, self.y_size - 1)],
+            )
+            z_value = np.random.normal(0, self.model.sill**0.5, 4).reshape(4, 1)
+            sampled_grid = np.array(
+                [
+                    [0, 0],
+                    [0, self.y_size - 1],
+                    [self.x_size - 1, 0],
+                    [self.x_size - 1, self.y_size - 1],
+                ],
+            ).reshape(4, 2)
+            z = np.zeros((self.x_size, self.y_size))
+            z[0, 0], z[-1, 0] = z_value[0], z_value[1]
+            z[0, -1], z[-1, -1] = z_value[2], z_value[3]
+            neigh = 0
+
+            grid = np.hstack([sampled_grid, z_value])
+
+            randompath = np.random.permutation(unsampled)
+
+            for i in range(len(unsampled)):
+                x = int(randompath[i, 0])
+                y = int(randompath[i, 1])
+                z[x, y] = self.kriging.simulation(
+                    grid,
+                    randompath[i],
+                    neighbor=neigh,
+                )
+                # print(z[x, y])
+                # if z[x, y] >= self.z_max or z[x, y] <= self.z_min:
+                #     drop = True
+                #     break
+                temp = np.hstack([randompath[i], z[x, y]])
+                grid = np.vstack([grid, temp])
+
+                if neigh < self.max_neigh:
+                    neigh += 1
+            import matplotlib.pyplot as plt
+
+            if counts == 1:
+                plt.imshow(z)
+            self.randomseed += 1
+            if not drop:
+                self.random_field[counts, :, :] = z
+            counts = counts + 1
+            print('Progress = %.2f' % (counts / self.realization_number * 100) + '%', end='\r')
+
+        print('Progress = %.2f' % 100 + '%\n', end='\r')
+        end_time = time.time()
+        print('Time = %f' % (end_time - start_time), 's\n')
+
+        return self.random_field
+
     def _process(self, randomseed: int = 0, parallel: bool = False) -> np.array:
         self.randomseed = randomseed
         if parallel is False:

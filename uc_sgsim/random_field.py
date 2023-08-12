@@ -13,12 +13,17 @@ class RandomField:
         self.__realization_number = realization_number
         self._create_grid(x)
 
-    def _create_grid(self, x: int, y: int = 0) -> None:
+    def _create_grid(self, x: int, y: int = 10) -> None:
         self.__x = range(x)
         self.__y = range(y)
         self.__x_size = len(self.__x)
         self.__y_size = len(self.__y)
-        self.random_field = np.empty([self.__realization_number, self.__x_size])
+        if y == 0:
+            self.random_field = np.empty([self.__realization_number, self.__x_size])
+        else:
+            self.random_field = np.empty(
+                [self.__realization_number, self.__x_size, self.__y_size],
+            )
         self.variogram = 0
 
     @property
