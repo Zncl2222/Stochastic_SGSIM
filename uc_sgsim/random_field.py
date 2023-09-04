@@ -9,17 +9,22 @@ from uc_sgsim.cov_model.base import CovModel
 
 
 class RandomField:
-    def __init__(self, x: int, realization_number: int):
+    def __init__(self, grid_size: int | list[int, int], realization_number: int):
         self.__realization_number = realization_number
-        self._create_grid(x)
+        self.__grid_size = grid_size
+        self._create_grid(grid_size)
 
-    def _create_grid(self, x: int, y: int = 0) -> None:
-        self.__x = range(x)
-        self.__y = range(y)
+    def _create_grid(self, grid_size: int | list[int, int]) -> None:
+        self.__x = range(grid_size) if isinstance(grid_size, int) else range(grid_size[0])
+        self.__y = 0 if isinstance(grid_size, int) else range(grid_size[1])
         self.__x_size = len(self.__x)
-        self.__y_size = len(self.__y)
+        self.__y_size = 0 if isinstance(grid_size, int) else len(self.__y)
         self.random_field = np.empty([self.__realization_number, self.__x_size])
         self.variogram = 0
+
+    @property
+    def grid_size(self) -> int | list[int, int]:
+        return self.__grid_size
 
     @property
     def x(self) -> int:
@@ -100,26 +105,32 @@ class RandomField:
 class SgsimField(RandomField, SgsimPlot):
     def __init__(
         self,
-        x: int,
+        grid_size: int | list[int, int],
         realization_number: int,
         model: CovModel,
         kriging: str | Kriging = 'SimpleKriging',
         **kwargs,
     ):
-        RandomField.__init__(self, x, realization_number)
+        RandomField.__init__(self, grid_size, realization_number)
         SgsimPlot.__init__(self, model)
 
         self.__model = model
         self.__bandwidth_step = model.bandwidth_step
         self.__bandwidth = model.bandwidth
-        self.__set_kriging_method(kriging)
+        self.__set_kriging_method(kriging, **kwargs)
         self.__set_kwargs(**kwargs)
 
-    def __set_kriging_method(self, kriging) -> None:
+    def __set_kriging_method(self, kriging, **kwargs) -> None:
+        self.constant_path = kwargs.get('constant_path', False)
+        cov_cache = kwargs.get('cov_cache', False)
+
+        if self.constant_path is False and cov_cache is True:
+            raise ValueError('cov_cache should be False when constant_path is False')
+
         if kriging == 'SimpleKriging':
-            self.kriging = SimpleKriging(self.model)
+            self.kriging = SimpleKriging(self.model, self.grid_size, cov_cache)
         elif kriging == 'OrdinaryKriging':
-            self.kriging = OrdinaryKriging(self.model)
+            self.kriging = OrdinaryKriging(self.model, self.grid_size, cov_cache)
         else:
             if not isinstance(kriging, (SimpleKriging, OrdinaryKriging)):
                 raise TypeError('Kriging should be class SimpleKriging or OrdinaryKriging')
