@@ -73,7 +73,7 @@ class SgsimPlot(PlotBase):
                     zorder=axhline_zorder,
                 )
                 plt.ylabel(y_title, fontsize=fontsize)
-        elif type(realizations) == list:
+        elif isinstance(realizations, list):
             for item in realizations:
                 plt.figure(self.curr_fig_num, figsize=self.figsize)
                 plt.plot(self.random_field[:, item] + mean)
@@ -253,5 +253,5 @@ class SgsimPlot(PlotBase):
         plt.ylabel('Variogram', fontsize=fontsize)
 
     def __variogram_validate(self) -> None:
-        if type(self.variogram) == int:
-            raise VariogramDoesNotCompute
+        if isinstance(self.variogram, int):
+            raise VariogramDoesNotCompute()

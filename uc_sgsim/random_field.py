@@ -138,7 +138,7 @@ class SgsimField(RandomField, SgsimPlot):
     def __set_kwargs(self, **kwargs) -> None:
         self.z_min = kwargs.get('z_min', -(self.model.sill**0.5 * 4))
         self.z_max = kwargs.get('z_max', self.model.sill**0.5 * 4)
-        self.max_neigh = kwargs.get('max_neigh', 8)
+        self.max_neighbor = kwargs.get('max_neighbor', 8)
 
     @property
     def model(self) -> CovModel:
