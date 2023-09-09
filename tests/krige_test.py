@@ -13,11 +13,11 @@ class TestSimpleKriging:
         cls.hs = 35
         cls.a = 17.32
         cls.C0 = 1
-        cls.gaussian = Gaussian(cls.hs, cls.bw, cls.a, cls.C0)
-        cls.kriging = SimpleKriging(cls.gaussian)
-        cls.o_kriging = OrdinaryKriging(cls.gaussian)
         cls.x_len = 150
         cls.x_grid = np.linspace(0, cls.x_len, cls.x_len + 1).reshape(cls.x_len + 1, 1)
+        cls.gaussian = Gaussian(cls.hs, cls.bw, cls.a, cls.C0)
+        cls.kriging = SimpleKriging(cls.gaussian, cls.x_len, cov_cache=False)
+        cls.o_kriging = OrdinaryKriging(cls.gaussian, cls.x_len, cov_cache=False)
         cls.sampled = np.array(
             [[0, 10, 29, 74, 85, 115, 146], [-1, 0.7, -0.2, 0.065, 1, 3, 0.5]],
         ).T

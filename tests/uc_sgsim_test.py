@@ -61,6 +61,22 @@ class TestUCSgsim:
         self.sgsim_plot(sgsim)
         self.sgsim_save(sgsim)
 
+    def test_uc_sgsim_gaussian_py_with_params2(self):
+        sgsim = uc.UCSgsim(
+            self.X,
+            self.nR,
+            self.gaussian,
+            z_max=3,
+            z_min=-3,
+            max_neigh=12,
+            constant_path=True,
+            cov_cache=True,
+        )
+        sgsim.compute(n_process=1, randomseed=454)
+        sgsim.variogram_compute(n_process=1)
+        self.sgsim_plot(sgsim)
+        self.sgsim_save(sgsim)
+
     def test_uc_sgsim_gaussian_py_multi_process(self):
         sgsim = uc.UCSgsim(self.X, self.nR, self.gaussian)
         sgsim.compute(n_process=2, randomseed=454)
@@ -78,6 +94,20 @@ class TestUCSgsim:
 
     def test_uc_sgsim_gaussian_py_o_kriging_single_process(self):
         sgsim = uc.UCSgsim(self.X, self.nR, self.gaussian, kriging='OrdinaryKriging')
+        sgsim.compute(n_process=1, randomseed=454)
+        sgsim.variogram_compute(n_process=1)
+        self.sgsim_plot(sgsim)
+        self.sgsim_save(sgsim)
+
+    def test_uc_sgsim_gaussian_py_o_kriging_single_process_with_kwargs(self):
+        sgsim = uc.UCSgsim(
+            self.X,
+            self.nR,
+            self.gaussian,
+            kriging='OrdinaryKriging',
+            constant_path=True,
+            cov_cache=True,
+        )
         sgsim.compute(n_process=1, randomseed=454)
         sgsim.variogram_compute(n_process=1)
         self.sgsim_plot(sgsim)
