@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
 from uc_sgsim.cov_model.base import CovModel
@@ -5,8 +7,8 @@ from uc_sgsim.kriging.base import Kriging
 
 
 class SimpleKriging(Kriging):
-    def __init__(self, model: CovModel):
-        super().__init__(model)
+    def __init__(self, model: CovModel, grid_size: int | list[int, int], cov_cache: bool):
+        super().__init__(model, grid_size, cov_cache)
 
     def prediction(self, sample: np.array, unsampled: np.array) -> tuple[float, float]:
         n_sampled = len(sample)
@@ -16,7 +18,14 @@ class SimpleKriging(Kriging):
         grid = np.hstack([sample, dist_diff])
         meanvalue = 0
 
-        cov_dist = np.array(self.model.cov_compute(grid[:, 2])).reshape(-1, 1)
+        if self._cov_cache_flag is True:
+            cov_dist = np.array(self.model.cov_compute(grid[:, 2])).reshape(-1, 1)
+            self._cov_cache[int(unsampled)] = cov_dist
+        elif hasattr(self, '_cov_cache') is True:
+            cov_dist = self._cov_cache[int(unsampled)]
+        else:
+            cov_dist = np.array(self.model.cov_compute(grid[:, 2])).reshape(-1, 1)
+
         cov_data = squareform(pdist(grid[:, :1])).flatten()
         cov_data = np.array(self.model.cov_compute(cov_data))
         cov_data = cov_data.reshape(n_sampled, n_sampled)
@@ -75,7 +84,14 @@ class OrdinaryKriging(SimpleKriging):
 
         grid = np.hstack([sample, dist_diff])
 
-        cov_dist = np.array(self.model.cov_compute(grid[:, 2])).reshape(-1, 1)
+        if self._cov_cache_flag:
+            cov_dist = np.array(self.model.cov_compute(grid[:, 2])).reshape(-1, 1)
+            self._cov_cache[int(unsampled)] = cov_dist
+        elif hasattr(self, '_cov_cache'):
+            cov_dist = self._cov_cache[int(unsampled)]
+        else:
+            cov_dist = np.array(self.model.cov_compute(grid[:, 2])).reshape(-1, 1)
+
         cov_data = squareform(pdist(grid[:, :1])).flatten()
         cov_data = np.array(self.model.cov_compute(cov_data))
         cov_data = cov_data.reshape(n_sampled, n_sampled)

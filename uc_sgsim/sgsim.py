@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import time
 import sys
 from pathlib import Path
-from typing import Union
 from ctypes import CDLL, POINTER, c_double, c_int
 from multiprocessing import Pool
 
@@ -17,13 +18,13 @@ BASE_DIR = Path(__file__).resolve().parent
 class UCSgsim(SgsimField):
     def __init__(
         self,
-        x: int,
+        grid_size: int | list[int, int],
         model: CovModel,
         realization_number: int,
-        kriging: Union[str, Kriging] = 'SimpleKriging',
+        kriging: str | Kriging = 'SimpleKriging',
         **kwargs,
     ):
-        super().__init__(x, model, realization_number, kriging, **kwargs)
+        super().__init__(grid_size, model, realization_number, kriging, **kwargs)
 
     def _process(self, randomseed: int = 0, parallel: bool = False) -> np.array:
         self.randomseed = randomseed
@@ -34,6 +35,7 @@ class UCSgsim(SgsimField):
 
         start_time = time.time()
         np.random.seed(self.randomseed)
+
         while counts < (self.realization_number // self.n_process):
             drop = False
             unsampled = np.linspace(1, self.x_size - 2, self.x_size - 2)
@@ -45,11 +47,12 @@ class UCSgsim(SgsimField):
 
             grid = np.hstack([x_grid, y_value])
 
-            randompath = np.random.choice(
-                unsampled,
-                len(unsampled),
-                replace=False,
-            )
+            if not self.constant_path or counts == 0:
+                randompath = np.random.choice(
+                    unsampled,
+                    len(unsampled),
+                    replace=False,
+                )
 
             for i in range(len(unsampled)):
                 z[int(randompath[i])] = self.kriging.simulation(
@@ -66,6 +69,7 @@ class UCSgsim(SgsimField):
                 if neigh < self.max_neigh:
                     neigh += 1
 
+            self.kriging._cov_cache_flag = False
             self.randomseed += 1
             if drop is False:
                 self.random_field[counts, :] = z
