@@ -28,24 +28,21 @@ class UCSgsim(SgsimField):
 
     def _process(self, randomseed: int = 0, parallel: bool = False) -> np.array:
         self.randomseed = randomseed
-        if parallel is False:
-            self.n_process = 1
-
+        np.random.seed(self.randomseed)
+        self.n_process = 1 if parallel is False else self.n_process
         counts = 0
 
         start_time = time.time()
-        np.random.seed(self.randomseed)
-
         while counts < (self.realization_number // self.n_process):
             drop = False
             unsampled = np.linspace(1, self.x_size - 2, self.x_size - 2)
-            y_value = np.random.normal(0, self.model.sill**0.5, 2).reshape(2, 1)
+            z_value = np.random.normal(0, self.model.sill**0.5, 2).reshape(2, 1)
             x_grid = np.array([0, self.x_size - 1]).reshape(2, 1)
             z = np.zeros(self.x_size)
-            z[0], z[-1] = y_value[0], y_value[1]
-            neigh = 0
+            z[0], z[-1] = z_value[0], z_value[1]
+            neighbor = 0
 
-            grid = np.hstack([x_grid, y_value])
+            grid = np.hstack([x_grid, z_value])
 
             if not self.constant_path or counts == 0:
                 randompath = np.random.choice(
@@ -55,19 +52,20 @@ class UCSgsim(SgsimField):
                 )
 
             for i in range(len(unsampled)):
-                z[int(randompath[i])] = self.kriging.simulation(
+                sample = int(randompath[i])
+                z[sample] = self.kriging.simulation(
                     grid,
-                    randompath[i],
-                    neighbor=neigh,
+                    sample,
+                    neighbor=neighbor,
                 )
-                if z[int(randompath[i])] >= self.z_max or z[int(randompath[i])] <= self.z_min:
+                if z[sample] >= self.z_max or z[sample] <= self.z_min:
                     drop = True
                     break
-                temp = np.hstack([randompath[i], z[int(randompath[i])]])
+                temp = np.hstack([sample, z[sample]])
                 grid = np.vstack([grid, temp])
 
-                if neigh < self.max_neigh:
-                    neigh += 1
+                if neighbor < self.max_neighbor:
+                    neighbor += 1
 
             self.kriging._cov_cache_flag = False
             self.randomseed += 1
@@ -160,7 +158,7 @@ class UCSgsimDLL(UCSgsim):
             bw_l=self.model.bandwidth_len,
             bw_s=self.model.bandwidth_step,
             bw=self.model.bandwidth_len // self.model.bandwidth_step,
-            max_neighbor=self.max_neigh,
+            max_neighbor=self.max_neighbor,
             range=self.model.k_range,
             sill=self.model.sill,
             nugget=self.model.nugget,

@@ -37,9 +37,7 @@ class SimpleKriging(Kriging):
         estimation = np.dot(weights.T, residuals) + meanvalue
         kriging_var = float(self.model.sill - np.dot(weights.T, cov_dist))
 
-        if kriging_var < 0:
-            kriging_var = 0
-
+        kriging_var = kriging_var if kriging_var > 0 else 0
         kriging_std = np.sqrt(kriging_var)
 
         return estimation, kriging_std
@@ -106,9 +104,7 @@ class OrdinaryKriging(SimpleKriging):
         estimation = np.dot(weights.T, grid[:, 1])
         kriging_var = float(self.model.sill - np.dot(weights.T, cov_dist))
 
-        if kriging_var < 0:
-            kriging_var = 0
-
+        kriging_var = kriging_var if kriging_var > 0 else 0
         kriging_std = np.sqrt(kriging_var)
 
         return estimation, kriging_std
