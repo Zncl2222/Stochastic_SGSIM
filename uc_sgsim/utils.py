@@ -9,6 +9,19 @@ def save_as_multiple_file(
     file_type: str,
     fieldtype: str,
 ) -> None:
+    """
+    Save realizations to multiple files.
+
+    Args:
+        number (str): A string representing the file number.
+        size (int): The size of the data.
+        field (list): The data to be saved.
+        file_type (str): The file extension (e.g., 'txt', 'csv').
+        fieldtype (str): The file and folder name.
+
+    Returns:
+        None
+    """
     idx = number.strip('0')
     os.makedirs(f'./{fieldtype}', exist_ok=True)
     idx = 0 if not idx else int(idx)
@@ -22,6 +35,16 @@ def save_as_multiple_file(
 
 
 def save_as_one_file(path: str, field: list) -> None:
+    """
+    Save realizations to a single file.
+
+    Args:
+        path (str): The path of the output file.
+        field (list): The data to be saved.
+
+    Returns:
+        None
+    """
     with open(f'{path}', 'w') as f:
         for i in range(len(field[:, 0])):
             for j in range(len(field[0, :])):
@@ -34,6 +57,12 @@ def save_as_one_file(path: str, field: list) -> None:
 
 
 class SgsimStructure(Structure):
+    """
+    Define a structure for geostatistical simulations using ctypes.
+
+    This structure is used for interfacing with a C library.
+    """
+
     _fields_ = [
         ('x_len', c_int),
         ('realization_numbers', c_int),
@@ -47,6 +76,12 @@ class SgsimStructure(Structure):
 
 
 class CovModelStructure(Structure):
+    """
+    Define a structure for geostatistical simulations using ctypes.
+
+    This structure is used for interfacing with a C library.
+    """
+
     _fields_ = [
         ('bw_l', c_int),
         ('bw_s', c_int),

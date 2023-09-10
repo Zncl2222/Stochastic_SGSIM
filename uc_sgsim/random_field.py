@@ -9,7 +9,33 @@ from uc_sgsim.cov_model.base import CovModel
 
 
 class RandomField:
+    """
+    The based class for the random field object.
+
+    This class is a parent class for any kind of randomfiled.
+
+    Attributes:
+        __grid_size (int | list[int, int]): size of the grid for the random field.
+        __x (list[int]): x axis for the random field.
+        __y (int | list[int]): y axis for the random field.
+        __x_size (int): size of the x axis for the random field.
+        __y_size (int): size of the y axis for the random field.
+        __realization_number (int): number of realizations to generate.
+
+    Methods:
+        _create_grid: create the grid for the random field.
+        save_random_field: save the random field data to files.
+        save_variogram: save the variogram data to files.
+    """
+
     def __init__(self, grid_size: int | list[int, int], realization_number: int):
+        """
+        Initialize a random field object.
+
+        Args:
+            grid_size (int | list[int, int]): Size of the grid for the random field.
+            realization_number (int): Number of realizations.
+        """
         self.__realization_number = realization_number
         self.__grid_size = grid_size
         self._create_grid(grid_size)
@@ -56,6 +82,17 @@ class RandomField:
         file_type: str = 'csv',
         save_single: bool = False,
     ) -> None:
+        """
+        Save random field data to files.
+
+        Args:
+            path (str): Path to the directory or file where data will be saved.
+            file_type (str): File extension for saved files (default is 'csv').
+            save_single (bool): Save as a single file or multiple files (default is False).
+
+        Returns:
+            None
+        """
         digit = int(np.log10(self.realization_number))
         number_head = ''
         for i in range(digit):
@@ -78,6 +115,20 @@ class RandomField:
             save_as_one_file(path, self.random_field)
 
     def save_variogram(self, path: str, file_type: str = 'csv', save_single: bool = False) -> None:
+        """
+        Save variogram data to files.
+
+        Args:
+            path (str): Path to the directory or file where data will be saved.
+            file_type (str): File extension for saved files (default is 'csv').
+            save_single (bool): Save as a single file or multiple files (default is False).
+
+        Returns:
+            None
+
+        Raises:
+            VariogramDoesNotCompute: If variogram does not compute.
+        """
         if type(self.variogram) == int:
             raise VariogramDoesNotCompute()
         digit = int(np.log10(self.realization_number))
@@ -103,6 +154,25 @@ class RandomField:
 
 
 class SgsimField(RandomField, SgsimPlot):
+    """
+    SgsimField represents a random field for Sequential Gaussian Simulation (SGSIM).
+
+    This class extends the RandomField and SgsimPlot classes to provide functionality
+    for simulating random fields using the Sequential Gaussian Simulation method.
+
+    Attributes:
+        model (CovModel): The covariance model used for simulation.
+        bandwidth (np.array): The bandwidth values used in the simulation.
+        bandwidth_step (int): The bandwidth step used in the simulation.
+        z_min (float): The minimum value for simulation.
+        z_max (float): The maximum value for simulation.
+        max_neighbor (int): The maximum number of neighbors considered in kriging.
+
+    Methods:
+        __set_kriging_method: Set the kriging method based on provided parameters.
+        __set_kwargs: Set additional keyword arguments.
+    """
+
     def __init__(
         self,
         grid_size: int | list[int, int],
@@ -111,6 +181,16 @@ class SgsimField(RandomField, SgsimPlot):
         kriging: str | Kriging = 'SimpleKriging',
         **kwargs,
     ):
+        """
+        Initialize a Sgsim field.
+
+        Args:
+            grid_size (int | list[int, int]): Size of the grid for the field.
+            realization_number (int): Number of realizations.
+            model (CovModel): Covariance model for simulation.
+            kriging (str | Kriging): Kriging method to use (default is 'SimpleKriging').
+            **kwargs: Additional keyword arguments.
+        """
         RandomField.__init__(self, grid_size, realization_number)
         SgsimPlot.__init__(self, model)
 
@@ -121,6 +201,22 @@ class SgsimField(RandomField, SgsimPlot):
         self.__set_kwargs(**kwargs)
 
     def __set_kriging_method(self, kriging, **kwargs) -> None:
+        """
+        Set the kriging method based on provided parameters.
+
+        Args:
+            kriging (str | Kriging): Kriging method to use.
+            **kwargs: Additional keyword arguments.
+            (The kwargs setting will be refactor in future version).
+
+        Returns:
+            None
+
+        Raises:
+            ValueError: If covcahe is True and constant_path is False.
+            TypeError: If kriging arg is not acceptable.
+
+        """
         self.constant_path = kwargs.get('constant_path', False)
         cov_cache = kwargs.get('cov_cache', False)
 
