@@ -5,6 +5,28 @@ from uc_sgsim.cov_model.base import CovModel
 
 
 class Kriging:
+    """
+    Base Class for Kriging Interpolation
+
+    This class serves as the parent class for various kriging interpolation techniques
+    such as Simple Kriging and Ordinary Kriging. It define and encapsulates common properties and
+    methods used in kriging.
+
+    Attributes:
+        model (CovModel): The covariance model used for interpolation.
+        bandwidth_step (int): The step size for bandwidth increments.
+        bandwidth (np.array): An array of bandwidth values.
+        k_range (float): The range parameter for the covariance model.
+        sill (float): The sill parameter for the covariance model.
+        x_size (int): Size of the x-axis for the interpolation grid.
+        y_size (int): Size of the y-axis for the interpolation grid (0 if 1D).
+        _cov_cache_flag (bool): Flag indicating whether to use a covariance cache.
+        _cov_cache (list | list[list]): Cache for computed covariances (if enabled).
+
+    Methods:
+        _create_cov_cache(): Create the covariance cache for faster computations.
+    """
+
     def __init__(
         self,
         model: CovModel,
@@ -43,6 +65,9 @@ class Kriging:
         return self.__sill
 
     def _create_cov_cache(self):
+        """
+        Create the covariance cache for faster computations (if enabled).
+        """
         if self.y_size != 0:
             self._cov_cache = [[0] * self.x_size for _ in range(self.y_size)]
         else:
