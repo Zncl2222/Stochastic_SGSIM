@@ -7,10 +7,49 @@ from uc_sgsim.kriging.base import Kriging
 
 
 class SimpleKriging(Kriging):
+    """
+    Simple Kriging Class
+
+    This class represents the Simple Kriging interpolation technique, which is used
+    to estimate values at unsampled locations based on sampled data and a specified
+    covariance model.
+
+    Attributes:
+        model (CovModel): The covariance model used for interpolation.
+        grid_size (int | list[int, int]): Size of the grid for interpolation.
+        cov_cache (bool): Flag indicating whether to use a covariance cache.
+
+    Methods:
+        prediction(sample: np.array, unsampled: np.array) -> tuple[float, float]:
+            Perform Simple Kriging prediction for an unsampled location.
+        simulation(x: np.array, unsampled: np.array, **kwargs) -> float:
+            Perform Simple Kriging simulation for unsampled locations.
+        _find_neighbor(dist: list[float], neighbor: int) -> float:
+            Find a nearby point for simulation based on a neighbor criterion.
+    """
+
     def __init__(self, model: CovModel, grid_size: int | list[int, int], cov_cache: bool):
+        """
+        Initialize a SimpleKriging object.
+
+        Args:
+            model (CovModel): The covariance model used for interpolation.
+            grid_size (int | list[int, int]): Size of the grid for interpolation.
+            cov_cache (bool): Flag indicating whether to use a covariance cache.
+        """
         super().__init__(model, grid_size, cov_cache)
 
     def prediction(self, sample: np.array, unsampled: np.array) -> tuple[float, float]:
+        """
+        Perform Simple Kriging prediction for an unsampled location.
+
+        Args:
+            sample (np.array): Sampled data for neighboring locations.
+            unsampled (np.array): Unsamped location for which prediction is made.
+
+        Returns:
+            tuple[float, float]: Estimated value and kriging standard deviation.
+        """
         n_sampled = len(sample)
         dist_diff = abs(sample[:, 0] - unsampled)
         dist_diff = dist_diff.reshape(len(dist_diff), 1)
@@ -43,11 +82,22 @@ class SimpleKriging(Kriging):
         return estimation, kriging_std
 
     def simulation(self, x: np.array, unsampled: np.array, **kwargs) -> float:
+        """
+        Perform Simple Kriging simulation for unsampled locations.
+
+        Args:
+            x (np.array): Sampled data for neighboring locations.
+            unsampled (np.array): Unsamped location for which simulation is performed.
+            neighbor (int): The number of neighbors to consider (optional).
+
+        Returns:
+            float: Simulated value for the unsampled location.
+        """
         neighbor = kwargs.get('neighbor')
         if neighbor is not None:
             dist = abs(x[:, 0] - unsampled)
             dist = dist.reshape(len(dist), 1)
-            has_neighbor = self.find_neighbor(dist, neighbor)
+            has_neighbor = self._find_neighbor(dist, neighbor)
             if has_neighbor:
                 return has_neighbor
             x = np.hstack([x, dist])
@@ -59,7 +109,17 @@ class SimpleKriging(Kriging):
         random_fix = np.random.normal(0, kriging_std, 1)
         return estimation + random_fix
 
-    def find_neighbor(self, dist: list[float], neighbor: int) -> float:
+    def _find_neighbor(self, dist: list[float], neighbor: int) -> float:
+        """
+        Find a nearby point for simulation based on a neighbor criterion.
+
+        Args:
+            dist (list[float]): Distances from sampled points to the unsampled location.
+            neighbor (int): The number of neighbors to consider.
+
+        Returns:
+            float: Simulated value based on neighbors or a random value if no neighbors are found.
+        """
         if neighbor == 0:
             return np.random.normal(0, self.model.sill**0.5, 1)
         close_point = 0
@@ -75,7 +135,36 @@ class SimpleKriging(Kriging):
 
 
 class OrdinaryKriging(SimpleKriging):
+    """
+    Ordinary Kriging Class
+
+    This class represents the Ordinary Kriging interpolation technique, which is
+    an extension of Simple Kriging. It is used to estimate values at unsampled
+    locations based on sampled data and a specified covariance model.
+
+    Attributes:
+        model (CovModel): The covariance model used for interpolation.
+        grid_size (int | list[int, int]): Size of the grid for interpolation.
+        cov_cache (bool): Flag indicating whether to use a covariance cache.
+
+    Methods:
+        prediction(sample: np.array, unsampled: np.array) -> tuple[float, float]:
+            Perform Ordinary Kriging prediction for an unsampled location.
+        matrix_agumented(mat: np.array) -> np.array:
+            Augment the covariance matrix for Ordinary Kriging.
+    """
+
     def prediction(self, sample: np.array, unsampled: np.array) -> tuple[float, float]:
+        """
+        Perform Ordinary Kriging prediction for an unsampled location.
+
+        Args:
+            sample (np.array): Sampled data for neighboring locations.
+            unsampled (np.array): Unsamped location for which prediction is made.
+
+        Returns:
+            tuple[float, float]: Estimated value and kriging standard deviation.
+        """
         n_sampled = len(sample)
         dist_diff = abs(sample[:, 0] - unsampled)
         dist_diff = dist_diff.reshape(len(dist_diff), 1)
@@ -97,7 +186,7 @@ class OrdinaryKriging(SimpleKriging):
         # Add a small value to the diagonal of the covariance matrix for numerical stability
         cov_data[np.diag_indices_from(cov_data)] += 1e-4
 
-        cov_data_augmented = self.matrix_agumented(cov_data)
+        cov_data_augmented = self._matrix_agumented(cov_data)
         cov_dist_augmented = np.vstack((cov_dist, [1.0]))
         weights = np.linalg.solve(cov_data_augmented, cov_dist_augmented)[:n_sampled]
 
@@ -109,7 +198,16 @@ class OrdinaryKriging(SimpleKriging):
 
         return estimation, kriging_std
 
-    def matrix_agumented(self, mat: np.array):
+    def _matrix_agumented(self, mat: np.array):
+        """
+        Augment the covariance matrix to constrain summation of weights = 1 for Ordinary Kriging.
+
+        Args:
+            mat (np.array): Covariance matrix.
+
+        Returns:
+            np.array: Augmented covariance matrix.
+        """
         ones_column = np.ones((mat.shape[0], 1))
         cov_data_augmented = np.hstack([mat, ones_column])
         ones_row = np.ones((1, cov_data_augmented.shape[1]))
