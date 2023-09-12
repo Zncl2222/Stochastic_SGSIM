@@ -6,6 +6,15 @@ class Gaussian(CovModel):
     model_name = 'Gaussian'
 
     def model(self, h: float) -> float:
+        """
+        Compute the Gaussian covariance for a given lag distance (h).
+
+        Args:
+            h (float): Lag distance at which to compute the covariance.
+
+        Returns:
+            float: The computed Gaussian covariance value.
+        """
         partial_sill = self.sill - self.nugget
         return partial_sill * (1 - np.exp(-3 * h**2 / self.k_range**2)) + self.nugget
 
@@ -14,6 +23,15 @@ class Spherical(CovModel):
     model_name = 'Spherical'
 
     def model(self, h: float) -> float:
+        """
+        Compute the Spherical covariance for a given lag distance (h).
+
+        Args:
+            h (float): Lag distance at which to compute the covariance.
+
+        Returns:
+            float: The computed Spherical covariance value.
+        """
         partial_sill = self.sill - self.nugget
         if h <= self.k_range:
             return (
@@ -28,5 +46,14 @@ class Exponential(CovModel):
     model_name = 'Exponential'
 
     def model(self, h: float) -> float:
+        """
+        Compute the Exponential covariance for a given lag distance (h).
+
+        Args:
+            h (float): Lag distance at which to compute the covariance.
+
+        Returns:
+            float: The computed Exponential covariance value.
+        """
         partial_sill = self.sill - self.nugget
         return partial_sill * (1 - np.exp(-3 * h / self.k_range)) + self.nugget
