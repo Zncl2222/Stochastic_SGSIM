@@ -1,4 +1,14 @@
-// Copyright 2022 Zncl2222
+/**
+ * @file matrix_tools.c
+ * @brief Implementation of Matrix and Array Manipulation Functions
+ *
+ * This source file contains the implementation of various matrix and array manipulation functions.
+ * These functions provide utilities for tasks such as LU decomposition, array generation, and file
+ * output of arrays.
+ *
+ * Copyright (c) 2022-2023 Zncl2222
+ * License: MIT
+ */
 
 # include <stdio.h>
 # include <math.h>
