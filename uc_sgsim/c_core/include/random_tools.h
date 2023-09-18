@@ -6,7 +6,8 @@
  * random path generation. The functions in this library assist in generating random paths
  * or sequences of integers.
  *
- * Copyright (c) 2022 Zncl2222
+ * Copyright (c) 2022-2023 Zncl2222
+ * License: MIT
  */
 
 #ifndef UC_SGSIM_C_CORE_INCLUDE_RANDOM_TOOLS_H_

@@ -6,7 +6,7 @@
  * The functions in this library assist in operations like LU decomposition, inverse solving, array generation,
  * distance calculations, matrix transformations, and data saving.
  *
- * Copyright (c) 2022 Zncl2222
+ * Copyright (c) 2022-2023 Zncl2222
  */
 
 #ifndef UC_SGSIM_C_CORE_INCLUDE_MATRIX_TOOLS_H_

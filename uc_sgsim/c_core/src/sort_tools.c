@@ -1,9 +1,17 @@
-// Copyright 2022 Zncl2222
+/**
+ * @file sort_tools.c
+ * @brief Implementation of Sorting Tools
+ *
+ * This source file contains the implementation of sorting tools, including functions for
+ * 2D array partitioning, quicksort, and quickselect. These functions are essential for
+ * sorting and selecting elements within 2D arrays.
+ *
+ * Copyright (c) 2022-2023 Zncl2222
+ * License: MIT
+ */
 
 # include <stdio.h>
-
 # include "../include/sort_tools.h"
-
 
 void swaprows(double** x, int i, int j) {
     double* temp = x[j];

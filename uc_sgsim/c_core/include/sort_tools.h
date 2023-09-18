@@ -6,7 +6,8 @@
  * two-dimensional arrays. The functions in this library assist in sorting rows of a two-dimensional
  * array and selecting elements using the quicksort and quickselect algorithms.
  *
- * Copyright (c) 2022 Zncl2222
+ * Copyright (c) 2022-2023 Zncl2222
+ * License: MIT
  */
 
 #ifndef UC_SGSIM_C_CORE_INCLUDE_SORT_TOOLS_H_

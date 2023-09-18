@@ -5,7 +5,9 @@
  * This file contains declarations for functions related to covariance models in geostatistics.
  * These functions are used to set default values and calculate covariance values based on
  * a specified model.
- * Copyright (c) 2022 Zncl2222
+ *
+ * Copyright (c) 2022-2023 Zncl2222
+ * License: MIT
  */
 
 #ifndef UC_SGSIM_C_CORE_INCLUDE_COV_MODEL_H_
