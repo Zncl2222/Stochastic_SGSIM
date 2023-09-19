@@ -1,5 +1,14 @@
-// Copyright 2022 Zncl2222
-
+/**
+ * @file sgsim.c
+ * @brief Implementation of Sequential Gaussian Simulation (SGSIM) functions.
+ *
+ * This file contains the implementation of functions for conducting
+ * Sequential Gaussian Simulation (SGSIM). It utilizes various libraries and
+ * tools for simulations and random number generation.
+ *
+ * Copyright (c) 2022 Zncl2222
+ * License: MIT
+ */
 
 # include <stdio.h>
 # include <malloc.h>
