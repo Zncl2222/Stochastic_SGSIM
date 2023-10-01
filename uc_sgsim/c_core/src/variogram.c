@@ -1,4 +1,14 @@
-// Copyright 2022 Zncl2222
+/**
+ * @file variogram.c
+ * @brief Implementation of Variogram Calculation
+ *
+ * This source file contains the implementation of variogram calculation functions. Variograms are
+ * statistical measures used in geostatistics to quantify the spatial variability of a dataset.
+ * The functions in this file calculate the experimental variogram and variance of a given dataset.
+ *
+ * Copyright (c) 2022-2023 Zncl2222
+ * License: MIT
+ */
 
 # include <stdio.h>
 # include <math.h>

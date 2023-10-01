@@ -1,4 +1,14 @@
-// Copyright 2022 Zncl2222
+/**
+ * @file cov_model.c
+ * @brief Implementation of Covariance Models
+ *
+ * This source file contains the implementation of covariance model functions used in geostatistics.
+ * These functions provide utilities for setting default covariance model parameters and calculating
+ * covariance values based on specified models.
+ *
+ * Copyright (c) 2022-2023 Zncl2222
+ * License: MIT
+ */
 
 # include "../include/cov_model.h"
 

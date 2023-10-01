@@ -1,25 +1,46 @@
 ![licence](https://img.shields.io/github/license/Zncl2222/Stochastic_UC_SGSIM)
 ![python](https://img.shields.io/pypi/pyversions/uc-sgsim)
-![language](https://img.shields.io/badge/Solutions-black.svg?style=flat&logo=c%2B%2B)
-![language](https://img.shields.io/badge/Solutions-black.svg?style=flat&logo=python)
-[![ci](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/github-pre-commit.yml/badge.svg)](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/github-pre-commit.yml)
-[![build](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/cmake.yml/badge.svg)](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/cmake.yml)
+[![ci](https://img.shields.io/github/actions/workflow/status/Zncl2222/uc_sgsim/github-pre-commit.yml?logo=pre-commit&label=pre-commit)](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/github-pre-commit.yml)
+[![build](https://img.shields.io/github/actions/workflow/status/Zncl2222/uc_sgsim/cmake.yml?logo=cmake&logoColor=red&label=CMake)](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/cmake.yml)
+[![pytest](https://img.shields.io/github/actions/workflow/status/Zncl2222/uc_sgsim/sonarcloud.yml?logo=pytest&label=pytest)](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/sonarcloud.yml)
 [![build](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/codeql.yml/badge.svg)](https://github.com/Zncl2222/Stochastic_UC_SGSIM/actions/workflows/codeql.yml)
 [![codecov](https://codecov.io/gh/Zncl2222/uc_sgsim/branch/main/graph/badge.svg?token=3qZt0OqDNI)](https://codecov.io/gh/Zncl2222/uc_sgsim)
 
-#### Python Sonar Cloud state
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_py&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_py)
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_py&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_py)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_py&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_py)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_py&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_py)
-
-
-#### C Sonar Cloud state
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_c&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_c)
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_c&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_c)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_c&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_c)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_c&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_c)
-
+<div>
+ <table>
+  <thead>
+    <tr>
+      <td colspan="5" align="center"><strong>Sonar Cloud Quality</strong></td>
+    </tr>
+    <tr>
+      <th>Metric</th>
+      <th>Python</th>
+      <th>C</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Quality Gate</strong></td>
+      <td><a href="https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_py"><img src="https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_py&metric=alert_status" alt="Quality Gate Status"></a></td>
+      <td><a href="https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_c"><img src="https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_c&metric=alert_status" alt="Quality Gate Status"></a></td>
+    <tr>
+      <td><strong>Reliability Rating</strong></td>
+      <td><a href="https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_py"><img src="https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_py&metric=reliability_rating" alt="Reliability Rating"></a></td>
+      <td><a href="https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_c"><img src="https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_c&metric=reliability_rating" alt="Reliability Rating"></a></td>
+    </tr>
+    <tr>
+      <td><strong>Security Rating</strong></td>
+      <td><a href="https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_py"><img src="https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_py&metric=security_rating" alt="Security Rating"></a></td>
+      <td><a href="https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_c"><img src="https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_c&metric=security_rating" alt="Security Rating"></a></td>
+    </tr>
+    <tr>
+      <td><strong>Maintainability Rating</strong></td>
+      <td><a href="https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_py"><img src="https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_py&metric=sqale_rating" alt="Maintainability Rating"></a></td>
+      <td><a href="https://sonarcloud.io/summary/new_code?id=zncl2222_Stochastic_UC_SGSIM_c"><img src="https://sonarcloud.io/api/project_badges/measure?project=zncl2222_Stochastic_UC_SGSIM_c&metric=sqale_rating" alt="Maintainability Rating"></a></td>
+    </tr>
+  </tbody>
+ </table>
+</div>
 
 <h3 align="center">
 
@@ -32,21 +53,21 @@
 
 <h3 align="center">An unconditional random field generation tools that are easy to use.</h3>
 
-## Introduction of UCSGSIM
-Sequential Gaussian Simulation is a random field generation method which was based on the kriging interporlation method.
+## Introduction to UCSGSIM
+UnConditional Sequential Gaussian Simulation (UCSGSIM) is a method for generating random fields that is based on the kriging interpolation technique.
 
-Unconditonal simulation don't follow the patterns of "data", but follow the users's settings like mean and variance.
+Unconditional simulation does not adhere to the patterns observed in the data but instead follows the user's settings, such as mean and variance.
 
 **The core ideas of UCSGSIM are:**
-1. Create the grid (no any data value exist now).
+1. Create the grid (no data values exist at this stage).
 
 $$ \Omega\to R $$
 
-2. Visit random point of the model (draw one random value of the x_grid)
+2. Select a random point within the model (draw one random value from the x_grid).
 
 $$ X = RandomValue(\Omega),  X:\Omega\to R $$
 
-3. Select the **theoritical covariance model** to use, and set the **sill** and **range** properly.
+3. Choose the **theoretical covariance model** to use and set the **sill** and **range** properly.
 
 $$ Gaussian = (C_{0} - s)(1 - e^{-h^{2}/r^{2}a})$$
 
@@ -54,7 +75,7 @@ $$ Spherical = (C_{0} - s)(3h/2r - h^3/2r^3)$$
 
 $$ Exponential = (C_{0} - s)(1 - e^{-h/ra})$$
 
-4. If there have more than 1 data value closed to the visted point (depend on the **range** of covariance model), then go next step. Else draw the random value from normal distribution as the simulation results of this iteration.
+4. If there are more than one data value close to the visited point (based on the **range** of the covariance model), proceed to the next step. Otherwise, draw a random value from a normal distribution as the simulation result for this iteration.
 
 $$ Z_{k}({X_{simulation}}) = RandomNormal(m = 0 ,\sigma^2 = Sill)$$
 
@@ -62,7 +83,7 @@ $$ Z_{k}({X_{simulation}}) = RandomNormal(m = 0 ,\sigma^2 = Sill)$$
 
 $$ \sum_{j=1}^{n}\omega_{j} = C(X_{data}^{i},X_{data}^{i})C^{-1}(X_i,X_i), i=1...N $$
 
-6. Calculate the **kriging estimate** from the **weight** and **data value**
+6. Calculate the **kriging estimate** from the **weights** and **data value**
 
 $$ Z_{k}(X_{estimate}) = \sum_{i=1}^{n} \omega_{i} Z(X_{data}) + (1- \sum_{i=1}^{n} \omega_{i} m_{g}) $$
 
@@ -70,13 +91,13 @@ $$ Z_{k}(X_{estimate}) = \sum_{i=1}^{n} \omega_{i} Z(X_{data}) + (1- \sum_{i=1}^
 
 $$ \sigma_{krige}^{2} = \sum_{i=1}^{n}\omega_{i}C(X_{data}^{i},X_{data}^{i}) $$
 
-8. Draw the random value from the normal distribution and add to the **kriging estimate**.
+8. Draw a random value from the normal distribution and add to the **kriging estimate**.
 
 $$ Z(X_{simulation}) = Z(X_{estimate}) + RandomNormal(m = 0, \sigma^2 = \sigma_{krige}^{2}) $$
 
-9. Repeat 2 ~ 8 until the whole model are simulated.
+9. Repeat 2 ~ 8 until the entire model is simulated.
 
-10. Repeat 1 ~ 9 with different **randomseed number** to produceed mutiple realizations.
+10. Repeat 1 ~ 9 with different **randomseed number** to produce mutiple realizations.
 
 ## Installation
 ```bash
@@ -86,7 +107,7 @@ pip install uc-sgsim
 ## Features
 * One dimensional unconditional randomfield generation with sequential gaussian simulation algorithm
 * Muti-cores simulation (mutiprocessing)
-* Run C to generate randomfield in python via ctype interface, or just generate randomfield in python with numpy and scipy library.
+* Ability to generate random fields in Python using either a C interface via ctype or directly in Python using the NumPy and SciPy libraries.
 
 ## Examples
 ```py
@@ -150,8 +171,18 @@ if __name__ == '__main__':
    <img src="https://github.com/Zncl2222/Stochastic_SGSIM/blob/main/figure/CDF.png"  width="50%"/>
 </p>
 
-If you would like to use pure C to run this code, you can modify the c_example.c file in this root directory. After modifying the c_example.c file, run ```sh cmake_build.sh``` on Linux or ```cmake_build.bat``` on Windows to compile and execute the code.
+If you prefer to utilize pure C to execute this code, you can make modifications to the c_example.c file located in the root directory. Once you've made the necessary changes to c_example.c, you can compile and execute the code using the following commands:
 
+On Linux
+```bash
+sh cmake_build.sh
+```
+On Windows
+```bat
+cmake_build.bat
+```
+
+C example file
 ```c
 // c_example.c
 # include <stdio.h>
@@ -198,7 +229,7 @@ int main() {
 * More covariance models
 * More kriging methods (etc. Oridinary Kriging)
 * Performance enhancement
-* More completely documents and easy to use designs.
+* Providing more comprehensive documentation and user-friendly design improvements.
 
 ## Performance
 <p align="center">

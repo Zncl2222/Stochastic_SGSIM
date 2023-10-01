@@ -9,6 +9,40 @@ from ..cov_model.base import CovModel
 
 
 class SgsimPlot(PlotBase):
+    """
+    SgsimPlot Class for Visualizing Sequential Gaussian Simulation Results
+
+    This class provides methods for visualizing results obtained from
+    Sequential Gaussian Simulation (SGSIM). It includes functions for
+    plotting realizations, mean plots, variance plots, cumulative distribution
+    function (CDF) plots, histograms, and variograms of the simulated random fields.
+
+    Args:
+        model (CovModel): The covariance model used in the simulation.
+        figsize (tuple, optional): Figure size for the plots (default is (10, 8)).
+
+    Attributes:
+        xlabel (str): Label for the x-axis in plots.
+        curr_fig_num (int): Current figure number for matplotlib.
+
+    Properties:
+        vmodel (CovModel): The covariance model used in the simulation.
+        vmodel_name (str): The name of the covariance model.
+        vbandwidth_step (int): The bandwidth step of the covariance model.
+        vbandwidth (np.array): The bandwidth of the covariance model.
+        vk_range (float): The range parameter of the covariance model.
+        vsill (float): The sill parameter of the covariance model.
+
+    Methods:
+        plot: Plot realizations with optional mean lines.
+        mean_plot: Plot mean values of realizations.
+        variance_plot: Plot variance of realizations.
+        cdf_plot: Plot cumulative distribution function (CDF) for a specific location.
+        hist_plot: Plot histogram for a specific location.
+        variogram_plot: Plot variograms of realizations along with the theoretical variogram.
+        theory_variogram_plot: Plot the theoretical variogram.
+    """
+
     xlabel = 'Distance(-)'
     curr_fig_num = 0
 
@@ -17,6 +51,13 @@ class SgsimPlot(PlotBase):
         model: CovModel,
         figsize: tuple = (10, 8),
     ):
+        """
+        Initialize an SgsimPlot object.
+
+        Args:
+            model (CovModel): The covariance model for simulation.
+            figsize (tuple, optional): Figure size in inches (width, height) (default is (10, 8)).
+        """
         super().__init__(figsize)
         self.__vmodel = model
         self.__vmodel_name = model.model_name
@@ -59,6 +100,27 @@ class SgsimPlot(PlotBase):
         axhline_style: str = '--',
         axhline_zorder: int = 1,
     ) -> None:
+        """
+        Plot Realizations of the Random Field
+
+        This method plots realizations of the random field with optional parameters.
+
+        Args:
+            realizations (list[int] | None, optional):
+                List of realization indices to plot (default is None).
+            mean (float | int, optional):
+                Mean value to add to realizations (default is 0).
+            fontsize (int, optional):
+                Font size for labels and titles (default is 20).
+            y_title (str, optional):
+                Y-axis title (default is 'Y').
+            axhline_color (str, optional):
+                Color of the horizontal line at mean (default is 'r').
+            axhline_style (str, optional):
+                Linestyle of the horizontal line at mean (default is '--').
+            axhline_zorder (int, optional):
+                Z-order of the horizontal line at mean (default is 1).
+        """
         realization_number = len(self.random_field[:, 0])
         if realizations is None:
             for i in range(realization_number):
@@ -73,7 +135,7 @@ class SgsimPlot(PlotBase):
                     zorder=axhline_zorder,
                 )
                 plt.ylabel(y_title, fontsize=fontsize)
-        elif type(realizations) == list:
+        elif isinstance(realizations, list):
             for item in realizations:
                 plt.figure(self.curr_fig_num, figsize=self.figsize)
                 plt.plot(self.random_field[:, item] + mean)
@@ -104,6 +166,35 @@ class SgsimPlot(PlotBase):
         xticks_fontsize: int = 17,
         yticks_fontsize: int = 17,
     ) -> None:
+        """
+        Plot Mean of Realizations
+
+        This method plots the mean of realizations along with optional parameters.
+
+        Args:
+            mean (int | float, optional):
+                Mean value to add to realizations (default is 0).
+            fmt (str, optional):
+                Marker style for plotting (default is '-s').
+            linecolor (str, optional):
+                Color of the mean line (default is 'k').
+            markeredgecolor (str, optional):
+                Edge color of markers (default is 'k').
+            markerfacecolor (str, optional):
+                Face color of markers (default is 'y').
+            fontsize (int, optional):
+                Font size for labels and titles (default is 20).
+            axhline_color (str, optional):
+                Color of the horizontal line at mean (default is 'r').
+            axhline_style (str, optional):
+                Linestyle of the horizontal line at mean (default is '--').
+            axhline_zorder (int, optional):
+                Z-order of the horizontal line at mean (default is 1).
+            xticks_fontsize (int, optional):
+                Font size for x-axis tick labels (default is 17).
+            yticks_fontsize (int, optional):
+                Font size for y-axis tick labels (default is 17).
+        """
         zmean = np.zeros(len(self.random_field[0, :]))
         for i in range(len(self.random_field[0, :])):
             zmean[i] = np.mean(self.random_field[:, i] + mean)
@@ -129,6 +220,12 @@ class SgsimPlot(PlotBase):
         self.curr_fig_num += 1
 
     def variance_plot(self) -> None:
+        """
+        Plot Variance of Realizations
+
+        This method plots the variance of realizations for each
+        location in the random field.
+        """
         zvar = np.zeros(len(self.random_field[0, :]))
         for i in range(len(self.random_field[0, :])):
             zvar[i] = np.var(self.random_field[:, i])
@@ -148,6 +245,15 @@ class SgsimPlot(PlotBase):
         self.curr_fig_num += 1
 
     def cdf_plot(self, x_location: int) -> None:
+        """
+        Plot Cumulative Distribution Function (CDF) for a Specific Location
+
+        This method plots the cumulative distribution function (CDF) for the
+        specified location in the random field.
+
+        Args:
+            x_location (int): The location index to plot the CDF.
+        """
         x = self.random_field[:, x_location]
         mu = np.mean(x)
         sigma = np.std(x)
@@ -180,6 +286,14 @@ class SgsimPlot(PlotBase):
         self.curr_fig_num += 1
 
     def hist_plot(self, x_location: int) -> None:
+        """
+        Plot Histogram for a Specific Location
+
+        This method plots a histogram for the specified location in the random field.
+
+        Args:
+            x_location (int): The location index to plot the histogram.
+        """
         x = self.random_field[:, x_location]
         mu = np.mean(x)
         sigma = np.std(x)
@@ -213,6 +327,19 @@ class SgsimPlot(PlotBase):
         mean_color: str = 'blue',
         mean_linestyle: str = '--',
     ) -> None:
+        """
+        Plot Variograms of Realizations
+
+        This method plots variograms of realizations along with the theoretical variogram.
+
+        Args:
+            fontsize (int, optional): Font size for labels and titles (default is 20).
+            alpha (int | float, optional): Transparency level for variogram lines (default is 0.1).
+            xticks_fontsize (int, optional): Font size for x-axis tick labels (default is 17).
+            yticks_fontsize (int, optional): Font size for y-axis tick labels (default is 17).
+            mean_color (str, optional): Color for the mean line (default is 'blue').
+            mean_linestyle (str, optional): Linestyle for the mean line (default is '--').
+        """
         self.__variogram_validate()
         for i in range(self.realization_number):
             plt.figure(self.curr_fig_num, figsize=(10, 6))
@@ -240,6 +367,18 @@ class SgsimPlot(PlotBase):
         markeredgecolor: str = 'k',
         markerfacecolor: str = 'w',
     ) -> None:
+        """
+        Plot Theoretical Variogram
+
+        This method plots the theoretical variogram of the covariance model.
+
+        Args:
+            fig (int, optional): Figure number to use (default is None).
+            fontsize (int, optional): Font size for labels and titles (default is 20).
+            fmt (str, optional): Marker style for plotting (default is 'o').
+            markeredgecolor (str, optional): Edge color of markers (default is 'k').
+            markerfacecolor (str, optional): Face color of markers (default is 'w').
+        """
         if fig is not None:
             plt.figure(fig, figsize=self.figsize)
         plt.plot(
@@ -253,5 +392,5 @@ class SgsimPlot(PlotBase):
         plt.ylabel('Variogram', fontsize=fontsize)
 
     def __variogram_validate(self) -> None:
-        if type(self.variogram) == int:
-            raise VariogramDoesNotCompute
+        if isinstance(self.variogram, int):
+            raise VariogramDoesNotCompute()

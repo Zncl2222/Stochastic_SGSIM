@@ -1,4 +1,14 @@
-// Copyright 2022 Zncl2222
+/**
+ * @file random_tools.c
+ * @brief Implementation of Randomization Tools
+ *
+ * This source file contains the implementation of randomization tools, including functions for
+ * shuffling arrays and generating random paths. These functions are essential for various
+ * randomization tasks.
+ *
+ * Copyright (c) 2022-2023 Zncl2222
+ * License: MIT
+ */
 
 # include <stdlib.h>
 # include <stdio.h>

@@ -1,4 +1,14 @@
-// Copyright 2022 Zncl2222
+/**
+ * @file kriging.c
+ * @brief Implementation of Kriging functions in the SGSIM library.
+ *
+ * This file contains the implementation of functions related to Kriging,
+ * used in the Sequential Gaussian Simulation (SGSIM) library. Kriging is
+ * employed for spatial interpolation and estimation of values.
+ *
+ * Copyright (c) 2022-2023 Zncl2222
+ * License: MIT
+ */
 
 # include <stdio.h>
 # include <stdlib.h>
