@@ -228,8 +228,8 @@ class UCSgsimDLL(UCSgsim):
     def __init__(
         self,
         x: int,
-        model: CovModel,
         realization_number: int,
+        model: CovModel,
         kriging: str = 'SimpleKriging',
         **kwargs,
     ):
@@ -238,13 +238,13 @@ class UCSgsimDLL(UCSgsim):
 
         Args:
             x (int): Size of the x-axis for the random field.
-            model (CovModel): The covariance model for simulation.
             realization_number (int): Number of realizations to generate.
+            model (CovModel): The covariance model for simulation.
             kriging (str, optional):
                 The DLL kriging method to use ('SimpleKriging' or 'OrdinaryKriging').
             **kwargs: Additional keyword arguments for customization.
         """
-        super().__init__(x, model, realization_number, **kwargs)
+        super().__init__(x, realization_number, model, **kwargs)
         self.kriging = kriging
 
     def _lib_read(self) -> CDLL:
