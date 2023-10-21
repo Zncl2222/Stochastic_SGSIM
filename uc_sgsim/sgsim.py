@@ -51,8 +51,8 @@ class UCSgsim(SgsimField):
     def __init__(
         self,
         grid_size: int | list[int, int],
-        model: CovModel,
         realization_number: int,
+        model: CovModel,
         kriging: str | Kriging = 'SimpleKriging',
         **kwargs,
     ):
@@ -61,13 +61,13 @@ class UCSgsim(SgsimField):
 
         Args:
             grid_size (int | list[int, int]): Size of the grid for the random field.
-            model (CovModel): The covariance model for simulation.
             realization_number (int): Number of realizations to generate.
+            model (CovModel): The covariance model for simulation.
             kriging (str | Kriging, optional):
                 The kriging method to use ('SimpleKriging' or 'OrdinaryKriging').
             **kwargs: Additional keyword arguments for customization.
         """
-        super().__init__(grid_size, model, realization_number, kriging, **kwargs)
+        super().__init__(grid_size, realization_number, model, kriging, **kwargs)
 
     def _process(self, randomseed: int = 0, parallel: bool = False) -> np.array:
         """
