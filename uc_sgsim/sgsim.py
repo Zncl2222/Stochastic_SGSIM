@@ -287,6 +287,7 @@ class UCSgsimDLL(UCSgsim):
             bw_s=self.model.bandwidth_step,
             bw=self.model.bandwidth_len // self.model.bandwidth_step,
             max_neighbor=self.max_neighbor,
+            use_cov_cache=0 if self.constant_path is False else 1,
             range=self.model.k_range,
             sill=self.model.sill,
             nugget=self.model.nugget,

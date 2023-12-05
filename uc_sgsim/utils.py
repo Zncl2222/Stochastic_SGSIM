@@ -87,6 +87,7 @@ class CovModelStructure(Structure):
         ('bw_s', c_int),
         ('bw', c_int),
         ('max_neighbor', c_int),
+        ('use_cov_cache', c_int),
         ('range', c_double),
         ('sill', c_double),
         ('nugget', c_double),
