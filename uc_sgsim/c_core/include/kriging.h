@@ -76,7 +76,8 @@ void kriging_param_setting(int x_len, const cov_model_t* _cov_model);
  * @param kriging_method Kriging method to use (e.g., ordinary kriging).
  */
 void simple_kriging(double* array, sampling_state* _sampling,
-                    mt19937_state* rng_state, int kriging_method);
+                    mt19937_state* rng_state, int kriging_method,
+                    int use_cov_cache);
 
 /**
  * @brief Find neighbor points for Kriging.

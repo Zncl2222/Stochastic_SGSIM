@@ -24,6 +24,7 @@ typedef struct {
     int bw_s;              // bandwidth steps
     int bw;                // bandwidth
     int max_neighbor;      // maximum number of neighbors
+    int use_cov_cache;     // flag to indicate whether to use covariance cache
     double k_range;        // kriging range
     double sill;           // sill value
     double nugget;         // nugget value

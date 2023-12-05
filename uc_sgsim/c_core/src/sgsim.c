@@ -62,16 +62,26 @@ void sgsim_run(sgsim_t* _sgsim, cov_model_t* _cov_model, int vario_flag) {
 
     x_grid.data = arange(_sgsim->x_len);
     count = 0;
+    int use_cov_cache = 0;
     while (count < _sgsim->realization_numbers) {
         printf("Number = %d\n", count);
         _sampling.currlen = 0;
         _sampling.neighbor = 0;
         flag = 0;
 
-        x_grid.data = randompath(x_grid.data, _sgsim->x_len, &rng_state);
+        if (_cov_model->use_cov_cache == 0 || count == 0) {
+            x_grid.data = randompath(x_grid.data, _sgsim->x_len, &rng_state);
+        } else if (_cov_model->use_cov_cache == 0 && count > 0) {
+            use_cov_cache = 1;
+        }
+
         for (int i = 0; i < _sgsim->x_len; i++) {
             sampling_state_update(&_sampling, x_grid.data[i], i);
-            simple_kriging(sgsim_array.data, &_sampling, &rng_state, _sgsim->kriging_method);
+            simple_kriging(
+                sgsim_array.data,
+                &_sampling, &rng_state,
+                _sgsim->kriging_method,
+                use_cov_cache);
             if ((sgsim_array.data[x_grid.data[i]] >= _sgsim->z_max)
                  || (sgsim_array.data[x_grid.data[i]] <= _sgsim->z_min)) {
                 flag++;

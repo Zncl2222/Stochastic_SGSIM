@@ -68,7 +68,8 @@ void simple_kriging(
     double* array,
     sampling_state* _sampling,
     mt19937_state* rng_state,
-    int kriging_method) {
+    int kriging_method,
+    int use_cov_cache) {
     int has_neighbor = find_neighbor(array, _sampling, rng_state);
 
     if (has_neighbor == 0) {
@@ -84,16 +85,17 @@ void simple_kriging(
     if (_sampling->neighbor >= 2) {
         quickselect2d(distance_mat.data, 0, _sampling->currlen - 1, _sampling->neighbor);
     }
-
-    for (int j = 0; j < _sampling->neighbor; j++) {
-        location.data[j] = distance_mat.data[j][0];
-        location_cov2d.data[j] = distance_mat.data[j][2];
+    // c_matrix_print(distance_mat, "%.3f");
+    if (use_cov_cache == 0) {
+        for (int j = 0; j < _sampling->neighbor; j++) {
+            location.data[j] = distance_mat.data[j][0];
+            location_cov2d.data[j] = distance_mat.data[j][2];
+        }
+        cov_model(location_cov2d.data, location_cov.data, _sampling->neighbor, model);
     }
-
     pdist(location.data, pdist_temp.data, _sampling->neighbor);
     cov_model2d(pdist_temp.data, flatten_temp.data, _sampling->neighbor, model);
     matrixform(flatten_temp.data, data_cov.data, _sampling->neighbor);
-    cov_model(location_cov2d.data, location_cov.data, _sampling->neighbor, model);
 
     if (kriging_method == 1) {
         matrix_agumented(data_cov.data, _sampling->neighbor);
