@@ -35,25 +35,25 @@ static c_matrix_double distance_mat;
 static c_matrix_double pdist_temp;
 static c_matrix_double data_cov;
 
-void sampling_state_init(sampling_state* _sampling, int x_grid_len) {
-    _sampling->neighbor = 0;
-    _sampling->currlen = 0;
-    _sampling->idx = 0;
-    _sampling->unsampled_point = 0;
+void sampling_state_init(sampling_state* sampling, int x_grid_len) {
+    sampling->neighbor = 0;
+    sampling->currlen = 0;
+    sampling->idx = 0;
+    sampling->unsampled_point = 0;
 
-    c_array_init(&_sampling->sampled, x_grid_len);
-    c_array_init(&_sampling->u_array, x_grid_len);
+    c_array_init(&sampling->sampled, x_grid_len);
+    c_array_init(&sampling->u_array, x_grid_len);
 }
 
-void sampling_state_update(sampling_state* _sampling, double unsampled_point, int idx) {
-    _sampling->unsampled_point = unsampled_point;
-    _sampling->idx = idx;
+void sampling_state_update(sampling_state* sampling, double unsampled_point, int idx) {
+    sampling->unsampled_point = unsampled_point;
+    sampling->idx = idx;
 }
 
-void kriging_param_setting(int x_len, const cov_model_t* _cov_model) {
-    model = _cov_model;
-    k_range = _cov_model->k_range;
-    int buffer = _cov_model->max_neighbor + 2;
+void kriging_param_setting(int x_len, const cov_model_t* cov_model) {
+    model = cov_model;
+    k_range = cov_model->k_range;
+    int buffer = cov_model->max_neighbor + 2;
     c_array_init(&location, buffer);
     c_array_init(&location_cov, buffer);
     c_array_init(&location_cov2d, buffer);
@@ -66,51 +66,51 @@ void kriging_param_setting(int x_len, const cov_model_t* _cov_model) {
 
 void simple_kriging(
     double* array,
-    sampling_state* _sampling,
+    sampling_state* sampling,
     mt19937_state* rng_state,
     int kriging_method,
     int use_cov_cache) {
-    int has_neighbor = find_neighbor(array, _sampling, rng_state);
+    int has_neighbor = find_neighbor(array, sampling, rng_state);
 
     if (has_neighbor == 0) {
         return;
     }
 
-    for (int j = 0; j < _sampling->currlen; j++) {
-        distance_mat.data[j][0] = _sampling->sampled.data[j];
-        distance_mat.data[j][1] = array[(int)_sampling->sampled.data[j]];
-        distance_mat.data[j][2] = _sampling->u_array.data[j];
+    for (int j = 0; j < sampling->currlen; j++) {
+        distance_mat.data[j][0] = sampling->sampled.data[j];
+        distance_mat.data[j][1] = array[(int)sampling->sampled.data[j]];
+        distance_mat.data[j][2] = sampling->u_array.data[j];
     }
 
-    if (_sampling->neighbor >= 2) {
-        quickselect2d(distance_mat.data, 0, _sampling->currlen - 1, _sampling->neighbor);
+    if (sampling->neighbor >= 2) {
+        quickselect2d(distance_mat.data, 0, sampling->currlen - 1, sampling->neighbor);
     }
-    // c_matrix_print(distance_mat, "%.3f");
+
     if (use_cov_cache == 0) {
-        for (int j = 0; j < _sampling->neighbor; j++) {
+        for (int j = 0; j < sampling->neighbor; j++) {
             location.data[j] = distance_mat.data[j][0];
             location_cov2d.data[j] = distance_mat.data[j][2];
         }
-        cov_model(location_cov2d.data, location_cov.data, _sampling->neighbor, model);
+        cov_compute(location_cov2d.data, location_cov.data, sampling->neighbor, model);
     }
-    pdist(location.data, pdist_temp.data, _sampling->neighbor);
-    cov_model2d(pdist_temp.data, flatten_temp.data, _sampling->neighbor, model);
-    matrixform(flatten_temp.data, data_cov.data, _sampling->neighbor);
+    pdist(location.data, pdist_temp.data, sampling->neighbor);
+    cov_compute2d(pdist_temp.data, flatten_temp.data, sampling->neighbor, model);
+    matrixform(flatten_temp.data, data_cov.data, sampling->neighbor);
 
     if (kriging_method == 1) {
-        matrix_agumented(data_cov.data, _sampling->neighbor);
-        location_cov.data[_sampling->neighbor] = 1.0;
+        matrix_augmented(data_cov.data, sampling->neighbor);
+        location_cov.data[sampling->neighbor] = 1.0;
     }
 
-    int neighbor = kriging_method == 1 ? _sampling->neighbor + 1 : _sampling->neighbor;
-    if (_sampling->neighbor >= 1)
+    int neighbor = kriging_method == 1 ? sampling->neighbor + 1 : sampling->neighbor;
+    if (sampling->neighbor >= 1)
         lu_inverse_solver(data_cov.data, location_cov.data, weights.data, neighbor);
 
     estimation = 0;
     kriging_var = 0;
     fix = 0;
 
-    for (int j = 0; j < _sampling->neighbor; j++) {
+    for (int j = 0; j < sampling->neighbor; j++) {
         estimation = estimation + distance_mat.data[j][1] * weights.data[j];
         kriging_var = kriging_var + location_cov.data[j] * weights.data[j];
     }
@@ -120,35 +120,35 @@ void simple_kriging(
         kriging_var = 0;
     fix = mt19937_random_normal(rng_state) * pow(kriging_var, 0.5);
 
-    array[(int)_sampling->unsampled_point] = estimation + fix;
+    array[(int)sampling->unsampled_point] = estimation + fix;
 }
 
-int find_neighbor(double* array, sampling_state* _sampling,
+int find_neighbor(double* array, sampling_state* sampling,
                   mt19937_state* rng_state) {
-    if (_sampling->neighbor == 0) {
-        array[(int)_sampling->unsampled_point] = mt19937_random_normal(rng_state) * model->sill;
-        _sampling->sampled.data[_sampling->idx] = _sampling->unsampled_point;
+    if (sampling->neighbor == 0) {
+        array[(int)sampling->unsampled_point] = mt19937_random_normal(rng_state) * model->sill;
+        sampling->sampled.data[sampling->idx] = sampling->unsampled_point;
         return 0;
     }
     int close = 0;
 
-    for (int j = 0; j < _sampling->currlen; j++) {
-        _sampling->u_array.data[j] = fabs(_sampling->sampled.data[j] - _sampling->unsampled_point);
-        if (_sampling->u_array.data[j] < k_range * 1.732) {
+    for (int j = 0; j < sampling->currlen; j++) {
+        sampling->u_array.data[j] = fabs(sampling->sampled.data[j] - sampling->unsampled_point);
+        if (sampling->u_array.data[j] < k_range * 1.732) {
             close++;
         }
     }
 
     if (close == 0) {
-        array[(int)_sampling->unsampled_point] = mt19937_random_normal(rng_state) * model->sill;
-        _sampling->sampled.data[_sampling->idx] = _sampling->unsampled_point;
+        array[(int)sampling->unsampled_point] = mt19937_random_normal(rng_state) * model->sill;
+        sampling->sampled.data[sampling->idx] = sampling->unsampled_point;
         return 0;
     }
 
     return 1;
 }
 
-void matrix_agumented(double** mat, int neighbor) {
+void matrix_augmented(double** mat, int neighbor) {
     for (int i = 0; i < neighbor; i++) {
         mat[i][neighbor] = 1;
     }

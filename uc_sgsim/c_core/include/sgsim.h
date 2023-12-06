@@ -36,10 +36,10 @@ typedef struct {
 /**
  * @brief Set default values for an sgsim_t structure.
  *
- * @param _sgsim Pointer to an sgsim_t structure to set defaults for.
+ * @param sgsim Pointer to an sgsim_t structure to set defaults for.
  * @param cov_model Pointer to the covariance model to be used.
  */
-void set_sgsim_defaults(sgsim_t* _sgsim, cov_model_t* cov_model);
+void set_sgsim_defaults(sgsim_t* sgsim, cov_model_t* cov_model);
 
 /**
  * @brief Run Sequential Gaussian Simulation (SGSIM).
@@ -47,20 +47,20 @@ void set_sgsim_defaults(sgsim_t* _sgsim, cov_model_t* cov_model);
  * This function performs Sequential Gaussian Simulation (SGSIM) based on the
  * provided sgsim_t parameters and covariance model.
  *
- * @param _sgsim Pointer to the sgsim_t structure containing simulation parameters.
+ * @param sgsim Pointer to the sgsim_t structure containing simulation parameters.
  * @param cov_model Pointer to the covariance model to be used.
  * @param vario_flag Flag indicating whether to calculate variogram or not.
  */
-void sgsim_run(sgsim_t* _sgsim, cov_model_t* cov_model, int vario_flag);
+void sgsim_run(sgsim_t* sgsim, cov_model_t* cov_model, int vario_flag);
 
 /**
  * @brief Free memory allocated for an sgsim_t structure.
  *
  * This function releases memory allocated for the sgsim_t structure.
  *
- * @param _sgsim Pointer to the sgsim_t structure to free.
+ * @param sgsim Pointer to the sgsim_t structure to free.
  */
-void sgsim_t_free(sgsim_t* _sgsim);
+void sgsim_t_free(sgsim_t* sgsim);
 
 /**
  * @brief Internal function to free memory used by the SGSIM library.

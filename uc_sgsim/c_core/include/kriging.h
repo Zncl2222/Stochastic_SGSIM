@@ -36,10 +36,10 @@ typedef struct {
  *
  * This function initializes a sampling_state structure with default values.
  *
- * @param _sampling Pointer to the sampling_state structure to initialize.
+ * @param sampling Pointer to the sampling_state structure to initialize.
  * @param x_grid_len Length of the grid used in sampling.
  */
-void sampling_state_init(sampling_state* _sampling, int x_grid_len);
+void sampling_state_init(sampling_state* sampling, int x_grid_len);
 
 /**
  * @brief Update the sampling state with a new unsampled point.
@@ -47,11 +47,11 @@ void sampling_state_init(sampling_state* _sampling, int x_grid_len);
  * This function updates the sampling state with a new unsampled point and
  * its index in the grid.
  *
- * @param _sampling Pointer to the sampling_state structure to update.
+ * @param sampling Pointer to the sampling_state structure to update.
  * @param unsampled_point The unsampled point to add.
  * @param idx Index of the unsampled point in the grid.
  */
-void sampling_state_update(sampling_state* _sampling, double unsampled_point, int idx);
+void sampling_state_update(sampling_state* sampling, double unsampled_point, int idx);
 
 /**
  * @brief Set Kriging parameters for the simulation.
@@ -60,9 +60,9 @@ void sampling_state_update(sampling_state* _sampling, double unsampled_point, in
  * and the covariance model to be used.
  *
  * @param x_len Length of the grid.
- * @param _cov_model Pointer to the covariance model.
+ * @param cov_model Pointer to the covariance model.
  */
-void kriging_param_setting(int x_len, const cov_model_t* _cov_model);
+void kriging_param_setting(int x_len, const cov_model_t* cov_model);
 
 /**
  * @brief Perform simple Kriging to estimate values at unsampled points.
@@ -71,11 +71,11 @@ void kriging_param_setting(int x_len, const cov_model_t* _cov_model);
  * based on the sampling state, random number generator state, and Kriging method.
  *
  * @param array Array to store estimated values.
- * @param _sampling Pointer to the sampling state.
+ * @param sampling Pointer to the sampling state.
  * @param rng_state Pointer to the random number generator state.
  * @param kriging_method Kriging method to use (e.g., ordinary kriging).
  */
-void simple_kriging(double* array, sampling_state* _sampling,
+void simple_kriging(double* array, sampling_state* sampling,
                     mt19937_state* rng_state, int kriging_method,
                     int use_cov_cache);
 
@@ -86,11 +86,11 @@ void simple_kriging(double* array, sampling_state* _sampling,
  * sampling state.
  *
  * @param array Array of values.
- * @param _sampling Pointer to the sampling state.
+ * @param sampling Pointer to the sampling state.
  * @param rng_state Pointer to the random number generator state.
  * @return true or false by 1 or 0 (true means there is a neighbor for kriging to interpolate)
  */
-int find_neighbor(double* array, sampling_state* _sampling, mt19937_state* rng_state);
+int find_neighbor(double* array, sampling_state* sampling, mt19937_state* rng_state);
 
 /**
  * @brief Augment a matrix for Ordinary Kriging.
@@ -101,7 +101,7 @@ int find_neighbor(double* array, sampling_state* _sampling, mt19937_state* rng_s
  * @param mat Matrix to be augmented.
  * @param neighbor Number of neighbor points.
  */
-void matrix_agumented(double** mat, int neighbor);
+void matrix_augmented(double** mat, int neighbor);
 
 /**
  * @brief Free memory used for Kriging.

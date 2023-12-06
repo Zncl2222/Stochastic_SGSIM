@@ -35,9 +35,9 @@ typedef struct {
  *
  * This function sets default values for a covariance model if they are not already specified.
  *
- * @param _cov_model A pointer to a cov_model_t structure to be initialized.
+ * @param cov_model A pointer to a cov_model_t structure to be initialized.
  */
-void set_cov_model_default(cov_model_t* _cov_model);
+void set_cov_model_default(cov_model_t* cov_model);
 
 /**
  * @brief Calculate covariance for a one-dimensional dataset.
@@ -49,9 +49,9 @@ void set_cov_model_default(cov_model_t* _cov_model);
  * @param cov An array to store the calculated covariance values.
  *            The size should be at least n_dim (Results will be save at here).
  * @param n_dim The number of dimensions (length of the x array).
- * @param _cov_model A pointer to a cov_model_t structure that defines the covariance model parameters.
+ * @param cov_model A pointer to a cov_model_t structure that defines the covariance model parameters.
  */
-void cov_model(const double* x, double* cov, int n_dim, cov_model_t* _cov_model);
+void cov_compute(const double* x, double* cov, int n_dim, cov_model_t* cov_model);
 
 /**
  * @brief Calculate covariance for a two-dimensional dataset.
@@ -64,8 +64,8 @@ void cov_model(const double* x, double* cov, int n_dim, cov_model_t* _cov_model)
  * @param cov An array to store the calculated covariance values.
  *            The size should be at least n_dim * n_dim (Results will be save at here).
  * @param n_dim The number of dimensions (length of each side of the 2D array).
- * @param _cov_model A pointer to a cov_model_t structure that defines the covariance model parameters.
+ * @param cov_model A pointer to a cov_model_t structure that defines the covariance model parameters.
  */
-void cov_model2d(const double** x, double* cov, int n_dim, cov_model_t* _cov_model);
+void cov_compute2d(const double** x, double* cov, int n_dim, cov_model_t* cov_model);
 
 #endif  // UC_SGSIM_C_CORE_INCLUDE_COV_MODEL_H_
