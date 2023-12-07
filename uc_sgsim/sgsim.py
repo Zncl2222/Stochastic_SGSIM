@@ -7,7 +7,6 @@ from ctypes import CDLL, POINTER, c_double, c_int
 from multiprocessing import Pool
 
 import numpy as np
-from uc_sgsim.kriging import Kriging
 from uc_sgsim.random_field import SgsimField
 from uc_sgsim.cov_model.base import CovModel
 from uc_sgsim.utils import CovModelStructure, SgsimStructure
@@ -48,27 +47,6 @@ class UCSgsim(SgsimField):
             Compute the variogram of the generated random field using parallel processing.
     """
 
-    def __init__(
-        self,
-        grid_size: int | list[int, int],
-        realization_number: int,
-        model: CovModel,
-        kriging: str | Kriging = 'SimpleKriging',
-        **kwargs,
-    ):
-        """
-        Initialize a UCSgsim object.
-
-        Args:
-            grid_size (int | list[int, int]): Size of the grid for the random field.
-            realization_number (int): Number of realizations to generate.
-            model (CovModel): The covariance model for simulation.
-            kriging (str | Kriging, optional):
-                The kriging method to use ('SimpleKriging' or 'OrdinaryKriging').
-            **kwargs: Additional keyword arguments for customization.
-        """
-        super().__init__(grid_size, realization_number, model, kriging, **kwargs)
-
     def _process(self, randomseed: int = 0, parallel: bool = False) -> np.array:
         """
         Perform the simulation process for a subset of realizations.
@@ -85,7 +63,8 @@ class UCSgsim(SgsimField):
         self.n_process = 1 if parallel is False else self.n_process
         counts = 0
         start_time = time.time()
-        # loop for randomfield generation
+
+        # Loop for randomfield generation
         while counts < (self.realization_number // self.n_process):
             # Grid and initial value preparing
             drop = False
@@ -97,7 +76,7 @@ class UCSgsim(SgsimField):
             neighbor = 0
             grid = np.hstack([x_grid, z_value])
 
-            # if simulate with constant_path then draw randompath only once
+            # If simulate with constant_path then draw randompath only once
             if not self.constant_path or counts == 0:
                 randompath = np.random.choice(
                     unsampled,
@@ -105,7 +84,7 @@ class UCSgsim(SgsimField):
                     replace=False,
                 )
 
-            # loop for kriging simulation
+            # Loop for kriging simulation
             for i in range(len(unsampled)):
                 sample = int(randompath[i])
                 z[sample] = self.kriging.simulation(
@@ -114,7 +93,7 @@ class UCSgsim(SgsimField):
                     neighbor=neighbor,
                 )
 
-                # if any simulated value over the limit than discard that realization
+                # If any simulated value over the limit than discard that realization
                 if z[sample] >= self.z_max or z[sample] <= self.z_min:
                     drop = True
                     break
@@ -124,11 +103,11 @@ class UCSgsim(SgsimField):
                 if neighbor < self.max_neighbor:
                     neighbor += 1
 
-            # set cov_cache flag to False to ensure cov_cache only compute once
+            # Set cov_cache flag to False to ensure cov_cache only compute once
             self.kriging._cov_cache_flag = False
             self.randomseed += 1
 
-            # is drop is False then proceed to next realization generation
+            # IF drop is False then proceed to next realization generation
             if drop is False:
                 self.random_field[counts, :] = z
                 counts = counts + 1
@@ -151,23 +130,23 @@ class UCSgsim(SgsimField):
         Returns:
             np.array: Array containing generated random field realizations.
         """
-        # create pool and distribute realizations to each process.
+        # Create pool and distribute realizations to each process.
         pool = Pool(processes=n_process)
         self.n_process = n_process
         self.realization_number = self.realization_number * n_process
         self.random_field = np.empty([self.realization_number, self.x_size])
 
-        # prepare the args for each processes
+        # Prepare the args for each processes
         rand_list = [randomseed + i for i in range(n_process)]
         parallel = [True] * n_process
 
-        # start parallel computing
+        # Start parallel computing
         z = pool.starmap(self._process, zip(rand_list, parallel))
         pool.close()
-        # use pool.join() to measure the coverage of sub process
+        # Use pool.join() to measure the coverage of sub process
         pool.join()
 
-        # gather the data from each process
+        # Collect data from each process
         for i in range(n_process):
             start = int(i * self.realization_number / n_process)
             end = int((i + 1) * self.realization_number / n_process)
@@ -182,7 +161,7 @@ class UCSgsim(SgsimField):
         Args:
             n_process (int, optional): Number of parallel processes to use (default is 1).
         """
-        # create pool and args than distribute realizations and args to each process.
+        # Create pool and args than distribute realizations and args to each process.
         pool = Pool(processes=n_process)
         model_len = self.x_size
         x = np.linspace(0, self.x_size - 1, model_len).reshape(model_len, 1)
@@ -191,10 +170,10 @@ class UCSgsim(SgsimField):
             for i in range(self.realization_number)
         ]
 
-        # start computing
+        # Start computing
         self.variogram = pool.starmap(self.model.variogram, zip(grid))
         pool.close()
-        # use pool.join() to measure the coverage of sub process
+        # Use pool.join() to measure the coverage of sub process
         pool.join()
         self.variogram = np.array(self.variogram)
 
@@ -264,14 +243,14 @@ class UCSgsimDLL(UCSgsim):
         Returns:
             np.array: Array containing generated random field realizations.
         """
-        # read dynamic link lib and prepare arguments
+        # Read dynamic link lib and prepare arguments
         lib = self._lib_read()
         mlen = int(self.x_size)
         realization_number = int(self.realization_number // self.n_process)
         random_field = np.empty([realization_number, self.x_size])
         kriging = 1 if self.kriging == 'OrdinaryKriging' else 0
 
-        # create sgsim and cov structure for dynamic link lib input
+        # Create sgsim and cov structure for dynamic link lib input
         sgsim_s = SgsimStructure(
             x_len=mlen,
             realization_numbers=realization_number,
@@ -293,12 +272,12 @@ class UCSgsimDLL(UCSgsim):
             nugget=self.model.nugget,
         )
 
-        # run simulation with dynamic link lib
+        # Run simulation with dynamic link lib
         sgsim = lib.sgsim_run
         sgsim.argtypes = (POINTER(SgsimStructure), POINTER(CovModelStructure), c_int)
         sgsim(sgsim_s, cov_s, 0)
 
-        # collect resutls into a Python-List (random_field)
+        # Collect results into a Python-List (random_field)
         for i in range(realization_number):
             random_field[i, :] = sgsim_s.array[i * mlen : (i + 1) * mlen]
         return random_field
@@ -314,7 +293,7 @@ class UCSgsimDLL(UCSgsim):
         Returns:
             np.array: Array containing generated random field realizations.
         """
-        # create a pool of processes and prepare the necessary arguments.
+        # Create a pool of processes and prepare the necessary arguments.
         # Then, distribute realizations and arguments to each process.
         pool = Pool(processes=n_process)
         self.n_process = n_process
@@ -323,13 +302,13 @@ class UCSgsimDLL(UCSgsim):
         self.random_field = np.empty([self.realization_number, self.x_size])
         rand_list = [randomseed + i for i in range(n_process)]
 
-        # run parallel computing with dynamic link lib
+        # Run parallel computing with dynamic link lib
         z = pool.starmap(self._cpdll, zip(rand_list))
         pool.close()
-        # use pool.join() to measure the coverage of sub process
+        # Use pool.join() to measure the coverage of sub process
         pool.join()
 
-        # collect resutls into a Python-List (random_field)
+        # Collect results into a Python-List (random_field)
         for i in range(n_process):
             start = int(i * self.realization_number / n_process)
             end = int((i + 1) * self.realization_number / n_process)
@@ -338,7 +317,7 @@ class UCSgsimDLL(UCSgsim):
         return self.random_field
 
     def _variogram_cpdll(self, n_process: int) -> np.array:
-        # read dynamic link lib and prepare arguments
+        # Read dynamic link lib and prepare arguments
         lib = self._lib_read()
         mlen = int(self.x_size)
         realization_number = int(self.realization_number // self.n_process)
@@ -347,7 +326,7 @@ class UCSgsimDLL(UCSgsim):
         random_field_array = (c_double * (mlen))()
         variogram = np.empty([realization_number, vario_size])
 
-        # set function arguments and return type for ctypes
+        # Set function arguments and return type for ctypes
         vario = lib.variogram
         vario.argtypes = (
             POINTER(c_double),
@@ -358,7 +337,7 @@ class UCSgsimDLL(UCSgsim):
         )
         vario.restype = None
 
-        # run variogram computation with dynamic link lib and save results as a Python-List.
+        # Run variogram computing with dynamic link lib and save results as a Python-List.
         for i in range(realization_number):
             random_field_array[:] = self.random_field[i + n_process * realization_number, :]
             vario(random_field_array, vario_array, mlen, vario_size, 1)
@@ -373,20 +352,20 @@ class UCSgsimDLL(UCSgsim):
         Args:
             n_process (int, optional): Number of parallel processes to use (default is 1).
         """
-        # create a pool of processes and prepare the necessary arguments.
+        # Create a pool of processes and prepare the necessary arguments.
         # Then, distribute realizations and arguments to each process.
         pool = Pool(processes=n_process)
         self.n_process = n_process
         self.variogram = np.empty([self.realization_number, len(self.bandwidth)])
         cpu_number = [i for i in range(self.n_process)]
 
-        # run parallel computing with dynamic link lib
+        # Run parallel computing with dynamic link lib
         z = pool.starmap(self._variogram_cpdll, zip(cpu_number))
         pool.close()
-        # use pool.join() to measure the coverage of sub process
+        # Use pool.join() to measure the coverage of sub process
         pool.join()
 
-        # collect resutls into a Python-List (random_field)
+        # Collect results into a Python-List (random_field)
         for i in range(n_process):
             for j in range(int(self.realization_number / n_process)):
                 self.variogram[(j + int(i * self.realization_number / n_process)), :] = z[i][j, :]

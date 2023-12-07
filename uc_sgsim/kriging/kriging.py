@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
-from uc_sgsim.cov_model.base import CovModel
 from uc_sgsim.kriging.base import Kriging
 
 
@@ -27,17 +26,6 @@ class SimpleKriging(Kriging):
         _find_neighbor(dist: list[float], neighbor: int) -> float:
             Find a nearby point for simulation based on a neighbor criterion.
     """
-
-    def __init__(self, model: CovModel, grid_size: int | list[int, int], cov_cache: bool):
-        """
-        Initialize a SimpleKriging object.
-
-        Args:
-            model (CovModel): The covariance model used for interpolation.
-            grid_size (int | list[int, int]): Size of the grid for interpolation.
-            cov_cache (bool): Flag indicating whether to use a covariance cache.
-        """
-        super().__init__(model, grid_size, cov_cache)
 
     def prediction(self, sample: np.array, unsampled: np.array) -> tuple[float, float]:
         """
@@ -150,7 +138,7 @@ class OrdinaryKriging(SimpleKriging):
     Methods:
         prediction(sample: np.array, unsampled: np.array) -> tuple[float, float]:
             Perform Ordinary Kriging prediction for an unsampled location.
-        matrix_agumented(mat: np.array) -> np.array:
+        matrix_augmented(mat: np.array) -> np.array:
             Augment the covariance matrix for Ordinary Kriging.
     """
 
@@ -186,7 +174,7 @@ class OrdinaryKriging(SimpleKriging):
         # Add a small value to the diagonal of the covariance matrix for numerical stability
         cov_data[np.diag_indices_from(cov_data)] += 1e-4
 
-        cov_data_augmented = self._matrix_agumented(cov_data)
+        cov_data_augmented = self._matrix_augmented(cov_data)
         cov_dist_augmented = np.vstack((cov_dist, [1.0]))
         weights = np.linalg.solve(cov_data_augmented, cov_dist_augmented)[:n_sampled]
 
@@ -198,7 +186,7 @@ class OrdinaryKriging(SimpleKriging):
 
         return estimation, kriging_std
 
-    def _matrix_agumented(self, mat: np.array):
+    def _matrix_augmented(self, mat: np.array):
         """
         Augment the covariance matrix to constrain summation of weights = 1 for Ordinary Kriging.
 
