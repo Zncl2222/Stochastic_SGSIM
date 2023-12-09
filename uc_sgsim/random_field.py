@@ -152,6 +152,9 @@ class RandomField:
         else:
             save_as_one_file(path, self.variogram)
 
+    def __repr__(self) -> str:
+        return f'SgsimField({self.grid_size}, {self.realization_number}, {self.model})'
+
 
 class SgsimField(RandomField, SgsimPlot):
     """
@@ -200,7 +203,7 @@ class SgsimField(RandomField, SgsimPlot):
         self.__set_kriging_method(kriging, **kwargs)
         self.__set_kwargs(**kwargs)
 
-    def __set_kriging_method(self, kriging, **kwargs) -> None:
+    def __set_kriging_method(self, kriging: str | Kriging, **kwargs) -> None:
         """
         Set the kriging method based on provided parameters.
 
@@ -218,15 +221,15 @@ class SgsimField(RandomField, SgsimPlot):
 
         """
         self.constant_path = kwargs.get('constant_path', False)
-        cov_cache = kwargs.get('cov_cache', False)
+        self.use_cov_cache = kwargs.get('cov_cache', False)
 
-        if self.constant_path is False and cov_cache is True:
+        if self.constant_path is False and self.use_cov_cache is True:
             raise ValueError('cov_cache should be False when constant_path is False')
 
         if kriging == 'SimpleKriging':
-            self.kriging = SimpleKriging(self.model, self.grid_size, cov_cache)
+            self.kriging = SimpleKriging(self.model, self.grid_size, self.use_cov_cache)
         elif kriging == 'OrdinaryKriging':
-            self.kriging = OrdinaryKriging(self.model, self.grid_size, cov_cache)
+            self.kriging = OrdinaryKriging(self.model, self.grid_size, self.use_cov_cache)
         else:
             if not isinstance(kriging, (SimpleKriging, OrdinaryKriging)):
                 raise TypeError('Kriging should be class SimpleKriging or OrdinaryKriging')
@@ -247,3 +250,27 @@ class SgsimField(RandomField, SgsimPlot):
     @property
     def bandwidth_step(self) -> int:
         return self.__bandwidth_step
+
+    def get_all_attributes(self) -> dict:
+        """
+        Get all attributes of the SgsimField object.
+
+        Returns:
+            dict: All attributes of the SgsimField object.
+        """
+        return {
+            'grid_size': self.grid_size,
+            'realization_number': self.realization_number,
+            'model': self.model,
+            'kriging': self.kriging,
+            'constant_path': self.constant_path,
+            'cov_cache': self.use_cov_cache,
+            'z_min': self.z_min,
+            'z_max': self.z_max,
+            'max_neighbor': self.max_neighbor,
+        }
+
+    def __repr__(self) -> str:
+        return (
+            f'SgsimField({self.grid_size}, {self.realization_number}, {self.kriging}, {self.model})'
+        )

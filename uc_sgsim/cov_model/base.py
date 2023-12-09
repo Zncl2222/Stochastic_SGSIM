@@ -75,6 +75,13 @@ class CovModel:
     def nugget(self) -> float:
         return self.__nugget
 
+    def __repr__(self) -> str:
+        return (
+            f'{self.model_name}Model(bandwidth_len={self.bandwidth_len}, '
+            + f'bandwidth_step={self.bandwidth_step}, '
+            + f'k_range={self.k_range}, sill={self.sill}, nugget={self.nugget})'
+        )
+
     def cov_compute(self, x: np.array) -> np.array:
         """
         Compute covariance values for a given dataset.
