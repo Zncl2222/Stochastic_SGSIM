@@ -58,3 +58,23 @@ class TestCovModel:
     def test_theory_variogram_plot(self):
         self.gaussian.variogram_plot()
         self.spherical.variogram_plot()
+
+    def test_cov_model_repr(self, capsys):
+        # Call repr() to get the string representation
+        repr_output = repr(self.gaussian)
+        # Print the repr output (optional)
+        print(repr_output)
+
+        # Capture the printed output
+        captured = capsys.readouterr()
+
+        # Assert the printed output
+        assert (
+            captured.out.strip()
+            == 'GaussianModel(bandwidth_len=35, bandwidth_step=1, k_range=17.32, sill=1, nugget=0)'
+        )
+        assert captured.err == ''
+        assert (
+            repr_output
+            == 'GaussianModel(bandwidth_len=35, bandwidth_step=1, k_range=17.32, sill=1, nugget=0)'
+        )
