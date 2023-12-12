@@ -27,6 +27,7 @@ int main() {
         .bw_l = 35,
         .bw_s = 1,
         .k_range = 17.32,
+        .use_cov_cache = 0,
         .sill = 1,
         .nugget = 0,
     };
