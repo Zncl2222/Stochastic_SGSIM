@@ -1,6 +1,7 @@
 import pytest
 
 import uc_sgsim as uc
+from uc_sgsim.kriging import SimpleKriging
 from uc_sgsim.cov_model import Gaussian, Spherical, Exponential
 from uc_sgsim.exception import VariogramDoesNotCompute
 import os
@@ -68,7 +69,7 @@ class TestUCSgsim:
             self.gaussian,
             z_max=3,
             z_min=-3,
-            max_neigh=12,
+            max_neighbor=12,
             constant_path=True,
             cov_cache=True,
         )
@@ -205,3 +206,48 @@ class TestUCSgsim:
         assert sgsim.vbandwidth_step == 1
         assert sgsim.vsill == 1
         assert sgsim.vk_range == 17.32
+
+    def test_get_all_attributes(self):
+        sgsim = uc.UCSgsim(
+            self.X,
+            self.nR,
+            self.gaussian,
+            z_max=3,
+            z_min=-3,
+            max_neighbor=12,
+            constant_path=True,
+            cov_cache=True,
+        )
+        attributes = sgsim.get_all_attributes()
+        assert attributes['grid_size'] == 151
+        assert attributes['realization_number'] == 10
+        assert attributes['z_max'] == 3
+        assert attributes['z_min'] == -3
+        assert attributes['max_neighbor'] == 12
+        assert attributes['constant_path'] is True
+        assert attributes['cov_cache'] is True
+        assert isinstance(attributes['kriging'], SimpleKriging)
+        assert attributes['model'] == self.gaussian
+
+    def test_sgsim_repr(self, capsys):
+        sgsim = uc.UCSgsimDLL(self.X, self.nR, self.gaussian)
+        # Call repr() to get the string representation
+        repr_output = repr(sgsim)
+        # Print the repr output (optional)
+        print(repr_output)
+
+        # Capture the printed output
+        captured = capsys.readouterr()
+
+        # Assert the printed output
+        assert (
+            captured.out.strip()
+            == 'SgsimField(151, 10, SimpleKriging, GaussianModel'
+            + '(bandwidth_len=35, bandwidth_step=1, k_range=17.32, sill=1, nugget=0))'
+        )
+        assert captured.err == ''
+        assert (
+            repr_output
+            == 'SgsimField(151, 10, SimpleKriging, GaussianModel'
+            + '(bandwidth_len=35, bandwidth_step=1, k_range=17.32, sill=1, nugget=0))'
+        )

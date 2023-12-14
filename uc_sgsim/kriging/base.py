@@ -72,3 +72,6 @@ class Kriging:
             self._cov_cache = [[0] * self.x_size for _ in range(self.y_size)]
         else:
             self._cov_cache = [0] * self.x_size
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}'
