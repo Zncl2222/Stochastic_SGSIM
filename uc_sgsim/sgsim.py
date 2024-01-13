@@ -264,6 +264,7 @@ class UCSgsimDLL(UCSgsim):
             randomseed=randomseed,
             kirging_method=kriging,
             if_alloc_memory=0,
+            max_iteration=self.iteration_limit,
             array=(c_double * (mlen * realization_number))(),
             z_min=self.z_min,
             z_max=self.z_max,
