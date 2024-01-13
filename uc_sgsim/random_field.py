@@ -21,12 +21,16 @@ class RandomField:
         __x_size (int): size of the x axis for the random field.
         __y_size (int): size of the y axis for the random field.
         __realization_number (int): number of realizations to generate.
+        iteration_limit (int): The maximum number for continuous iteration number of
+                               realization error.
 
     Methods:
         _create_grid: create the grid for the random field.
         save_random_field: save the random field data to files.
         save_variogram: save the variogram data to files.
     """
+
+    iteration_limit = 10
 
     def __init__(self, grid_size: int | list[int, int], realization_number: int):
         """

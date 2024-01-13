@@ -10,6 +10,7 @@ import numpy as np
 from uc_sgsim.random_field import SgsimField
 from uc_sgsim.cov_model.base import CovModel
 from uc_sgsim.utils import CovModelStructure, SgsimStructure
+from .exception import IterationError
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -62,6 +63,7 @@ class UCSgsim(SgsimField):
         np.random.seed(self.randomseed)
         self.n_process = 1 if parallel is False else self.n_process
         counts = 0
+        iteration_failed = 0
         start_time = time.time()
 
         # Loop for randomfield generation
@@ -96,7 +98,11 @@ class UCSgsim(SgsimField):
                 # If any simulated value over the limit than discard that realization
                 if z[sample] >= self.z_max or z[sample] <= self.z_min:
                     drop = True
+                    iteration_failed += 1
+                    if iteration_failed >= self.iteration_limit:
+                        raise IterationError()
                     break
+
                 temp = np.hstack([sample, z[sample]])
                 grid = np.vstack([grid, temp])
 
@@ -111,6 +117,7 @@ class UCSgsim(SgsimField):
             if drop is False:
                 self.random_field[counts, :] = z
                 counts = counts + 1
+                iteration_failed = 0
             print('Progress = %.2f' % (counts / self.realization_number * 100) + '%', end='\r')
 
         print('Progress = %.2f' % 100 + '%\n', end='\r')
