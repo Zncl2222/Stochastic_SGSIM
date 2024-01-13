@@ -7,9 +7,10 @@ name = "pypi"
 numpy = "*"
 scipy = "*"
 matplotlib = "*"
-cpplint = "*"
 
 [dev-packages]
+pre-commit = "*"
+cpplint = "*"
 pytest = "*"
 pytest-cov = "*"
 

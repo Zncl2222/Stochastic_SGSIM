@@ -3,7 +3,7 @@ import pytest
 import uc_sgsim as uc
 from uc_sgsim.kriging import SimpleKriging
 from uc_sgsim.cov_model import Gaussian, Spherical, Exponential
-from uc_sgsim.exception import VariogramDoesNotCompute
+from uc_sgsim.exception import VariogramDoesNotCompute, IterationError
 import os
 
 
@@ -251,3 +251,16 @@ class TestUCSgsim:
             == 'SgsimField(151, 10, SimpleKriging, GaussianModel'
             + '(bandwidth_len=35, bandwidth_step=1, k_range=17.32, sill=1, nugget=0))'
         )
+
+    def test_sgsim_reach_iteration_limit(self):
+        sgsim = uc.UCSgsim(
+            self.X,
+            100,
+            self.gaussian,
+            z_max=1,
+            z_min=-1,
+            iteration_limit=3,
+            max_neighbor=12,
+        )
+        with pytest.raises(IterationError):
+            sgsim.compute(n_process=1, randomseed=12312)

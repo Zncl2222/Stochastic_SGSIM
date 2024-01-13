@@ -10,6 +10,7 @@ import numpy as np
 from uc_sgsim.random_field import SgsimField
 from uc_sgsim.cov_model.base import CovModel
 from uc_sgsim.utils import CovModelStructure, SgsimStructure
+from .exception import IterationError
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -62,6 +63,7 @@ class UCSgsim(SgsimField):
         np.random.seed(self.randomseed)
         self.n_process = 1 if parallel is False else self.n_process
         counts = 0
+        iteration_failed = 0
         start_time = time.time()
 
         # Loop for randomfield generation
@@ -96,7 +98,11 @@ class UCSgsim(SgsimField):
                 # If any simulated value over the limit than discard that realization
                 if z[sample] >= self.z_max or z[sample] <= self.z_min:
                     drop = True
+                    iteration_failed += 1
+                    if iteration_failed >= self.iteration_limit:
+                        raise IterationError()
                     break
+
                 temp = np.hstack([sample, z[sample]])
                 grid = np.vstack([grid, temp])
 
@@ -111,6 +117,7 @@ class UCSgsim(SgsimField):
             if drop is False:
                 self.random_field[counts, :] = z
                 counts = counts + 1
+                iteration_failed = 0
             print('Progress = %.2f' % (counts / self.realization_number * 100) + '%', end='\r')
 
         print('Progress = %.2f' % 100 + '%\n', end='\r')
@@ -141,7 +148,14 @@ class UCSgsim(SgsimField):
         parallel = [True] * n_process
 
         # Start parallel computing
-        z = pool.starmap(self._process, zip(rand_list, parallel))
+        try:
+            z = pool.starmap(self._process, zip(rand_list, parallel))
+        except IterationError:
+            # We should handle the error like this to measure the coverage of sub process
+            pool.close()
+            pool.join()
+            raise IterationError()
+
         pool.close()
         # Use pool.join() to measure the coverage of sub process
         pool.join()
@@ -257,6 +271,7 @@ class UCSgsimDLL(UCSgsim):
             randomseed=randomseed,
             kirging_method=kriging,
             if_alloc_memory=0,
+            max_iteration=self.iteration_limit,
             array=(c_double * (mlen * realization_number))(),
             z_min=self.z_min,
             z_max=self.z_max,

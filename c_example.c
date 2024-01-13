@@ -20,6 +20,7 @@ int main() {
         .randomseed = 12345,
         .kriging_method = 1,
         .if_alloc_memory = 1,
+        .iteration_limit = 10,
     };
 
     // you can also set max_negibor at cov_model_t. Defualt value is 4.
