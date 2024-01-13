@@ -148,7 +148,14 @@ class UCSgsim(SgsimField):
         parallel = [True] * n_process
 
         # Start parallel computing
-        z = pool.starmap(self._process, zip(rand_list, parallel))
+        try:
+            z = pool.starmap(self._process, zip(rand_list, parallel))
+        except IterationError:
+            # We should handle the error like this to measure the coverage of sub process
+            pool.close()
+            pool.join()
+            raise IterationError()
+
         pool.close()
         # Use pool.join() to measure the coverage of sub process
         pool.join()
