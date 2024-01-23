@@ -108,9 +108,6 @@ class UCSgsim(SgsimField):
 
                 if neighbor < self.max_neighbor:
                     neighbor += 1
-
-            # Set cov_cache flag to False to ensure cov_cache only compute once
-            self.kriging._cov_cache_flag = False
             self.randomseed += 1
 
             # IF drop is False then proceed to next realization generation
@@ -118,6 +115,8 @@ class UCSgsim(SgsimField):
                 self.random_field[counts, :] = z
                 counts = counts + 1
                 iteration_failed = 0
+                # Set cov_cache flag to False to ensure cov_cache only compute once
+                self.kriging._cov_cache_flag = False
             print('Progress = %.2f' % (counts / self.realization_number * 100) + '%', end='\r')
 
         print('Progress = %.2f' % 100 + '%\n', end='\r')
