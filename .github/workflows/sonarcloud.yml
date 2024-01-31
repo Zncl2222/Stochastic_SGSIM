@@ -33,7 +33,7 @@ jobs:
           fi
       - name: Run tests to generate coverage statistics
         run: |
-          pytest --cov --cov-report xml:py_coverage.xml
+          pytest -n auto --cov --cov-report xml:py_coverage.xml
       - uses: actions/upload-artifact@v3
         with:
           name: python-coverage
@@ -64,7 +64,7 @@ jobs:
           }
       - name: Run tests to generate coverage statistics
         run: |
-          pytest --cov --cov-report xml:py_coverage.xml
+          pytest -n auto --cov --cov-report xml:py_coverage.xml
 
   c_test:
     name: c-unittest
