@@ -7,10 +7,33 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
+  build_shared_library:
+    strategy:
+      matrix:
+        runs-on: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build DLL & Set file name windows
+        if: matrix.runs-on == 'windows-latest'
+        shell: pwsh
+        run: |
+          .\cmake_build.bat -s
+          echo "filename=uc_sgsim.dll" >> $env:GITHUB_ENV
+      - name: Build Shared Library & Set file name ubuntu
+        if: matrix.runs-on == 'ubuntu-latest'
+        run: |
+          sh ./cmake_build.sh -s
+          echo "filename=uc_sgsim.so" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.runs-on }}-shared-library
+          path: ./uc_sgsim/c_core/${{ env.filename }}
+
   python_test:
     name: py-unittest
     runs-on: ubuntu-latest
-
+    needs: build_shared_library
     strategy:
       max-parallel: 5
       matrix:
@@ -31,10 +54,17 @@ jobs:
           if [ -f requirements.txt ];
           then pip install -r requirements.txt;
           fi
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - run: |
+          mv ./uc_sgsim.so ./uc_sgsim/c_core
       - name: Run tests to generate coverage statistics
         run: |
           pytest -n auto --cov --cov-report xml:py_coverage.xml
       - uses: actions/upload-artifact@v4
+        if: matrix.python-version  == '3.11'
         with:
           name: python-coverage
           path: ./py_coverage.xml
@@ -42,7 +72,7 @@ jobs:
   python_test_windows:
     name: py-unittest-windows
     runs-on: windows-latest
-
+    needs: build_shared_library
     strategy:
       max-parallel: 5
       matrix:
@@ -62,6 +92,12 @@ jobs:
             pip install --upgrade pip
             pip install -r requirements.txt
           }
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - run: |
+          mv ./uc_sgsim.dll ./uc_sgsim/c_core
       - name: Run tests to generate coverage statistics
         run: |
           pytest -n auto --cov --cov-report xml:py_coverage.xml
@@ -83,7 +119,7 @@ jobs:
         run: |
           pip install gcovr==5.0 # 5.1 is not supported
       - name: Install sonar-scanner and build-wrapper
-        uses: SonarSource/sonarcloud-github-c-cpp
+        uses: SonarSource/sonarcloud-github-c-cpp@v2
       - name: Run build-wrapper
         run: |
           mkdir build
@@ -145,7 +181,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
       - name: Run sonar-scanner
-        uses: SonarSource/sonarcloud-github-action
+        uses: SonarSource/sonarcloud-github-action@master
         with:
           args: >
             -Dsonar.projectKey=zncl2222_Stochastic_UC_SGSIM_py
@@ -175,7 +211,7 @@ jobs:
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - name: Install sonar-scanner and build-wrapper
-        uses: SonarSource/sonarcloud-github-c-cpp
+        uses: SonarSource/sonarcloud-github-c-cpp@v2
       - name: Download artifacts
         uses: actions/download-artifact@v4
       - name: Run build-wrapper
