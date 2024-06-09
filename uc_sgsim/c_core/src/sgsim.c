@@ -23,7 +23,7 @@
 # include "../include/matrix_tools.h"
 # include "../include/variogram.h"
 # include "../include/sort_tools.h"
-# include "../lib/c_array.h"
+# include "../c_array_tools/src/c_array.h"
 
 static c_array_int x_grid;
 static c_array_double u_array;

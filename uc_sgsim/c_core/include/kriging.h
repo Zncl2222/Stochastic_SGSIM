@@ -12,7 +12,7 @@
 #ifndef UC_SGSIM_C_CORE_INCLUDE_KRIGING_H_
 #define UC_SGSIM_C_CORE_INCLUDE_KRIGING_H_
 
-# include "../lib/c_array.h"
+# include "../c_array_tools/src/c_array.h"
 # include "../include/cov_model.h"
 
 /**
