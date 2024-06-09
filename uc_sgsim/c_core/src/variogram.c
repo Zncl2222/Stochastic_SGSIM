@@ -16,7 +16,7 @@
 
 # include "../include/variogram.h"
 # include "../include/matrix_tools.h"
-# include "../lib/c_array.h"
+# include "../c_array_tools/src/c_array.h"
 
 void variogram(const double* array, double* v, int mlen, int bw, int bw_s) {
     double z_temp;

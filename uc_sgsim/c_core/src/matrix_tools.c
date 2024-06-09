@@ -16,7 +16,7 @@
 # include <string.h>
 # include <errno.h>
 # include "../include/matrix_tools.h"
-# include "../lib/c_array.h"
+# include "../c_array_tools/src/c_array.h"
 # ifdef __WIN32__
 # include <io.h>
 # elif defined(__linux__) || defined(__unix__)
