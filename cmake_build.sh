@@ -20,11 +20,11 @@ cd cmake_build
 if [ "$is_execute" = true ]; then
     echo "Compile the code into an executable file !"
     cmake -DIS_EXECUTE=ON ..
+    make
+    make test
+    make memcheck
 else
     echo "Compile the code into a shared library (dynamic library) !"
     cmake -DIS_EXECUTE=OFF ..
+    make
 fi
-
-make
-make test
-make memcheck

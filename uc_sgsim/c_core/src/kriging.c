@@ -18,7 +18,7 @@
 # include "../include/cov_model.h"
 # include "../include/matrix_tools.h"
 # include "../include/sort_tools.h"
-# include "../lib/c_array.h"
+# include "../c_array_tools/src/c_array.h"
 
 static cov_model_t* model;
 static double k_range;
@@ -118,7 +118,7 @@ void simple_kriging(
     kriging_var = model->sill - kriging_var;
     if (kriging_var < 0)
         kriging_var = 0;
-    fix = mt19937_random_normal(rng_state) * pow(kriging_var, 0.5);
+    fix = random_normal(rng_state) * pow(kriging_var, 0.5);
 
     array[(int)sampling->unsampled_point] = estimation + fix;
 }
@@ -126,7 +126,7 @@ void simple_kriging(
 int find_neighbor(double* array, sampling_state* sampling,
                   mt19937_state* rng_state) {
     if (sampling->neighbor == 0) {
-        array[(int)sampling->unsampled_point] = mt19937_random_normal(rng_state) * model->sill;
+        array[(int)sampling->unsampled_point] = random_normal(rng_state) * model->sill;
         sampling->sampled.data[sampling->idx] = sampling->unsampled_point;
         return 0;
     }
@@ -140,7 +140,7 @@ int find_neighbor(double* array, sampling_state* sampling,
     }
 
     if (close == 0) {
-        array[(int)sampling->unsampled_point] = mt19937_random_normal(rng_state) * model->sill;
+        array[(int)sampling->unsampled_point] = random_normal(rng_state) * model->sill;
         sampling->sampled.data[sampling->idx] = sampling->unsampled_point;
         return 0;
     }

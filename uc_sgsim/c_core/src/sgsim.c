@@ -23,7 +23,7 @@
 # include "../include/matrix_tools.h"
 # include "../include/variogram.h"
 # include "../include/sort_tools.h"
-# include "../lib/c_array.h"
+# include "../c_array_tools/src/c_array.h"
 
 static c_array_int x_grid;
 static c_array_double u_array;
@@ -39,8 +39,11 @@ static double epsilon = 1e-6;
 void set_sgsim_default(sgsim_t* sgsim, cov_model_t* cov_model) {
     set_cov_model_default(cov_model);
     double boundary_val = pow(cov_model->sill, 0.5) * 4;
-    sgsim->z_min = sgsim->z_min < epsilon ? -(boundary_val) : sgsim->z_min;
-    sgsim->z_max = sgsim->z_max < epsilon ? boundary_val : sgsim->z_max;
+
+    sgsim->z_min = fabs(sgsim->z_min) < epsilon ? -(boundary_val) : sgsim->z_min;
+    sgsim->z_max = fabs(sgsim->z_max) < epsilon ? boundary_val : sgsim->z_max;
+    sgsim->iteration_limit = sgsim->iteration_limit == 0 ? 10 : sgsim->iteration_limit;
+
     if (sgsim->if_alloc_memory == 1) {
         unsigned long size = (long)sgsim->x_len * (long)sgsim->realization_numbers;
         sgsim->array = calloc(size, sizeof(double));
@@ -63,6 +66,7 @@ void sgsim_run(sgsim_t* sgsim, cov_model_t* cov_model, int vario_flag) {
     x_grid.data = arange(sgsim->x_len);
     count = 0;
     int use_cov_cache = 0;
+    int error_times = 0;  // The counts of continuosly error
     while (count < sgsim->realization_numbers) {
         printf("Number = %d\n", count);
         _sampling.currlen = 0;
@@ -113,6 +117,13 @@ void sgsim_run(sgsim_t* sgsim, cov_model_t* cov_model, int vario_flag) {
                             sgsim->realization_numbers, count);
             }
             count++;
+            error_times = 0;
+        } else {
+            error_times++;
+            if (error_times == sgsim->iteration_limit) {
+                fprintf(stderr, "Maximum error occurred. Exiting the program...\n");
+                return;
+            }
         }
     }
     kriging_memory_free();

@@ -7,11 +7,13 @@ name = "pypi"
 numpy = "*"
 scipy = "*"
 matplotlib = "*"
-cpplint = "*"
 
 [dev-packages]
+pre-commit = "*"
+cpplint = "*"
 pytest = "*"
 pytest-cov = "*"
+pytest-xdist = "*"
 
 [requires]
 python_version = "3.11"

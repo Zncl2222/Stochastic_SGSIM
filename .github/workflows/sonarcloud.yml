@@ -7,21 +7,46 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
+  build_shared_library:
+    strategy:
+      matrix:
+        runs-on: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pull Submodule
+        run: git submodule update --init --recursive
+      - name: Build DLL & Set file name windows
+        if: matrix.runs-on == 'windows-latest'
+        shell: pwsh
+        run: |
+          .\cmake_build.bat -s
+          echo "filename=uc_sgsim.dll" >> $env:GITHUB_ENV
+      - name: Build Shared Library & Set file name ubuntu
+        if: matrix.runs-on == 'ubuntu-latest'
+        run: |
+          sh ./cmake_build.sh -s
+          echo "filename=uc_sgsim.so" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.runs-on }}-shared-library
+          path: ./uc_sgsim/c_core/${{ env.filename }}
+
   python_test:
     name: py-unittest
     runs-on: ubuntu-latest
-
+    needs: build_shared_library
     strategy:
       max-parallel: 5
       matrix:
         python-version: ["3.9", "3.10", "3.11"]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
@@ -31,10 +56,17 @@ jobs:
           if [ -f requirements.txt ];
           then pip install -r requirements.txt;
           fi
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - run: |
+          mv ./uc_sgsim.so ./uc_sgsim/c_core
       - name: Run tests to generate coverage statistics
         run: |
-          pytest --cov --cov-report xml:py_coverage.xml
-      - uses: actions/upload-artifact@v3
+          pytest -n auto --cov --cov-report xml:py_coverage.xml
+      - uses: actions/upload-artifact@v4
+        if: matrix.python-version  == '3.11'
         with:
           name: python-coverage
           path: ./py_coverage.xml
@@ -42,18 +74,18 @@ jobs:
   python_test_windows:
     name: py-unittest-windows
     runs-on: windows-latest
-
+    needs: build_shared_library
     strategy:
       max-parallel: 5
       matrix:
         python-version: ["3.9", "3.10", "3.11"]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
@@ -62,9 +94,15 @@ jobs:
             pip install --upgrade pip
             pip install -r requirements.txt
           }
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - run: |
+          mv ./uc_sgsim.dll ./uc_sgsim/c_core
       - name: Run tests to generate coverage statistics
         run: |
-          pytest --cov --cov-report xml:py_coverage.xml
+          pytest -n auto --cov --cov-report xml:py_coverage.xml
 
   c_test:
     name: c-unittest
@@ -72,18 +110,20 @@ jobs:
     env:
       BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Pull Submodule
+        run: git submodule update --init --recursive
       - name: Set up Python 3.8 for gcovr
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: 3.8
       - name: install gcovr 5.0
         run: |
           pip install gcovr==5.0 # 5.1 is not supported
       - name: Install sonar-scanner and build-wrapper
-        uses: SonarSource/sonarcloud-github-c-cpp@v1
+        uses: SonarSource/sonarcloud-github-c-cpp@v2
       - name: Run build-wrapper
         run: |
           mkdir build
@@ -109,12 +149,12 @@ jobs:
         run: |
           gcovr --sonarqube > c_coverage.xml
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: c-coverage
           path: |
             ./c_coverage.xml
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: c-coverage2
           path: |
@@ -126,9 +166,11 @@ jobs:
     env:
       BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Pull Submodule
+        run: git submodule update --init --recursive
       - name: build and test
         run: |
           .\cmake_build.bat
@@ -139,11 +181,11 @@ jobs:
     needs: [python_test]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - name: Download artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
       - name: Run sonar-scanner
         uses: SonarSource/sonarcloud-github-action@master
         with:
@@ -159,7 +201,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_PY }} # Put the name of your token here
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4.0.1
         with:
           token: ${{secrets.CODECOV_TOKEN}}
           file: py_coverage.xml
@@ -171,13 +213,15 @@ jobs:
     env:
       BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - name: Install sonar-scanner and build-wrapper
         uses: SonarSource/sonarcloud-github-c-cpp@v2
+      - name: Pull Submodule
+        run: git submodule update --init --recursive
       - name: Download artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
       - name: Run build-wrapper
         run: |
           mkdir build
@@ -196,7 +240,7 @@ jobs:
                         --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}" \
                         --define sonar.coverageReportPaths=c-coverage/c_coverage.xml \
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4.0.1
         with:
           token: ${{secrets.CODECOV_TOKEN}}
           file: c-coverage2/cover.info

@@ -19,8 +19,8 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
 # Link each file
 add_library(
     uc_sgsim ${LIB_TYPE}
-    lib/c_array.c
-    lib/c_array_mt.c
+    c_array_tools/src/c_array.c
+    c_array_tools/src/c_array_mt.c
     src/cov_model.c
     src/kriging.c
     src/matrix_tools.c

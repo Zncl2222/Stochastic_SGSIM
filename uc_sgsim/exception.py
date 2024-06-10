@@ -8,3 +8,19 @@ class VariogramDoesNotCompute(Exception):
     def __init__(self, message: str = default_message):
         self.message = message
         super().__init__(self.message)
+
+
+class IterationError(Exception):
+    """
+    Raises when the continous failed reach the limit.
+    """
+
+    default_message = (
+        'Maximum continuous failed iterations reached. '
+        + 'Please change the combination of parameters. Or set '
+        + 'higher iteration_limit in sgsim instance.'
+    )
+
+    def __init__(self, message: str = default_message):
+        self.message = message
+        super().__init__(self.message)

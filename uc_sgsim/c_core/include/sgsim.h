@@ -13,7 +13,7 @@
 #define UC_SGSIM_C_CORE_INCLUDE_SGSIM_H_
 
 # include "cov_model.h"
-# include "../lib/c_array.h"
+# include "../c_array_tools/src/c_array.h"
 
 /**
  * @struct sgsim_t
@@ -28,6 +28,7 @@ typedef struct {
     int randomseed;
     int kriging_method;
     int if_alloc_memory;  // Flag to indicate memory allocation status
+    int iteration_limit;  // The tolerance of maximum times of iteration error
     double* array;  // Array to store the simulated values.
     double z_min;  // Minimum simulated value.
     double z_max;  // Maximum simulated value.

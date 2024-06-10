@@ -69,6 +69,7 @@ class SgsimStructure(Structure):
         ('randomseed', c_int),
         ('kriging_method', c_int),
         ('if_alloc_memory', c_int),
+        ('max_iteration', c_int),
         ('array', POINTER(c_double)),
         ('z_min', c_double),
         ('z_max', c_double),

@@ -13,7 +13,7 @@
 #ifndef UC_SGSIM_C_CORE_INCLUDE_RANDOM_TOOLS_H_
 #define UC_SGSIM_C_CORE_INCLUDE_RANDOM_TOOLS_H_
 
-# include "../lib/c_array.h"
+# include "../c_array_tools/src/c_array.h"
 
 /**
  * @brief Generate a random path of integers.
