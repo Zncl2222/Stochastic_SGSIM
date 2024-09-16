@@ -44,36 +44,36 @@ class CovModel:
             nugget (float, optional): The nugget effect parameter for the covariance model
                                       (default is 0).
         """
-        self.__bandwidth_len = bandwidth_len
-        self.__bandwidth_step = bandwidth_step
-        self.__bandwidth = np.arange(0, bandwidth_len, bandwidth_step)
-        self.__k_range = k_range
-        self.__sill = sill
-        self.__nugget = nugget
+        self._bandwidth_len = bandwidth_len
+        self._bandwidth_step = bandwidth_step
+        self._bandwidth = np.arange(0, bandwidth_len, bandwidth_step)
+        self._k_range = k_range
+        self._sill = sill
+        self._nugget = nugget
 
     @property
     def bandwidth_len(self) -> float:
-        return self.__bandwidth_len
+        return self._bandwidth_len
 
     @property
     def bandwidth_step(self) -> float:
-        return self.__bandwidth_step
+        return self._bandwidth_step
 
     @property
     def bandwidth(self) -> np.array:
-        return self.__bandwidth
+        return self._bandwidth
 
     @property
     def k_range(self) -> float:
-        return self.__k_range
+        return self._k_range
 
     @property
     def sill(self) -> float:
-        return self.__sill
+        return self._sill
 
     @property
     def nugget(self) -> float:
-        return self.__nugget
+        return self._nugget
 
     def __repr__(self) -> str:
         return (
@@ -94,7 +94,7 @@ class CovModel:
         """
         cov = np.empty(len(x))
         for i in range(len(x)):
-            cov[i] = self.__sill - self.model(x[i])
+            cov[i] = self._sill - self.model(x[i])
 
         return cov
 
@@ -127,9 +127,9 @@ class CovModel:
         dist = cdist(x[:, :1], x[:, :1])
         variogram = []
 
-        for h in self.__bandwidth:
+        for h in self._bandwidth:
             indices = np.where(
-                (dist >= h - self.__bandwidth_step) & (dist <= h + self.__bandwidth_step),
+                (dist >= h - self._bandwidth_step) & (dist <= h + self._bandwidth_step),
             )
             z = np.power(x[indices[0], 1] - x[indices[1], 1], 2)
             z_sum = np.sum(z)
