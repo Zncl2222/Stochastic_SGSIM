@@ -59,36 +59,36 @@ class SgsimPlot(PlotBase):
             figsize (tuple, optional): Figure size in inches (width, height) (default is (10, 8)).
         """
         super().__init__(figsize)
-        self.__vmodel = model
-        self.__vmodel_name = model.model_name
-        self.__vbandwidth_step = model.bandwidth_step
-        self.__vbandwidth = model.bandwidth
-        self.__vk_range = model.k_range
-        self.__vsill = model.sill
+        self._vmodel = model
+        self._vmodel_name = model.model_name
+        self._vbandwidth_step = model.bandwidth_step
+        self._vbandwidth = model.bandwidth
+        self._vk_range = model.k_range
+        self._vsill = model.sill
 
     @property
     def vmodel(self) -> CovModel:
-        return self.__vmodel
+        return self._vmodel
 
     @property
     def vmodel_name(self) -> str:
-        return self.__vmodel_name
+        return self._vmodel_name
 
     @property
     def vbandwidth_step(self) -> int:
-        return self.__vbandwidth_step
+        return self._vbandwidth_step
 
     @property
     def vbandwidth(self) -> np.array:
-        return self.__vbandwidth
+        return self._vbandwidth
 
     @property
     def vk_range(self) -> float:
-        return self.__vk_range
+        return self._vk_range
 
     @property
     def vsill(self) -> float:
-        return self.__vsill
+        return self._vsill
 
     def plot(
         self,
@@ -340,7 +340,7 @@ class SgsimPlot(PlotBase):
             mean_color (str, optional): Color for the mean line (default is 'blue').
             mean_linestyle (str, optional): Linestyle for the mean line (default is '--').
         """
-        self.__variogram_validate()
+        self._variogram_validate()
         for i in range(self.realization_number):
             plt.figure(self.curr_fig_num, figsize=(10, 6))
             plt.plot(self.variogram[i, :], alpha=alpha)
@@ -391,6 +391,6 @@ class SgsimPlot(PlotBase):
         plt.xlabel('Lag(m)', fontsize=fontsize)
         plt.ylabel('Variogram', fontsize=fontsize)
 
-    def __variogram_validate(self) -> None:
+    def _variogram_validate(self) -> None:
         if isinstance(self.variogram, int):
             raise VariogramDoesNotCompute()
