@@ -14,7 +14,7 @@ if __name__ == '__main__':
     k_range = 17.32  # effective range of covariance model
     sill = 1  # sill of covariance model
 
-    nR = 10  # numbers of realizations in each CPU cores,
+    nR = 2  # numbers of realizations in each CPU cores,
     # if nR = 1 n_process = 8
     # than you will compute total 8 realizations
 
@@ -31,10 +31,10 @@ if __name__ == '__main__':
 
     # Create simulation with default z_min, z_max and max_neigh params
     # sgsim = uc.UCSgsim(x, nR, cov_model)
-    sgsim_c = uc.UCSgsimDLL(x, nR, cov_model)
+    sgsim_c = uc.UCSgsim(x, nR, cov_model, engine='python')
 
     # Start compute with n CPUs
-    sgsim_c.compute(n_process=2, randomseed=randomseed)
+    sgsim_c.run(n_processes=2)
 
     mid = time.time()
 
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     sgsim_c.variance_plot()  # Plot variance
     sgsim_c.cdf_plot(x_location=10)  # CDF
     sgsim_c.hist_plot(x_location=10)  # Hist
-    sgsim_c.variogram_compute(n_process=2)  # Compute variogram before plotting
+    sgsim_c.get_variogram(n_processes=2)  # Compute variogram before plotting
     # Plot variogram and mean variogram for validation
     sgsim_c.variogram_plot()
     # Save random_field and variogram
