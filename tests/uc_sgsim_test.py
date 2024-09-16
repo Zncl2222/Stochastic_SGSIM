@@ -28,7 +28,7 @@ class TestUCSgsim:
         assert os.path.isfile('test.jpg') is True
         sgsim.cdf_plot(x_location=10)
         sgsim.hist_plot(x_location=10)
-        sgsim.variogram_compute(n_process=1)
+        sgsim.get_variogram(n_processes=1)
         sgsim.variogram_plot()
         sgsim.mean_plot()
         sgsim.variance_plot()
@@ -214,8 +214,8 @@ class TestUCSgsim:
     )
     def test_uc_sgsim_gaussian_py(self, kriging, cov_model, n_process, kwargs):
         sgsim = uc.UCSgsim(X, nR, cov_model, kriging=kriging, **kwargs)
-        sgsim.compute(n_process=n_process, randomseed=454)
-        sgsim.variogram_compute(n_process=n_process)
+        sgsim.run(n_processes=n_process, randomseed=454)
+        sgsim.get_variogram(n_processes=n_process)
         self.sgsim_plot(sgsim)
         self.sgsim_save(sgsim)
 
@@ -393,15 +393,15 @@ class TestUCSgsim:
         ],
     )
     def test_uc_sgsim_gaussian_c(self, kriging, cov_model, n_process, kwargs):
-        sgsim = uc.UCSgsimDLL(X, nR, gaussian, kriging=kriging, **kwargs)
-        sgsim.compute(n_process=n_process, randomseed=454)
-        sgsim.variogram_compute(n_process=n_process)
+        sgsim = uc.UCSgsim(X, nR, gaussian, kriging=kriging, engine='c', **kwargs)
+        sgsim.run(n_processes=n_process, randomseed=454)
+        sgsim.get_variogram(n_processes=n_process)
         self.sgsim_plot(sgsim)
         self.sgsim_save(sgsim)
 
     def test_uc_wrong_kriging_method(self):
         with pytest.raises(TypeError):
-            sgsim = uc.UCSgsim(  # noqa
+            uc.UCSgsim(  # noqa
                 X,
                 nR,
                 gaussian,
@@ -409,13 +409,13 @@ class TestUCSgsim:
             )
 
     def test_uc_sgsim_variogram_exception(self):
-        sgsim = uc.UCSgsimDLL(X, nR, gaussian)
-        sgsim.compute(n_process=1, randomseed=454)
+        sgsim = uc.UCSgsim(X, nR, gaussian, engine='c')
+        sgsim.run(n_processes=1, randomseed=454)
         with pytest.raises(VariogramDoesNotCompute):
             sgsim.variogram_plot()
 
         sgsim = uc.UCSgsim(X, nR, gaussian)
-        sgsim.compute(n_process=1, randomseed=454)
+        sgsim.run(n_processes=1, randomseed=454)
         with pytest.raises(VariogramDoesNotCompute):
             sgsim.variogram_plot()
         with pytest.raises(VariogramDoesNotCompute):
@@ -456,7 +456,7 @@ class TestUCSgsim:
         assert attributes['model'] == gaussian
 
     def test_sgsim_repr(self, capsys):
-        sgsim = uc.UCSgsimDLL(X, nR, gaussian)
+        sgsim = uc.UCSgsim(X, nR, gaussian, engine='c')
         # Call repr() to get the string representation
         repr_output = repr(sgsim)
         # Print the repr output (optional)
@@ -489,4 +489,4 @@ class TestUCSgsim:
             max_neighbor=12,
         )
         with pytest.raises(IterationError):
-            sgsim.compute(n_process=1, randomseed=12312)
+            sgsim.run(n_processes=1, randomseed=12312)
