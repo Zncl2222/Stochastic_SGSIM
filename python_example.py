@@ -22,14 +22,14 @@ if __name__ == '__main__':
     cov_model = Gaussian(bw_l, bw_s, k_range, sill)
 
     # Create simulation and input the Cov model
-    # You could also set z_min, z_max and max_neighbor for sgsim by key words
-    # sgsim = uc.UCSgsimDLL(x, nR, cov_model, z_min=-6, z_max=6, max_neigh=10)
-    # set z_min, z_max and max_neighbor by directly assign
-    # sgsim.z_min = -6
-    # sgsim.z_max = 6
+    # You could also set min_value, max_value and max_neighbor for sgsim by key words
+    # sgsim = uc.UCSgsimDLL(x, nR, cov_model, min_value=-6, max_value=6, max_neigh=10)
+    # set min_value, max_value and max_neighbor by directly assign
+    # sgsim.min_value = -6
+    # sgsim.max_value = 6
     # sgsim.max_neigh = 10
 
-    # Create simulation with default z_min, z_max and max_neigh params
+    # Create simulation with default min_value, max_value and max_neigh params
     # sgsim = uc.UCSgsim(x, nR, cov_model)
     sgsim_c = uc.UCSgsim(x, nR, cov_model, engine='python')
 

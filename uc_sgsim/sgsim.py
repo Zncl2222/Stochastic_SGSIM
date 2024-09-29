@@ -85,9 +85,25 @@ class UCSgsim(SgsimField):
         model: CovModel,
         kriging: str | Kriging = 'SimpleKriging',
         engine: Literal['python', 'c'] = 'python',
-        **kwargs,
+        constant_path: bool = False,
+        cov_cache: bool = False,
+        max_neighbor: float = 8,
+        iteration_limit: int = 10,
+        max_value: Optional[float] = None,
+        min_value: Optional[float] = None,
     ):
-        super().__init__(grid_size, realization_number, model, kriging, **kwargs)
+        super().__init__(
+            grid_size=grid_size,
+            n_realizations=realization_number,
+            model=model,
+            kriging=kriging,
+            constant_path=constant_path,
+            cov_cache=cov_cache,
+            max_neighbor=max_neighbor,
+            iteration_limit=iteration_limit,
+            max_value=max_value,
+            min_value=min_value,
+        )
         self.engine = engine
 
     def run(self, n_processes: int = 1, randomseed: Optional[int] = None):
@@ -327,8 +343,8 @@ class UCSgsim(SgsimField):
             if_alloc_memory=0,
             max_iteration=self.iteration_limit,
             array=(c_double * (mlen * realization_number))(),
-            z_min=self.z_min,
-            z_max=self.z_max,
+            z_min=self._min_value,
+            z_max=self._max_value,
         )
         cov_s = CovModelStructure(
             bw_l=self.model.bandwidth_len,

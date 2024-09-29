@@ -23,16 +23,12 @@ class RandomField:
         _x_size (int): size of the x axis for the random field.
         _y_size (int): size of the y axis for the random field.
         _realization_number (int): number of realizations to generate.
-        iteration_limit (int): The maximum number for continuous iteration number of
-                               realization error.
 
     Methods:
         _create_grid: create the grid for the random field.
         save_random_field: save the random field data to files.
         save_variogram: save the variogram data to files.
     """
-
-    iteration_limit = 10
 
     def __init__(self, grid_size: int | list[int, int], n_realizations: int):
         """
@@ -158,9 +154,6 @@ class RandomField:
         else:
             save_as_one_file(path, self.variogram)
 
-    def __repr__(self) -> str:
-        return f'SgsimField({self.grid_size}, {self.realization_number}, {self.model})'
-
 
 class SgsimField(RandomField, SgsimPlot):
     """
@@ -173,8 +166,8 @@ class SgsimField(RandomField, SgsimPlot):
         model (CovModel): The covariance model used for simulation.
         bandwidth (np.array): The bandwidth values used in the simulation.
         bandwidth_step (int): The bandwidth step used in the simulation.
-        z_min (float): The minimum value for simulation.
-        z_max (float): The maximum value for simulation.
+        min_value (float): The minimum value for simulation.
+        max_value (float): The maximum value for simulation.
         max_neighbor (int): The maximum number of neighbors considered in kriging.
 
     Methods:
@@ -191,6 +184,7 @@ class SgsimField(RandomField, SgsimPlot):
         constant_path: bool = False,
         cov_cache: bool = False,
         max_neighbor: float = 8,
+        iteration_limit: int = 10,
         max_value: Optional[float] = None,
         min_value: Optional[float] = None,
     ):
@@ -216,6 +210,7 @@ class SgsimField(RandomField, SgsimPlot):
         self._max_neighbor = max_neighbor
         self._max_value = max_value
         self._min_value = min_value
+        self.iteration_limit = iteration_limit
         self._set_kriging_method()
         self._set_default_value()
 
@@ -242,6 +237,14 @@ class SgsimField(RandomField, SgsimPlot):
     @property
     def max_neighbor(self) -> int:
         return self._max_neighbor
+
+    @property
+    def constant_path(self) -> bool:
+        return self._constant_path
+
+    @property
+    def cov_cache(self) -> bool:
+        return self._use_cov_cache
 
     @property
     def kriging(self) -> Kriging:
@@ -293,7 +296,7 @@ class SgsimField(RandomField, SgsimPlot):
             'model': self.model,
             'kriging': self._kriging,
             'constant_path': self._constant_path,
-            'use_cov_cache': self._use_cov_cache,
+            'cov_cache': self._use_cov_cache,
             'min_value': self._min_value,
             'max_value': self._max_value,
             'max_neighbor': self._max_neighbor,
@@ -301,6 +304,6 @@ class SgsimField(RandomField, SgsimPlot):
 
     def __repr__(self) -> str:
         return (
-            f'SgsimField({self.grid_size}, {self.realization_number},'
+            f'SgsimField({self.grid_size}, {self.realization_number}, '
             f'{self._kriging}, {self.model})'
         )
