@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 import numpy as np
 from uc_sgsim.plotting import SgsimPlot
 from uc_sgsim.exception import VariogramDoesNotCompute
@@ -186,7 +188,11 @@ class SgsimField(RandomField, SgsimPlot):
         n_realizations: int,
         model: CovModel,
         kriging: str | Kriging = 'SimpleKriging',
-        **kwargs,
+        constant_path: bool = False,
+        cov_cache: bool = False,
+        max_neighbor: float = 8,
+        max_value: Optional[float] = None,
+        min_value: Optional[float] = None,
     ):
         """
         Initialize a Sgsim field.
@@ -204,10 +210,44 @@ class SgsimField(RandomField, SgsimPlot):
         self._model = model
         self._bandwidth_step = model.bandwidth_step
         self._bandwidth = model.bandwidth
-        self._set_kriging_method(kriging, **kwargs)
-        self._set_kwargs(**kwargs)
+        self._kriging = kriging
+        self._constant_path = constant_path
+        self._use_cov_cache = cov_cache
+        self._max_neighbor = max_neighbor
+        self._max_value = max_value
+        self._min_value = min_value
+        self._set_kriging_method()
+        self._set_default_value()
 
-    def _set_kriging_method(self, kriging: str | Kriging, **kwargs) -> None:
+    @property
+    def model(self) -> CovModel:
+        return self._model
+
+    @property
+    def bandwidth(self) -> np.array:
+        return self._bandwidth
+
+    @property
+    def bandwidth_step(self) -> int:
+        return self._bandwidth_step
+
+    @property
+    def max_value(self) -> float:
+        return self._max_value
+
+    @property
+    def min_value(self) -> float:
+        return self._min_value
+
+    @property
+    def max_neighbor(self) -> int:
+        return self._max_neighbor
+
+    @property
+    def kriging(self) -> Kriging:
+        return self._kriging
+
+    def _set_kriging_method(self) -> None:
         """
         Set the kriging method based on provided parameters.
 
@@ -224,36 +264,21 @@ class SgsimField(RandomField, SgsimPlot):
             TypeError: If kriging arg is not acceptable.
 
         """
-        self.constant_path = kwargs.get('constant_path', False)
-        self.use_cov_cache = kwargs.get('cov_cache', False)
-
-        if self.constant_path is False and self.use_cov_cache is True:
+        if self._constant_path is False and self._use_cov_cache is True:
             raise ValueError('cov_cache should be False when constant_path is False')
 
-        if kriging == 'SimpleKriging':
-            self.kriging = SimpleKriging(self.model, self.grid_size, self.use_cov_cache)
-        elif kriging == 'OrdinaryKriging':
-            self.kriging = OrdinaryKriging(self.model, self.grid_size, self.use_cov_cache)
+        if self._kriging == 'SimpleKriging':
+            self._kriging = SimpleKriging(self.model, self.grid_size, self._use_cov_cache)
+        elif self._kriging == 'OrdinaryKriging':
+            self._kriging = OrdinaryKriging(self.model, self.grid_size, self._use_cov_cache)
         else:
-            if not isinstance(kriging, (SimpleKriging, OrdinaryKriging)):
+            if not isinstance(self._kriging, (SimpleKriging, OrdinaryKriging)):
                 raise TypeError('Kriging should be class SimpleKriging or OrdinaryKriging')
 
-    def _set_kwargs(self, **kwargs) -> None:
-        self.z_min = kwargs.get('z_min', -(self.model.sill**0.5 * 4))
-        self.z_max = kwargs.get('z_max', self.model.sill**0.5 * 4)
-        self.max_neighbor = kwargs.get('max_neighbor', 8)
-
-    @property
-    def model(self) -> CovModel:
-        return self._model
-
-    @property
-    def bandwidth(self) -> np.array:
-        return self._bandwidth
-
-    @property
-    def bandwidth_step(self) -> int:
-        return self._bandwidth_step
+    def _set_default_value(self) -> None:
+        default_thresold = self.model.sill**0.5 * 4
+        self._min_value = -(default_thresold) if self._min_value is None else self._min_value
+        self._max_value = default_thresold if self._max_value is None else self._max_value
 
     def get_all_attributes(self) -> dict:
         """
@@ -266,15 +291,16 @@ class SgsimField(RandomField, SgsimPlot):
             'grid_size': self.grid_size,
             'realization_number': self.realization_number,
             'model': self.model,
-            'kriging': self.kriging,
-            'constant_path': self.constant_path,
-            'cov_cache': self.use_cov_cache,
-            'z_min': self.z_min,
-            'z_max': self.z_max,
-            'max_neighbor': self.max_neighbor,
+            'kriging': self._kriging,
+            'constant_path': self._constant_path,
+            'use_cov_cache': self._use_cov_cache,
+            'min_value': self._min_value,
+            'max_value': self._max_value,
+            'max_neighbor': self._max_neighbor,
         }
 
     def __repr__(self) -> str:
         return (
-            f'SgsimField({self.grid_size}, {self.realization_number}, {self.kriging}, {self.model})'
+            f'SgsimField({self.grid_size}, {self.realization_number},'
+            f'{self._kriging}, {self.model})'
         )

@@ -141,7 +141,7 @@ class UCSgsim(SgsimField):
 
         # Prepare the args for each processes
         if randomseed is None:
-            randomseed = np.random.randint(0, 2**32)
+            randomseed = np.random.randint(0, 2**31 - 1)
         rand_list = [randomseed + i for i in range(n_process)]
 
         parallel = [True] * n_process
@@ -218,7 +218,7 @@ class UCSgsim(SgsimField):
             grid = np.hstack([x_grid, z_value])
 
             # If simulate with constant_path then draw randompath only once
-            if not self.constant_path or counts == 0:
+            if not self._constant_path or counts == 0:
                 randompath = np.random.choice(
                     unsampled,
                     len(unsampled),
@@ -228,14 +228,14 @@ class UCSgsim(SgsimField):
             # Loop for kriging simulation
             for i in range(len(unsampled)):
                 sample = int(randompath[i])
-                z[sample] = self.kriging.simulation(
+                z[sample] = self._kriging.simulation(
                     grid,
                     sample,
                     neighbor=neighbor,
                 )
 
                 # If any simulated value over the limit than discard that realization
-                if z[sample] >= self.z_max or z[sample] <= self.z_min:
+                if z[sample] >= self._max_value or z[sample] <= self._min_value:
                     drop = True
                     iteration_failed += 1
                     if iteration_failed >= self.iteration_limit:
@@ -245,7 +245,7 @@ class UCSgsim(SgsimField):
                 temp = np.hstack([sample, z[sample]])
                 grid = np.vstack([grid, temp])
 
-                if neighbor < self.max_neighbor:
+                if neighbor < self._max_neighbor:
                     neighbor += 1
 
             # IF drop is False then proceed to next realization generation
