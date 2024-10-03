@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import time
 import sys
 from pathlib import Path
@@ -85,9 +86,25 @@ class UCSgsim(SgsimField):
         model: CovModel,
         kriging: str | Kriging = 'SimpleKriging',
         engine: Literal['python', 'c'] = 'python',
-        **kwargs,
+        constant_path: bool = False,
+        cov_cache: bool = False,
+        max_neighbor: float = 8,
+        iteration_limit: int = 10,
+        max_value: Optional[float] = None,
+        min_value: Optional[float] = None,
     ):
-        super().__init__(grid_size, realization_number, model, kriging, **kwargs)
+        super().__init__(
+            grid_size=grid_size,
+            n_realizations=realization_number,
+            model=model,
+            kriging=kriging,
+            constant_path=constant_path,
+            cov_cache=cov_cache,
+            max_neighbor=max_neighbor,
+            iteration_limit=iteration_limit,
+            max_value=max_value,
+            min_value=min_value,
+        )
         self.engine = engine
 
     def run(self, n_processes: int = 1, randomseed: Optional[int] = None):
@@ -137,11 +154,11 @@ class UCSgsim(SgsimField):
         pool = Pool(processes=n_process)
         self.n_process = n_process
         self.realization_number = self.realization_number * n_process
-        self.random_field = np.empty([self.realization_number, self.x_size])
+        self.random_fields = np.empty([self.realization_number, self._x_size, self._y_size])
 
         # Prepare the args for each processes
         if randomseed is None:
-            randomseed = np.random.randint(0, 2**32)
+            randomseed = np.random.randint(0, 2**31 - 1)
         rand_list = [randomseed + i for i in range(n_process)]
 
         parallel = [True] * n_process
@@ -162,7 +179,7 @@ class UCSgsim(SgsimField):
         # Collect data from each process
         self._reshape_simulaiton(_simulation, n_process)
 
-        return self.random_field
+        return self.random_fields
 
     def _get_variogram_python(self, n_process: int = 1) -> None:
         """
@@ -176,7 +193,7 @@ class UCSgsim(SgsimField):
         model_len = self.x_size
         x = np.linspace(0, self.x_size - 1, model_len).reshape(model_len, 1)
         grid = [
-            np.hstack([x, self.random_field[i, :].reshape(model_len, 1)])
+            np.hstack([x, self.random_fields[i, :].reshape(model_len, 1)])
             for i in range(self.realization_number)
         ]
 
@@ -205,52 +222,49 @@ class UCSgsim(SgsimField):
         iteration_failed = 0
         start_time = time.time()
 
+        unsampled = copy.deepcopy(self._coordinate)
         # Loop for randomfield generation
         while counts < (self.realization_number // self.n_process):
             # Grid and initial value preparing
             drop = False
-            unsampled = np.linspace(1, self.x_size - 2, self.x_size - 2)
-            z_value = np.random.normal(0, self.model.sill**0.5, 2).reshape(2, 1)
-            x_grid = np.array([0, self.x_size - 1]).reshape(2, 1)
-            z = np.zeros(self.x_size)
-            z[0], z[-1] = z_value[0], z_value[1]
             neighbor = 0
-            grid = np.hstack([x_grid, z_value])
 
             # If simulate with constant_path then draw randompath only once
-            if not self.constant_path or counts == 0:
-                randompath = np.random.choice(
-                    unsampled,
-                    len(unsampled),
-                    replace=False,
-                )
+            if not self._constant_path or counts == 0:
+                np.random.shuffle(unsampled)
 
+            sampled = np.array([])
             # Loop for kriging simulation
-            for i in range(len(unsampled)):
-                sample = int(randompath[i])
-                z[sample] = self.kriging.simulation(
-                    grid,
-                    sample,
+            for coordinate in unsampled:
+                x = int(coordinate[0])
+                y = int(coordinate[1])
+                self._grid[x][y] = self._kriging.simulation(
+                    coordinate,
+                    sampled,
                     neighbor=neighbor,
                 )
 
                 # If any simulated value over the limit than discard that realization
-                if z[sample] >= self.z_max or z[sample] <= self.z_min:
+                if self._grid[x][y] >= self._max_value or self._grid[x][y] <= self._min_value:
                     drop = True
                     iteration_failed += 1
                     if iteration_failed >= self.iteration_limit:
                         raise IterationError()
                     break
 
-                temp = np.hstack([sample, z[sample]])
-                grid = np.vstack([grid, temp])
+                # The four index value in sampled are [x, y, value, distance]
+                sampled = (
+                    np.array([(x, y, self._grid[x][y], 0)])
+                    if len(sampled) == 0
+                    else np.vstack((sampled, (x, y, self._grid[x][y], 0)))
+                )
 
-                if neighbor < self.max_neighbor:
+                if neighbor < self._max_neighbor:
                     neighbor += 1
 
             # IF drop is False then proceed to next realization generation
             if drop is False:
-                self.random_field[counts, :] = z
+                self.random_fields[counts, :] = self._grid
                 counts = counts + 1
                 iteration_failed = 0
                 # Set cov_cache flag to False to ensure cov_cache only compute once
@@ -261,7 +275,7 @@ class UCSgsim(SgsimField):
         end_time = time.time()
         print('Time = %f' % (end_time - start_time), 's\n')
 
-        return self.random_field
+        return self.random_fields
 
     def _read_shared_lib(self) -> CDLL:
         if sys.platform.startswith('linux'):
@@ -287,7 +301,7 @@ class UCSgsim(SgsimField):
         self.n_process = n_process
         if n_process > 1:
             self.realization_number = self.realization_number * n_process
-        self.random_field = np.empty([self.realization_number, self.x_size])
+        self.random_fields = np.empty([self.realization_number, self.x_size])
         rand_list = [randomseed + i for i in range(n_process)]
 
         # Run parallel computing with dynamic link lib
@@ -299,7 +313,7 @@ class UCSgsim(SgsimField):
         # Collect results into a Python-List (random_field)
         self._reshape_simulaiton(_simulation, n_process)
 
-        return self.random_field
+        return self.random_fields
 
     def _simulation_c(self, randomseed: int) -> np.array:
         """
@@ -327,8 +341,8 @@ class UCSgsim(SgsimField):
             if_alloc_memory=0,
             max_iteration=self.iteration_limit,
             array=(c_double * (mlen * realization_number))(),
-            z_min=self.z_min,
-            z_max=self.z_max,
+            z_min=self._min_value,
+            z_max=self._max_value,
         )
         cov_s = CovModelStructure(
             bw_l=self.model.bandwidth_len,
@@ -400,15 +414,15 @@ class UCSgsim(SgsimField):
 
         # Run variogram computing with dynamic link lib and save results as a Python-List.
         for i in range(realization_number):
-            random_field_array[:] = self.random_field[i + n_process * realization_number, :]
+            random_field_array[:] = self.random_fields[i + n_process * realization_number, :]
             vario(random_field_array, vario_array, mlen, vario_size, 1)
             variogram[i, :] = list(vario_array)
 
         return variogram
 
-    def _reshape_simulaiton(self, process_results: np.array, n_process: int):
+    def _reshape_simulaiton(self, process_results: list[np.ndarray], n_process: int):
         # Collect results into a Python-List (random_field)
         for i in range(n_process):
             start = int(i * self.realization_number / n_process)
             end = int((i + 1) * self.realization_number / n_process)
-            self.random_field[start:end, :] = process_results[i][: end - start, :]
+            self.random_fields[start:end] = process_results[i][: end - start, :]

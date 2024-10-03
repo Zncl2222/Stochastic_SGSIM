@@ -42,7 +42,7 @@ class Kriging:
         self.y_size = 0 if isinstance(grid_size, int) else grid_size[1]
         self._cov_cache_flag = cov_cache
         if cov_cache is True:
-            self._create_cov_cache()
+            self._cov_cache = {}
 
     @property
     def model(self) -> CovModel:
@@ -63,15 +63,6 @@ class Kriging:
     @property
     def sill(self) -> float:
         return self._sill
-
-    def _create_cov_cache(self):
-        """
-        Create the covariance cache for faster computations (if enabled).
-        """
-        if self.y_size != 0:
-            self._cov_cache = [[0] * self.x_size for _ in range(self.y_size)]
-        else:
-            self._cov_cache = [0] * self.x_size
 
     def __repr__(self):
         return f'{self.__class__.__name__}'
