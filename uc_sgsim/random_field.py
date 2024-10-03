@@ -16,14 +16,6 @@ class RandomField:
 
     This class is a parent class for any kind of randomfiled.
 
-    Attributes:
-        _grid_size (int | list[int, int]): size of the grid for the random field.
-        _x (list[int]): x axis for the random field.
-        _y (int | list[int]): y axis for the random field.
-        _x_size (int): size of the x axis for the random field.
-        _y_size (int): size of the y axis for the random field.
-        _realization_number (int): number of realizations to generate.
-
     Methods:
         _create_grid: create the grid for the random field.
         save_random_field: save the random field data to files.
@@ -43,11 +35,16 @@ class RandomField:
         self._create_grid(grid_size)
 
     def _create_grid(self, grid_size: int | list[int, int]) -> None:
-        self._x = range(grid_size) if isinstance(grid_size, int) else range(grid_size[0])
-        self._y = 0 if isinstance(grid_size, int) else range(grid_size[1])
-        self._x_size = len(self._x)
-        self._y_size = 0 if isinstance(grid_size, int) else len(self._y)
-        self.random_field = np.empty([self._n_realizations, self._x_size])
+        self._grid = (
+            np.zeros((grid_size, 1))
+            if isinstance(grid_size, int)
+            else np.zeros((grid_size[0], grid_size[1]))
+        )
+        self._x_size = grid_size if isinstance(grid_size, int) else grid_size[0]
+        self._y_size = 1 if isinstance(grid_size, int) else grid_size[1]
+        self._coordinate = np.array(
+            [np.array((x, y)) for x in range(self._x_size) for y in range(self._y_size)],
+        )
         self.variogram = 0
 
     @property
@@ -55,8 +52,8 @@ class RandomField:
         return self._grid_size
 
     @property
-    def x(self) -> int:
-        return self._x
+    def grid(self) -> int:
+        return self._grid
 
     @property
     def x_size(self) -> int:
@@ -109,12 +106,12 @@ class RandomField:
                 save_as_multiple_file(
                     number,
                     self.x_size,
-                    self.random_field,
+                    self.random_fields,
                     file_type,
                     'Realizations',
                 )
         else:
-            save_as_one_file(path, self.random_field)
+            save_as_one_file(path, self.random_fields)
 
     def save_variogram(self, path: str, file_type: str = 'csv', save_single: bool = False) -> None:
         """
