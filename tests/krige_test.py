@@ -19,17 +19,25 @@ class TestSimpleKriging:
         cls.kriging = SimpleKriging(cls.gaussian, cls.x_len, cov_cache=False)
         cls.o_kriging = OrdinaryKriging(cls.gaussian, cls.x_len, cov_cache=False)
         cls.sampled = np.array(
-            [[0, 10, 29, 74, 85, 115, 146], [-1, 0.7, -0.2, 0.065, 1, 3, 0.5]],
-        ).T
+            [
+                (0, 0),
+                (10, 0),
+                (10, 20),
+                (10, 74),
+                (10, 85),
+                (10, 115),
+                (10, 146),
+            ],
+        )
 
     def test_simple_kriging_prediction(self):
         res = np.empty(self.x_len)
         for i in range(len(self.sampled[0])):
             res[int(self.sampled.T[0][i])] = self.sampled.T[1][i]
 
-        for i in range(self.x_len):
+        for i in [(x, 0) for x in range(self.x_len)]:
             if i not in self.sampled[0]:
-                res[i], kriging_std = self.kriging.prediction(self.sampled, i)
+                res[i], kriging_std = self.kriging.prediction(i, self.sampled)
                 assert kriging_std >= 0
 
     def test_simple_kriging_simulation(self):
@@ -41,7 +49,7 @@ class TestSimpleKriging:
         unsampled = np.delete(unsampled, [0, -1])
 
         neighbor = 0
-        estimation = self.kriging.simulation(mesh, 75, neighbor=neighbor)
+        estimation = self.kriging.simulation(75, mesh, neighbor=neighbor)
         assert pytest.approx(estimation.item(0), 1e-7) == 0.4691123
 
     def test_ordinary_kriging_prediction(self):
@@ -49,9 +57,9 @@ class TestSimpleKriging:
         for i in range(len(self.sampled[0])):
             res[int(self.sampled.T[0][i])] = self.sampled.T[1][i]
 
-        for i in range(self.x_len):
+        for i in [(x, 0) for x in range(self.x_len)]:
             if i not in self.sampled[0]:
-                res[i], kriging_std = self.kriging.prediction(self.sampled, i)
+                res[i], kriging_std = self.kriging.prediction(i, self.sampled)
                 assert kriging_std >= 0
 
     def test_ordinary_kriging_simulation(self):
@@ -63,7 +71,7 @@ class TestSimpleKriging:
         unsampled = np.delete(unsampled, [0, -1])
 
         neighbor = 0
-        estimation = self.o_kriging.simulation(mesh, 75, neighbor=neighbor)
+        estimation = self.o_kriging.simulation(75, mesh, neighbor=neighbor)
         assert pytest.approx(estimation.item(0), 1e-7) == 0.4691123
 
     def test_kriging_repr(self, capsys):

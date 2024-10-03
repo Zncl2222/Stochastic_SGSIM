@@ -554,6 +554,6 @@ class TestUCSgsim:
         assert sgsim.max_neighbor == 12
         assert sgsim.min_value == -1
         assert sgsim.max_value == 1
-        assert sgsim.x == range(0, 151)
-        assert sgsim.y == 0
-        assert sgsim.y_size == 0
+        assert len(sgsim.grid) == 151
+        assert len(sgsim.grid[0]) == 1
+        assert sgsim.y_size == 1
