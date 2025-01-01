@@ -39,7 +39,8 @@ jobs:
     strategy:
       max-parallel: 5
       matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        runs-on: [ubuntu-latest, ubuntu-22.04, ubuntu-20.04, windows-latest]
 
     steps:
       - uses: actions/checkout@v4
@@ -49,7 +50,15 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
+      - name: Install dependencies (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          if (Test-Path requirements-dev.txt) {
+            pip install --upgrade pip
+            pip install -r requirements-dev.txt
+          }
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
         run: |
           sed -i '/^[^#]/s/==.*//' requirements-dev.txt
           python -m pip install --upgrade pip
@@ -60,8 +69,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           merge-multiple: true
-      - run: |
-          mv ./uc_sgsim.so ./uc_sgsim/c_core
+      - name: Move dll file (Windows)
+        if: runner.os == 'Windows'
+        run: mv ./uc_sgsim.dll ./uc_sgsim/c_core
+      - name: Move so file (Linux)
+        if: runner.os == 'Linux'
+        run: mv ./uc_sgsim.so ./uc_sgsim/c_core
       - name: Run tests to generate coverage statistics
         run: |
           pytest -n auto --cov --cov-report xml:py_coverage.xml
@@ -70,39 +83,6 @@ jobs:
         with:
           name: python-coverage
           path: ./py_coverage.xml
-
-  python_test_windows:
-    name: py-unittest-windows
-    runs-on: windows-latest
-    needs: build_shared_library
-    strategy:
-      max-parallel: 5
-      matrix:
-        python-version: ["3.9", "3.10", "3.11"]
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: |
-          if (Test-Path requirements-dev.txt) {
-            pip install --upgrade pip
-            pip install -r requirements-dev.txt
-          }
-      - name: Download All Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          merge-multiple: true
-      - run: |
-          mv ./uc_sgsim.dll ./uc_sgsim/c_core
-      - name: Run tests to generate coverage statistics
-        run: |
-          pytest -n auto --cov --cov-report xml:py_coverage.xml
 
   c_test:
     name: c-unittest
