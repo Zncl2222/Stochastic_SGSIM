@@ -47,4 +47,4 @@ jobs:
         run: git submodule update --init --recursive
       - name: build and test
         run: |
-          .\cmake_build.bat
+          .\build_scripts\cmake_build.bat
