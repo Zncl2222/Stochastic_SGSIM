@@ -59,36 +59,36 @@ class SgsimPlot(PlotBase):
             figsize (tuple, optional): Figure size in inches (width, height) (default is (10, 8)).
         """
         super().__init__(figsize)
-        self.__vmodel = model
-        self.__vmodel_name = model.model_name
-        self.__vbandwidth_step = model.bandwidth_step
-        self.__vbandwidth = model.bandwidth
-        self.__vk_range = model.k_range
-        self.__vsill = model.sill
+        self._vmodel = model
+        self._vmodel_name = model.model_name
+        self._vbandwidth_step = model.bandwidth_step
+        self._vbandwidth = model.bandwidth
+        self._vk_range = model.k_range
+        self._vsill = model.sill
 
     @property
     def vmodel(self) -> CovModel:
-        return self.__vmodel
+        return self._vmodel
 
     @property
     def vmodel_name(self) -> str:
-        return self.__vmodel_name
+        return self._vmodel_name
 
     @property
     def vbandwidth_step(self) -> int:
-        return self.__vbandwidth_step
+        return self._vbandwidth_step
 
     @property
     def vbandwidth(self) -> np.array:
-        return self.__vbandwidth
+        return self._vbandwidth
 
     @property
     def vk_range(self) -> float:
-        return self.__vk_range
+        return self._vk_range
 
     @property
     def vsill(self) -> float:
-        return self.__vsill
+        return self._vsill
 
     def plot(
         self,
@@ -121,11 +121,12 @@ class SgsimPlot(PlotBase):
             axhline_zorder (int, optional):
                 Z-order of the horizontal line at mean (default is 1).
         """
-        realization_number = len(self.random_field[:, 0])
+        realization_number = len(self.random_fields)
+
         if realizations is None:
             for i in range(realization_number):
                 plt.figure(self.curr_fig_num, figsize=self.figsize)
-                plt.plot(self.random_field[i, :] + mean)
+                plt.plot(self.random_fields[i, :] + mean)
                 plt.title('Realizations: ' + self.vmodel_name, fontsize=fontsize)
                 plt.xlabel(self.xlabel, fontsize=fontsize)
                 plt.axhline(
@@ -138,7 +139,7 @@ class SgsimPlot(PlotBase):
         elif isinstance(realizations, list):
             for item in realizations:
                 plt.figure(self.curr_fig_num, figsize=self.figsize)
-                plt.plot(self.random_field[:, item] + mean)
+                plt.plot(self.random_fields[:, item] + mean)
                 plt.title('Realizations: ' + self.vmodel_name, fontsize=fontsize)
                 plt.xlabel(self.xlabel, fontsize=fontsize)
                 plt.axhline(
@@ -195,9 +196,9 @@ class SgsimPlot(PlotBase):
             yticks_fontsize (int, optional):
                 Font size for y-axis tick labels (default is 17).
         """
-        zmean = np.zeros(len(self.random_field[0, :]))
-        for i in range(len(self.random_field[0, :])):
-            zmean[i] = np.mean(self.random_field[:, i] + mean)
+        zmean = np.zeros(len(self.random_fields[0, :]))
+        for i in range(len(self.random_fields[0, :])):
+            zmean[i] = np.mean(self.random_fields[:, i] + mean)
 
         plt.figure(self.curr_fig_num, figsize=self.figsize)
         plt.plot(
@@ -226,9 +227,9 @@ class SgsimPlot(PlotBase):
         This method plots the variance of realizations for each
         location in the random field.
         """
-        zvar = np.zeros(len(self.random_field[0, :]))
-        for i in range(len(self.random_field[0, :])):
-            zvar[i] = np.var(self.random_field[:, i])
+        zvar = np.zeros(len(self.random_fields[0, :]))
+        for i in range(len(self.random_fields[0, :])):
+            zvar[i] = np.var(self.random_fields[:, i])
 
         plt.figure(self.curr_fig_num, figsize=self.figsize)
         plt.plot(
@@ -254,7 +255,7 @@ class SgsimPlot(PlotBase):
         Args:
             x_location (int): The location index to plot the CDF.
         """
-        x = self.random_field[:, x_location]
+        x = self.random_fields[:, x_location]
         mu = np.mean(x)
         sigma = np.std(x)
         n_bins = 50
@@ -294,7 +295,7 @@ class SgsimPlot(PlotBase):
         Args:
             x_location (int): The location index to plot the histogram.
         """
-        x = self.random_field[:, x_location]
+        x = self.random_fields[:, x_location]
         mu = np.mean(x)
         sigma = np.std(x)
         num_bins = 50
@@ -340,7 +341,7 @@ class SgsimPlot(PlotBase):
             mean_color (str, optional): Color for the mean line (default is 'blue').
             mean_linestyle (str, optional): Linestyle for the mean line (default is '--').
         """
-        self.__variogram_validate()
+        self._variogram_validate()
         for i in range(self.realization_number):
             plt.figure(self.curr_fig_num, figsize=(10, 6))
             plt.plot(self.variogram[i, :], alpha=alpha)
@@ -391,6 +392,6 @@ class SgsimPlot(PlotBase):
         plt.xlabel('Lag(m)', fontsize=fontsize)
         plt.ylabel('Variogram', fontsize=fontsize)
 
-    def __variogram_validate(self) -> None:
+    def _variogram_validate(self) -> None:
         if isinstance(self.variogram, int):
             raise VariogramDoesNotCompute()

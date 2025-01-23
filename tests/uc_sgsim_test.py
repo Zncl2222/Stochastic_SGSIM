@@ -28,7 +28,7 @@ class TestUCSgsim:
         assert os.path.isfile('test.jpg') is True
         sgsim.cdf_plot(x_location=10)
         sgsim.hist_plot(x_location=10)
-        sgsim.variogram_compute(n_process=1)
+        sgsim.get_variogram(n_processes=1)
         sgsim.variogram_plot()
         sgsim.mean_plot()
         sgsim.variance_plot()
@@ -45,16 +45,16 @@ class TestUCSgsim:
             ('SimpleKriging', gaussian, 1, {}),
             ('SimpleKriging', exponential, 1, {}),
             ('SimpleKriging', spherical, 1, {}),
-            ('SimpleKriging', gaussian, 1, {'z_max': 3, 'z_min': -3, 'max_neighbor': 6}),
-            ('SimpleKriging', exponential, 1, {'z_max': 3, 'z_min': -3, 'max_neighbor': 6}),
-            ('SimpleKriging', spherical, 1, {'z_max': 3, 'z_min': -3, 'max_neighbor': 6}),
+            ('SimpleKriging', gaussian, 1, {'max_value': 3, 'min_value': -3, 'max_neighbor': 6}),
+            ('SimpleKriging', exponential, 1, {'max_value': 3, 'min_value': -3, 'max_neighbor': 6}),
+            ('SimpleKriging', spherical, 1, {'max_value': 3, 'min_value': -3, 'max_neighbor': 6}),
             (
                 'SimpleKriging',
                 gaussian,
                 1,
                 {
-                    'z_max': 3,
-                    'z_min': -3,
+                    'max_value': 3,
+                    'min_value': -3,
                     'max_neighbor': 12,
                     'constant_path': True,
                     'cov_cache': True,
@@ -65,8 +65,8 @@ class TestUCSgsim:
                 exponential,
                 1,
                 {
-                    'z_max': 3,
-                    'z_min': -3,
+                    'max_value': 3,
+                    'min_value': -3,
                     'max_neighbor': 12,
                     'constant_path': True,
                     'cov_cache': True,
@@ -77,8 +77,8 @@ class TestUCSgsim:
                 spherical,
                 1,
                 {
-                    'z_max': 3,
-                    'z_min': -3,
+                    'max_value': 3,
+                    'min_value': -3,
                     'max_neighbor': 12,
                     'constant_path': True,
                     'cov_cache': True,
@@ -87,16 +87,16 @@ class TestUCSgsim:
             ('SimpleKriging', gaussian, 2, {}),
             ('SimpleKriging', exponential, 2, {}),
             ('SimpleKriging', spherical, 2, {}),
-            ('SimpleKriging', gaussian, 2, {'z_max': 3, 'z_min': -3, 'max_neighbor': 6}),
-            ('SimpleKriging', exponential, 2, {'z_max': 3, 'z_min': -3, 'max_neighbor': 6}),
-            ('SimpleKriging', spherical, 2, {'z_max': 3, 'z_min': -3, 'max_neighbor': 6}),
+            ('SimpleKriging', gaussian, 2, {'max_value': 3, 'min_value': -3, 'max_neighbor': 6}),
+            ('SimpleKriging', exponential, 2, {'max_value': 3, 'min_value': -3, 'max_neighbor': 6}),
+            ('SimpleKriging', spherical, 2, {'max_value': 3, 'min_value': -3, 'max_neighbor': 6}),
             (
                 'SimpleKriging',
                 gaussian,
                 2,
                 {
-                    'z_max': 3,
-                    'z_min': -3,
+                    'max_value': 3,
+                    'min_value': -3,
                     'max_neighbor': 12,
                     'constant_path': True,
                     'cov_cache': True,
@@ -107,8 +107,8 @@ class TestUCSgsim:
                 spherical,
                 2,
                 {
-                    'z_max': 3,
-                    'z_min': -3,
+                    'max_value': 3,
+                    'min_value': -3,
                     'max_neighbor': 12,
                     'constant_path': True,
                     'cov_cache': True,
@@ -119,8 +119,8 @@ class TestUCSgsim:
                 exponential,
                 2,
                 {
-                    'z_max': 3,
-                    'z_min': -3,
+                    'max_value': 3,
+                    'min_value': -3,
                     'max_neighbor': 12,
                     'constant_path': True,
                     'cov_cache': True,
@@ -129,16 +129,21 @@ class TestUCSgsim:
             ('OrdinaryKriging', gaussian, 1, {}),
             ('OrdinaryKriging', exponential, 1, {}),
             ('OrdinaryKriging', spherical, 1, {}),
-            ('OrdinaryKriging', gaussian, 1, {'z_max': 4, 'z_min': -4, 'max_neighbor': 6}),
-            ('OrdinaryKriging', exponential, 1, {'z_max': 4, 'z_min': -4, 'max_neighbor': 6}),
-            ('OrdinaryKriging', spherical, 1, {'z_max': 4, 'z_min': -4, 'max_neighbor': 6}),
+            ('OrdinaryKriging', gaussian, 1, {'max_value': 4, 'min_value': -4, 'max_neighbor': 6}),
+            (
+                'OrdinaryKriging',
+                exponential,
+                1,
+                {'max_value': 4, 'min_value': -4, 'max_neighbor': 6},
+            ),
+            ('OrdinaryKriging', spherical, 1, {'max_value': 4, 'min_value': -4, 'max_neighbor': 6}),
             (
                 'OrdinaryKriging',
                 gaussian,
                 1,
                 {
-                    'z_max': 3,
-                    'z_min': -3,
+                    'max_value': 3,
+                    'min_value': -3,
                     'max_neighbor': 12,
                     'constant_path': True,
                     'cov_cache': True,
@@ -149,8 +154,8 @@ class TestUCSgsim:
                 exponential,
                 1,
                 {
-                    'z_max': 3,
-                    'z_min': -3,
+                    'max_value': 3,
+                    'min_value': -3,
                     'max_neighbor': 12,
                     'constant_path': True,
                     'cov_cache': True,
@@ -161,8 +166,8 @@ class TestUCSgsim:
                 spherical,
                 1,
                 {
-                    'z_max': 3,
-                    'z_min': -3,
+                    'max_value': 3,
+                    'min_value': -3,
                     'max_neighbor': 12,
                     'constant_path': True,
                     'cov_cache': True,
@@ -171,16 +176,21 @@ class TestUCSgsim:
             ('OrdinaryKriging', gaussian, 2, {}),
             ('OrdinaryKriging', exponential, 2, {}),
             ('OrdinaryKriging', spherical, 2, {}),
-            ('OrdinaryKriging', gaussian, 2, {'z_max': 3, 'z_min': -3, 'max_neighbor': 6}),
-            ('OrdinaryKriging', exponential, 2, {'z_max': 3, 'z_min': -3, 'max_neighbor': 6}),
-            ('OrdinaryKriging', spherical, 2, {'z_max': 3, 'z_min': -3, 'max_neighbor': 6}),
+            ('OrdinaryKriging', gaussian, 2, {'max_value': 3, 'min_value': -3, 'max_neighbor': 6}),
+            (
+                'OrdinaryKriging',
+                exponential,
+                2,
+                {'max_value': 3, 'min_value': -3, 'max_neighbor': 6},
+            ),
+            ('OrdinaryKriging', spherical, 2, {'max_value': 3, 'min_value': -3, 'max_neighbor': 6}),
             (
                 'OrdinaryKriging',
                 gaussian,
                 2,
                 {
-                    'z_max': 4,
-                    'z_min': -4,
+                    'max_value': 4,
+                    'min_value': -4,
                     'max_neighbor': 8,
                     'constant_path': True,
                     'cov_cache': True,
@@ -191,8 +201,8 @@ class TestUCSgsim:
                 exponential,
                 2,
                 {
-                    'z_max': 4,
-                    'z_min': -4,
+                    'max_value': 4,
+                    'min_value': -4,
                     'max_neighbor': 8,
                     'constant_path': True,
                     'cov_cache': True,
@@ -203,8 +213,8 @@ class TestUCSgsim:
                 spherical,
                 2,
                 {
-                    'z_max': 4,
-                    'z_min': -4,
+                    'max_value': 4,
+                    'min_value': -4,
                     'max_neighbor': 8,
                     'constant_path': True,
                     'cov_cache': True,
@@ -214,8 +224,8 @@ class TestUCSgsim:
     )
     def test_uc_sgsim_gaussian_py(self, kriging, cov_model, n_process, kwargs):
         sgsim = uc.UCSgsim(X, nR, cov_model, kriging=kriging, **kwargs)
-        sgsim.compute(n_process=n_process, randomseed=454)
-        sgsim.variogram_compute(n_process=n_process)
+        sgsim.run(n_processes=n_process, randomseed=454)
+        sgsim.get_variogram(n_processes=n_process)
         self.sgsim_plot(sgsim)
         self.sgsim_save(sgsim)
 
@@ -225,16 +235,16 @@ class TestUCSgsim:
             ('SimpleKriging', gaussian, 1, {}),
             ('SimpleKriging', exponential, 1, {}),
             ('SimpleKriging', spherical, 1, {}),
-            ('SimpleKriging', gaussian, 1, {'z_max': 3, 'z_min': -3, 'max_neighbor': 6}),
-            ('SimpleKriging', exponential, 1, {'z_max': 3, 'z_min': -3, 'max_neighbor': 6}),
-            ('SimpleKriging', spherical, 1, {'z_max': 3, 'z_min': -3, 'max_neighbor': 6}),
+            ('SimpleKriging', gaussian, 1, {'max_value': 3, 'min_value': -3, 'max_neighbor': 6}),
+            ('SimpleKriging', exponential, 1, {'max_value': 3, 'min_value': -3, 'max_neighbor': 6}),
+            ('SimpleKriging', spherical, 1, {'max_value': 3, 'min_value': -3, 'max_neighbor': 6}),
             (
                 'SimpleKriging',
                 gaussian,
                 1,
                 {
-                    'z_max': 3,
-                    'z_min': -3,
+                    'max_value': 3,
+                    'min_value': -3,
                     'max_neighbor': 12,
                     'constant_path': True,
                     'cov_cache': True,
@@ -245,8 +255,8 @@ class TestUCSgsim:
                 exponential,
                 1,
                 {
-                    'z_max': 3,
-                    'z_min': -3,
+                    'max_value': 3,
+                    'min_value': -3,
                     'max_neighbor': 12,
                     'constant_path': True,
                     'cov_cache': True,
@@ -257,8 +267,8 @@ class TestUCSgsim:
                 spherical,
                 1,
                 {
-                    'z_max': 3,
-                    'z_min': -3,
+                    'max_value': 3,
+                    'min_value': -3,
                     'max_neighbor': 12,
                     'constant_path': True,
                     'cov_cache': True,
@@ -267,16 +277,16 @@ class TestUCSgsim:
             ('SimpleKriging', gaussian, 2, {}),
             ('SimpleKriging', exponential, 2, {}),
             ('SimpleKriging', spherical, 2, {}),
-            ('SimpleKriging', gaussian, 2, {'z_max': 3, 'z_min': -3, 'max_neighbor': 6}),
-            ('SimpleKriging', exponential, 2, {'z_max': 3, 'z_min': -3, 'max_neighbor': 6}),
-            ('SimpleKriging', spherical, 2, {'z_max': 3, 'z_min': -3, 'max_neighbor': 6}),
+            ('SimpleKriging', gaussian, 2, {'max_value': 3, 'min_value': -3, 'max_neighbor': 6}),
+            ('SimpleKriging', exponential, 2, {'max_value': 3, 'min_value': -3, 'max_neighbor': 6}),
+            ('SimpleKriging', spherical, 2, {'max_value': 3, 'min_value': -3, 'max_neighbor': 6}),
             (
                 'SimpleKriging',
                 gaussian,
                 2,
                 {
-                    'z_max': 3,
-                    'z_min': -3,
+                    'max_value': 3,
+                    'min_value': -3,
                     'max_neighbor': 12,
                     'constant_path': True,
                     'cov_cache': True,
@@ -287,8 +297,8 @@ class TestUCSgsim:
                 spherical,
                 2,
                 {
-                    'z_max': 3,
-                    'z_min': -3,
+                    'max_value': 3,
+                    'min_value': -3,
                     'max_neighbor': 12,
                     'constant_path': True,
                     'cov_cache': True,
@@ -299,8 +309,8 @@ class TestUCSgsim:
                 exponential,
                 2,
                 {
-                    'z_max': 3,
-                    'z_min': -3,
+                    'max_value': 3,
+                    'min_value': -3,
                     'max_neighbor': 12,
                     'constant_path': True,
                     'cov_cache': True,
@@ -309,16 +319,21 @@ class TestUCSgsim:
             ('OrdinaryKriging', gaussian, 1, {}),
             ('OrdinaryKriging', exponential, 1, {}),
             ('OrdinaryKriging', spherical, 1, {}),
-            ('OrdinaryKriging', gaussian, 1, {'z_max': 4, 'z_min': -4, 'max_neighbor': 6}),
-            ('OrdinaryKriging', exponential, 1, {'z_max': 4, 'z_min': -4, 'max_neighbor': 6}),
-            ('OrdinaryKriging', spherical, 1, {'z_max': 4, 'z_min': -4, 'max_neighbor': 6}),
+            ('OrdinaryKriging', gaussian, 1, {'max_value': 4, 'min_value': -4, 'max_neighbor': 6}),
+            (
+                'OrdinaryKriging',
+                exponential,
+                1,
+                {'max_value': 4, 'min_value': -4, 'max_neighbor': 6},
+            ),
+            ('OrdinaryKriging', spherical, 1, {'max_value': 4, 'min_value': -4, 'max_neighbor': 6}),
             (
                 'OrdinaryKriging',
                 gaussian,
                 1,
                 {
-                    'z_max': 3,
-                    'z_min': -3,
+                    'max_value': 3,
+                    'min_value': -3,
                     'max_neighbor': 12,
                     'constant_path': True,
                     'cov_cache': True,
@@ -329,8 +344,8 @@ class TestUCSgsim:
                 exponential,
                 1,
                 {
-                    'z_max': 3,
-                    'z_min': -3,
+                    'max_value': 3,
+                    'min_value': -3,
                     'max_neighbor': 12,
                     'constant_path': True,
                     'cov_cache': True,
@@ -341,8 +356,8 @@ class TestUCSgsim:
                 spherical,
                 1,
                 {
-                    'z_max': 3,
-                    'z_min': -3,
+                    'max_value': 3,
+                    'min_value': -3,
                     'max_neighbor': 12,
                     'constant_path': True,
                     'cov_cache': True,
@@ -351,16 +366,21 @@ class TestUCSgsim:
             ('OrdinaryKriging', gaussian, 2, {}),
             ('OrdinaryKriging', exponential, 2, {}),
             ('OrdinaryKriging', spherical, 2, {}),
-            ('OrdinaryKriging', gaussian, 2, {'z_max': 3, 'z_min': -3, 'max_neighbor': 6}),
-            ('OrdinaryKriging', exponential, 2, {'z_max': 3, 'z_min': -3, 'max_neighbor': 6}),
-            ('OrdinaryKriging', spherical, 2, {'z_max': 3, 'z_min': -3, 'max_neighbor': 6}),
+            ('OrdinaryKriging', gaussian, 2, {'max_value': 3, 'min_value': -3, 'max_neighbor': 6}),
+            (
+                'OrdinaryKriging',
+                exponential,
+                2,
+                {'max_value': 3, 'min_value': -3, 'max_neighbor': 6},
+            ),
+            ('OrdinaryKriging', spherical, 2, {'max_value': 3, 'min_value': -3, 'max_neighbor': 6}),
             (
                 'OrdinaryKriging',
                 gaussian,
                 2,
                 {
-                    'z_max': 4,
-                    'z_min': -4,
+                    'max_value': 4,
+                    'min_value': -4,
                     'max_neighbor': 8,
                     'constant_path': True,
                     'cov_cache': True,
@@ -371,8 +391,8 @@ class TestUCSgsim:
                 exponential,
                 2,
                 {
-                    'z_max': 4,
-                    'z_min': -4,
+                    'max_value': 4,
+                    'min_value': -4,
                     'max_neighbor': 8,
                     'constant_path': True,
                     'cov_cache': True,
@@ -383,8 +403,8 @@ class TestUCSgsim:
                 spherical,
                 2,
                 {
-                    'z_max': 4,
-                    'z_min': -4,
+                    'max_value': 4,
+                    'min_value': -4,
                     'max_neighbor': 8,
                     'constant_path': True,
                     'cov_cache': True,
@@ -393,15 +413,15 @@ class TestUCSgsim:
         ],
     )
     def test_uc_sgsim_gaussian_c(self, kriging, cov_model, n_process, kwargs):
-        sgsim = uc.UCSgsimDLL(X, nR, gaussian, kriging=kriging, **kwargs)
-        sgsim.compute(n_process=n_process, randomseed=454)
-        sgsim.variogram_compute(n_process=n_process)
+        sgsim = uc.UCSgsim(X, nR, model=cov_model, kriging=kriging, engine='c', **kwargs)
+        sgsim.run(n_processes=n_process, randomseed=454)
+        sgsim.get_variogram(n_processes=n_process)
         self.sgsim_plot(sgsim)
         self.sgsim_save(sgsim)
 
     def test_uc_wrong_kriging_method(self):
         with pytest.raises(TypeError):
-            sgsim = uc.UCSgsim(  # noqa
+            uc.UCSgsim(  # noqa
                 X,
                 nR,
                 gaussian,
@@ -409,13 +429,13 @@ class TestUCSgsim:
             )
 
     def test_uc_sgsim_variogram_exception(self):
-        sgsim = uc.UCSgsimDLL(X, nR, gaussian)
-        sgsim.compute(n_process=1, randomseed=454)
+        sgsim = uc.UCSgsim(X, nR, gaussian, engine='c')
+        sgsim.run(n_processes=1, randomseed=454)
         with pytest.raises(VariogramDoesNotCompute):
             sgsim.variogram_plot()
 
         sgsim = uc.UCSgsim(X, nR, gaussian)
-        sgsim.compute(n_process=1, randomseed=454)
+        sgsim.run(n_processes=1, randomseed=454)
         with pytest.raises(VariogramDoesNotCompute):
             sgsim.variogram_plot()
         with pytest.raises(VariogramDoesNotCompute):
@@ -438,8 +458,8 @@ class TestUCSgsim:
             X,
             nR,
             gaussian,
-            z_max=3,
-            z_min=-3,
+            max_value=3,
+            min_value=-3,
             max_neighbor=12,
             constant_path=True,
             cov_cache=True,
@@ -447,8 +467,8 @@ class TestUCSgsim:
         attributes = sgsim.get_all_attributes()
         assert attributes['grid_size'] == 151
         assert attributes['realization_number'] == 10
-        assert attributes['z_max'] == 3
-        assert attributes['z_min'] == -3
+        assert attributes['max_value'] == 3
+        assert attributes['min_value'] == -3
         assert attributes['max_neighbor'] == 12
         assert attributes['constant_path'] is True
         assert attributes['cov_cache'] is True
@@ -456,7 +476,7 @@ class TestUCSgsim:
         assert attributes['model'] == gaussian
 
     def test_sgsim_repr(self, capsys):
-        sgsim = uc.UCSgsimDLL(X, nR, gaussian)
+        sgsim = uc.UCSgsim(X, nR, gaussian, engine='c')
         # Call repr() to get the string representation
         repr_output = repr(sgsim)
         # Print the repr output (optional)
@@ -483,10 +503,57 @@ class TestUCSgsim:
             X,
             100,
             gaussian,
-            z_max=1,
-            z_min=-1,
+            max_value=1,
+            min_value=-1,
             iteration_limit=3,
             max_neighbor=12,
         )
         with pytest.raises(IterationError):
-            sgsim.compute(n_process=1, randomseed=12312)
+            sgsim.run(n_processes=1, randomseed=12312)
+
+    def test_sgsim_with_wrong_setting(self):
+        with pytest.raises(ValueError):
+            uc.UCSgsim(
+                X,
+                100,
+                gaussian,
+                max_value=1,
+                min_value=-1,
+                iteration_limit=3,
+                max_neighbor=12,
+                constant_path=False,
+                cov_cache=True,
+            )
+
+        with pytest.raises(TypeError):
+            uc.UCSgsim(
+                X,
+                100,
+                gaussian,
+                kriging=1234,
+                max_value=1,
+                min_value=-1,
+                iteration_limit=3,
+                max_neighbor=12,
+            )
+
+    def test_get_attributes(self):
+        sgsim = uc.UCSgsim(
+            X,
+            100,
+            gaussian,
+            max_value=1,
+            min_value=-1,
+            iteration_limit=3,
+            max_neighbor=12,
+        )
+        assert sgsim.constant_path is False
+        assert sgsim.cov_cache is False
+        print(sgsim.kriging)
+        print(sgsim.bandwidth_step)
+        assert sgsim.max_neighbor == 12
+        assert sgsim.min_value == -1
+        assert sgsim.max_value == 1
+        assert len(sgsim.grid) == 151
+        assert len(sgsim.grid[0]) == 1
+        assert sgsim.y_size == 1

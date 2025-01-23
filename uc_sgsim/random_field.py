@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 import numpy as np
 from uc_sgsim.plotting import SgsimPlot
 from uc_sgsim.exception import VariogramDoesNotCompute
@@ -14,71 +16,64 @@ class RandomField:
 
     This class is a parent class for any kind of randomfiled.
 
-    Attributes:
-        __grid_size (int | list[int, int]): size of the grid for the random field.
-        __x (list[int]): x axis for the random field.
-        __y (int | list[int]): y axis for the random field.
-        __x_size (int): size of the x axis for the random field.
-        __y_size (int): size of the y axis for the random field.
-        __realization_number (int): number of realizations to generate.
-        iteration_limit (int): The maximum number for continuous iteration number of
-                               realization error.
-
     Methods:
         _create_grid: create the grid for the random field.
         save_random_field: save the random field data to files.
         save_variogram: save the variogram data to files.
     """
 
-    iteration_limit = 10
-
-    def __init__(self, grid_size: int | list[int, int], realization_number: int):
+    def __init__(self, grid_size: int | list[int, int], n_realizations: int):
         """
         Initialize a random field object.
 
         Args:
             grid_size (int | list[int, int]): Size of the grid for the random field.
-            realization_number (int): Number of realizations.
+            n_realizations (int): Number of realizations.
         """
-        self.__realization_number = realization_number
-        self.__grid_size = grid_size
+        self._n_realizations = n_realizations
+        self._grid_size = grid_size
         self._create_grid(grid_size)
 
     def _create_grid(self, grid_size: int | list[int, int]) -> None:
-        self.__x = range(grid_size) if isinstance(grid_size, int) else range(grid_size[0])
-        self.__y = 0 if isinstance(grid_size, int) else range(grid_size[1])
-        self.__x_size = len(self.__x)
-        self.__y_size = 0 if isinstance(grid_size, int) else len(self.__y)
-        self.random_field = np.empty([self.__realization_number, self.__x_size])
+        self._grid = (
+            np.zeros((grid_size, 1))
+            if isinstance(grid_size, int)
+            else np.zeros((grid_size[0], grid_size[1]))
+        )
+        self._x_size = grid_size if isinstance(grid_size, int) else grid_size[0]
+        self._y_size = 1 if isinstance(grid_size, int) else grid_size[1]
+        self._coordinate = np.array(
+            [np.array((x, y)) for x in range(self._x_size) for y in range(self._y_size)],
+        )
         self.variogram = 0
 
     @property
     def grid_size(self) -> int | list[int, int]:
-        return self.__grid_size
+        return self._grid_size
 
     @property
-    def x(self) -> int:
-        return self.__x
+    def grid(self) -> int:
+        return self._grid
 
     @property
     def x_size(self) -> int:
-        return self.__x_size
+        return self._x_size
 
     @property
     def y(self) -> int:
-        return self.__y
+        return self._y
 
     @property
     def y_size(self) -> int:
-        return self.__y_size
+        return self._y_size
 
     @property
-    def realization_number(self) -> int:
-        return self.__realization_number
+    def n_realizations(self) -> int:
+        return self._n_realizations
 
-    @realization_number.setter
+    @n_realizations.setter
     def realization_number(self, val: int):
-        self.__realization_number = val
+        self._n_realizations = val
 
     def save_random_field(
         self,
@@ -111,12 +106,12 @@ class RandomField:
                 save_as_multiple_file(
                     number,
                     self.x_size,
-                    self.random_field,
+                    self.random_fields,
                     file_type,
                     'Realizations',
                 )
         else:
-            save_as_one_file(path, self.random_field)
+            save_as_one_file(path, self.random_fields)
 
     def save_variogram(self, path: str, file_type: str = 'csv', save_single: bool = False) -> None:
         """
@@ -156,9 +151,6 @@ class RandomField:
         else:
             save_as_one_file(path, self.variogram)
 
-    def __repr__(self) -> str:
-        return f'SgsimField({self.grid_size}, {self.realization_number}, {self.model})'
-
 
 class SgsimField(RandomField, SgsimPlot):
     """
@@ -171,43 +163,91 @@ class SgsimField(RandomField, SgsimPlot):
         model (CovModel): The covariance model used for simulation.
         bandwidth (np.array): The bandwidth values used in the simulation.
         bandwidth_step (int): The bandwidth step used in the simulation.
-        z_min (float): The minimum value for simulation.
-        z_max (float): The maximum value for simulation.
+        min_value (float): The minimum value for simulation.
+        max_value (float): The maximum value for simulation.
         max_neighbor (int): The maximum number of neighbors considered in kriging.
 
     Methods:
-        __set_kriging_method: Set the kriging method based on provided parameters.
-        __set_kwargs: Set additional keyword arguments.
+        _set_kriging_method: Set the kriging method based on provided parameters.
+        _set_kwargs: Set additional keyword arguments.
     """
 
     def __init__(
         self,
         grid_size: int | list[int, int],
-        realization_number: int,
+        n_realizations: int,
         model: CovModel,
         kriging: str | Kriging = 'SimpleKriging',
-        **kwargs,
+        constant_path: bool = False,
+        cov_cache: bool = False,
+        max_neighbor: float = 8,
+        iteration_limit: int = 10,
+        max_value: Optional[float] = None,
+        min_value: Optional[float] = None,
     ):
         """
         Initialize a Sgsim field.
 
         Args:
             grid_size (int | list[int, int]): Size of the grid for the field.
-            realization_number (int): Number of realizations.
+            n_realizations (int): Number of realizations.
             model (CovModel): Covariance model for simulation.
             kriging (str | Kriging): Kriging method to use (default is 'SimpleKriging').
             **kwargs: Additional keyword arguments.
         """
-        RandomField.__init__(self, grid_size, realization_number)
+        RandomField.__init__(self, grid_size, n_realizations)
         SgsimPlot.__init__(self, model)
 
-        self.__model = model
-        self.__bandwidth_step = model.bandwidth_step
-        self.__bandwidth = model.bandwidth
-        self.__set_kriging_method(kriging, **kwargs)
-        self.__set_kwargs(**kwargs)
+        self._model = model
+        self._bandwidth_step = model.bandwidth_step
+        self._bandwidth = model.bandwidth
+        self._kriging = kriging
+        self._constant_path = constant_path
+        self._use_cov_cache = cov_cache
+        self._max_neighbor = max_neighbor
+        self._max_value = max_value
+        self._min_value = min_value
+        self.iteration_limit = iteration_limit
+        self._set_kriging_method()
+        self._set_default_value()
 
-    def __set_kriging_method(self, kriging: str | Kriging, **kwargs) -> None:
+    @property
+    def model(self) -> CovModel:
+        return self._model
+
+    @property
+    def bandwidth(self) -> np.array:
+        return self._bandwidth
+
+    @property
+    def bandwidth_step(self) -> int:
+        return self._bandwidth_step
+
+    @property
+    def max_value(self) -> float:
+        return self._max_value
+
+    @property
+    def min_value(self) -> float:
+        return self._min_value
+
+    @property
+    def max_neighbor(self) -> int:
+        return self._max_neighbor
+
+    @property
+    def constant_path(self) -> bool:
+        return self._constant_path
+
+    @property
+    def cov_cache(self) -> bool:
+        return self._use_cov_cache
+
+    @property
+    def kriging(self) -> Kriging:
+        return self._kriging
+
+    def _set_kriging_method(self) -> None:
         """
         Set the kriging method based on provided parameters.
 
@@ -224,36 +264,21 @@ class SgsimField(RandomField, SgsimPlot):
             TypeError: If kriging arg is not acceptable.
 
         """
-        self.constant_path = kwargs.get('constant_path', False)
-        self.use_cov_cache = kwargs.get('cov_cache', False)
-
-        if self.constant_path is False and self.use_cov_cache is True:
+        if self._constant_path is False and self._use_cov_cache is True:
             raise ValueError('cov_cache should be False when constant_path is False')
 
-        if kriging == 'SimpleKriging':
-            self.kriging = SimpleKriging(self.model, self.grid_size, self.use_cov_cache)
-        elif kriging == 'OrdinaryKriging':
-            self.kriging = OrdinaryKriging(self.model, self.grid_size, self.use_cov_cache)
+        if self._kriging == 'SimpleKriging':
+            self._kriging = SimpleKriging(self.model, self.grid_size, self._use_cov_cache)
+        elif self._kriging == 'OrdinaryKriging':
+            self._kriging = OrdinaryKriging(self.model, self.grid_size, self._use_cov_cache)
         else:
-            if not isinstance(kriging, (SimpleKriging, OrdinaryKriging)):
+            if not isinstance(self._kriging, (SimpleKriging, OrdinaryKriging)):
                 raise TypeError('Kriging should be class SimpleKriging or OrdinaryKriging')
 
-    def __set_kwargs(self, **kwargs) -> None:
-        self.z_min = kwargs.get('z_min', -(self.model.sill**0.5 * 4))
-        self.z_max = kwargs.get('z_max', self.model.sill**0.5 * 4)
-        self.max_neighbor = kwargs.get('max_neighbor', 8)
-
-    @property
-    def model(self) -> CovModel:
-        return self.__model
-
-    @property
-    def bandwidth(self) -> np.array:
-        return self.__bandwidth
-
-    @property
-    def bandwidth_step(self) -> int:
-        return self.__bandwidth_step
+    def _set_default_value(self) -> None:
+        default_thresold = self.model.sill**0.5 * 4
+        self._min_value = -(default_thresold) if self._min_value is None else self._min_value
+        self._max_value = default_thresold if self._max_value is None else self._max_value
 
     def get_all_attributes(self) -> dict:
         """
@@ -266,15 +291,16 @@ class SgsimField(RandomField, SgsimPlot):
             'grid_size': self.grid_size,
             'realization_number': self.realization_number,
             'model': self.model,
-            'kriging': self.kriging,
-            'constant_path': self.constant_path,
-            'cov_cache': self.use_cov_cache,
-            'z_min': self.z_min,
-            'z_max': self.z_max,
-            'max_neighbor': self.max_neighbor,
+            'kriging': self._kriging,
+            'constant_path': self._constant_path,
+            'cov_cache': self._use_cov_cache,
+            'min_value': self._min_value,
+            'max_value': self._max_value,
+            'max_neighbor': self._max_neighbor,
         }
 
     def __repr__(self) -> str:
         return (
-            f'SgsimField({self.grid_size}, {self.realization_number}, {self.kriging}, {self.model})'
+            f'SgsimField({self.grid_size}, {self.realization_number}, '
+            f'{self._kriging}, {self.model})'
         )

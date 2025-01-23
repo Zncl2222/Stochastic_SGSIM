@@ -33,45 +33,36 @@ class Kriging:
         grid_size: int | list[int, int],
         cov_cache: bool = False,
     ):
-        self.__model = model
-        self.__bandwidth_step = model.bandwidth_step
-        self.__bandwidth = model.bandwidth
-        self.__k_range = model.k_range
-        self.__sill = model.sill
+        self._model = model
+        self._bandwidth_step = model.bandwidth_step
+        self._bandwidth = model.bandwidth
+        self._k_range = model.k_range
+        self._sill = model.sill
         self.x_size = grid_size if isinstance(grid_size, int) else grid_size[0]
         self.y_size = 0 if isinstance(grid_size, int) else grid_size[1]
         self._cov_cache_flag = cov_cache
         if cov_cache is True:
-            self._create_cov_cache()
+            self._cov_cache = {}
 
     @property
     def model(self) -> CovModel:
-        return self.__model
+        return self._model
 
     @property
     def bandwidth_step(self) -> int:
-        return self.__bandwidth_step
+        return self._bandwidth_step
 
     @property
     def bandwidth(self) -> np.array:
-        return self.__bandwidth
+        return self._bandwidth
 
     @property
     def k_range(self) -> float:
-        return self.__k_range
+        return self._k_range
 
     @property
     def sill(self) -> float:
-        return self.__sill
-
-    def _create_cov_cache(self):
-        """
-        Create the covariance cache for faster computations (if enabled).
-        """
-        if self.y_size != 0:
-            self._cov_cache = [[0] * self.x_size for _ in range(self.y_size)]
-        else:
-            self._cov_cache = [0] * self.x_size
+        return self._sill
 
     def __repr__(self):
         return f'{self.__class__.__name__}'
